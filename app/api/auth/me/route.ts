@@ -2,15 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { getTokenFromRequestEdge, verifyTokenEdge } from "@/lib/auth-edge";
-
-export const runtime = "edge";
+import { getUserFromRequest } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
-  const token = getTokenFromRequestEdge(req);
-  if (!token) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
-
-  const payload = await verifyTokenEdge(token);
+  const payload = getUserFromRequest(req);
   if (!payload) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
 
   const [user] = await db
