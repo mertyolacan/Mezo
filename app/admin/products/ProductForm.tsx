@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Upload, X, ImageIcon, Images, Search, ShoppingBag, Check } from "lucide-react";
+import { Loader2, Upload, X, ImageIcon, Images, Search, ShoppingBag, Check, Plus } from "lucide-react";
 import Image from "next/image";
 import MediaPickerModal from "@/components/admin/MediaPickerModal";
 
@@ -29,6 +29,12 @@ export default function ProductForm({ categories, brands, allProducts = [], init
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [crossSellIds, setCrossSellIds] = useState<number[]>((initialData?.crossSellIds as number[]) ?? []);
   const [crossSellSearch, setCrossSellSearch] = useState("");
+  const [tags, setTags] = useState<string[]>((initialData?.tags as string[]) ?? []);
+  const [tagInput, setTagInput] = useState("");
+  const [seoKeywords, setSeoKeywords] = useState<string[]>(
+    ((initialData?.seoKeywords as string) ?? "").split(",").map((s) => s.trim()).filter(Boolean)
+  );
+  const [keywordInput, setKeywordInput] = useState("");
   const [form, setForm] = useState({
     name: (initialData?.name as string) ?? "",
     slug: (initialData?.slug as string) ?? "",
@@ -40,12 +46,10 @@ export default function ProductForm({ categories, brands, allProducts = [], init
     lowStockThreshold: String(initialData?.lowStockThreshold ?? 5),
     categoryId: String(initialData?.categoryId ?? ""),
     brandId: String(initialData?.brandId ?? ""),
-    tags: ((initialData?.tags as string[]) ?? []).join(", "),
     isActive: (initialData?.isActive as boolean) ?? true,
     isFeatured: (initialData?.isFeatured as boolean) ?? false,
     seoTitle: (initialData?.seoTitle as string) ?? "",
     seoDescription: (initialData?.seoDescription as string) ?? "",
-    seoKeywords: (initialData?.seoKeywords as string) ?? "",
   });
 
   function set(key: string, value: string | boolean) {
@@ -90,7 +94,8 @@ export default function ProductForm({ categories, brands, allProducts = [], init
       lowStockThreshold: Number(form.lowStockThreshold),
       categoryId: form.categoryId ? Number(form.categoryId) : null,
       brandId: form.brandId ? Number(form.brandId) : null,
-      tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean),
+      tags,
+      seoKeywords: seoKeywords.join(", "),
       images,
       crossSellIds,
     };
@@ -281,8 +286,27 @@ export default function ProductForm({ categories, brands, allProducts = [], init
           </div>
         </div>
         <div>
-          <label className={labelClass}>Etiketler (virgülle ayırın)</label>
-          <input className={inputClass} value={form.tags} onChange={(e) => set("tags", e.target.value)} placeholder="mezoterapi, serum, vitamin" />
+          <label className={labelClass}>Etiketler</label>
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {tags.map((tag) => (
+              <span key={tag} className="inline-flex items-center gap-1 text-xs px-2 py-1 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 rounded-full">
+                {tag}
+                <button type="button" onClick={() => setTags((p) => p.filter((t) => t !== tag))}><X className="h-3 w-3" /></button>
+              </span>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <input
+              className={inputClass}
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const v = tagInput.trim(); if (v && !tags.includes(v)) setTags((p) => [...p, v]); setTagInput(""); } }}
+              placeholder="Etiket ekle…"
+            />
+            <button type="button" onClick={() => { const v = tagInput.trim(); if (v && !tags.includes(v)) setTags((p) => [...p, v]); setTagInput(""); }} className="px-3 py-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors shrink-0">
+              <Plus className="h-4 w-4 text-zinc-600 dark:text-zinc-300" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -394,7 +418,26 @@ export default function ProductForm({ categories, brands, allProducts = [], init
         </div>
         <div>
           <label className={labelClass}>Anahtar Kelimeler</label>
-          <input className={inputClass} value={form.seoKeywords} onChange={(e) => set("seoKeywords", e.target.value)} placeholder="mezoterapi, serum, klinik" />
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {seoKeywords.map((kw) => (
+              <span key={kw} className="inline-flex items-center gap-1 text-xs px-2 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 rounded-full">
+                {kw}
+                <button type="button" onClick={() => setSeoKeywords((p) => p.filter((k) => k !== kw))}><X className="h-3 w-3" /></button>
+              </span>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <input
+              className={inputClass}
+              value={keywordInput}
+              onChange={(e) => setKeywordInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const v = keywordInput.trim(); if (v && !seoKeywords.includes(v)) setSeoKeywords((p) => [...p, v]); setKeywordInput(""); } }}
+              placeholder="Anahtar kelime ekle…"
+            />
+            <button type="button" onClick={() => { const v = keywordInput.trim(); if (v && !seoKeywords.includes(v)) setSeoKeywords((p) => [...p, v]); setKeywordInput(""); }} className="px-3 py-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors shrink-0">
+              <Plus className="h-4 w-4 text-zinc-600 dark:text-zinc-300" />
+            </button>
+          </div>
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
-import { orders } from "@/lib/db/schema";
-import { desc } from "drizzle-orm";
+import { orders, users } from "@/lib/db/schema";
+import { desc, eq } from "drizzle-orm";
 import Link from "next/link";
 import { Eye } from "lucide-react";
 import ChangeOrderStatusButton from "./ChangeOrderStatusButton";
@@ -18,8 +18,11 @@ export default async function AdminOrdersPage() {
       customerName: orders.customerName,
       customerEmail: orders.customerEmail,
       customerPhone: orders.customerPhone,
+      userId: orders.userId,
+      registeredUserId: users.id,
     })
     .from(orders)
+    .leftJoin(users, eq(orders.userId, users.id))
     .orderBy(desc(orders.createdAt));
 
   return (
@@ -42,7 +45,16 @@ export default async function AdminOrdersPage() {
             {rows.map((order) => (
               <tr key={order.id} className="border-b border-zinc-100 dark:border-zinc-800 last:border-0">
                 <td className="px-3 py-2.5 sm:px-4 sm:py-3">
-                  <div className="font-medium text-zinc-900 dark:text-zinc-50">{order.customerName}</div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-medium text-zinc-900 dark:text-zinc-50">{order.customerName}</span>
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${
+                      order.registeredUserId
+                        ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                        : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400"
+                    }`}>
+                      {order.registeredUserId ? "Kayıtlı" : "Kayıtlı değil"}
+                    </span>
+                  </div>
                   <div className="text-xs text-zinc-400 font-mono mt-0.5">{order.orderNumber}</div>
                 </td>
                 <td className="px-3 py-2.5 sm:px-4 sm:py-3 hidden md:table-cell">

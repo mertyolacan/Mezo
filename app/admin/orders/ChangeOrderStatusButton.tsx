@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import { updateOrderStatus } from "./actions";
 
@@ -16,7 +16,17 @@ const statusOptions: Record<string, { label: string; cls: string }> = {
 export default function ChangeOrderStatusButton({ orderId, status }: { orderId: number; status: string }) {
   const [current, setCurrent] = useState(status);
   const [open, setOpen] = useState(false);
+  const [dropPos, setDropPos] = useState({ top: 0, left: 0 });
   const [pending, startTransition] = useTransition();
+  const btnRef = useRef<HTMLButtonElement>(null);
+
+  function handleOpen() {
+    if (!open && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      setDropPos({ top: rect.bottom + 4, left: rect.left });
+    }
+    setOpen((v) => !v);
+  }
 
   function change(newStatus: string) {
     setOpen(false);
@@ -27,9 +37,10 @@ export default function ChangeOrderStatusButton({ orderId, status }: { orderId: 
   const s = statusOptions[current] ?? statusOptions.pending;
 
   return (
-    <div className="relative">
+    <>
       <button
-        onClick={() => setOpen(!open)}
+        ref={btnRef}
+        onClick={handleOpen}
         disabled={pending}
         className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap transition-opacity ${s.cls} ${pending ? "opacity-60" : ""}`}
       >
@@ -39,8 +50,11 @@ export default function ChangeOrderStatusButton({ orderId, status }: { orderId: 
 
       {open && (
         <>
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute left-0 top-7 z-20 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-lg overflow-hidden min-w-[150px]">
+          <div className="fixed inset-0 z-[998]" onClick={() => setOpen(false)} />
+          <div
+            className="fixed z-[999] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-xl overflow-hidden min-w-[155px]"
+            style={{ top: dropPos.top, left: dropPos.left }}
+          >
             {Object.entries(statusOptions).map(([key, val]) => (
               <button
                 key={key}
@@ -57,6 +71,6 @@ export default function ChangeOrderStatusButton({ orderId, status }: { orderId: 
           </div>
         </>
       )}
-    </div>
+    </>
   );
 }

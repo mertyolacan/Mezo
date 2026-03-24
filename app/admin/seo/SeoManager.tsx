@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Check, ChevronDown, ChevronRight } from "lucide-react";
+import { Loader2, Check, ChevronDown, ChevronRight, X, Plus } from "lucide-react";
 
 type SeoPageData = {
   id?: number;
@@ -32,9 +32,23 @@ export default function SeoManager({ pages, seoMap }: Props) {
   const [open, setOpen] = useState<string>(pages[0]?.page ?? "");
   const [loading, setLoading] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
+  const [kwInputs, setKwInputs] = useState<Record<string, string>>({});
 
   function setField(page: string, key: string, value: string) {
     setForms((prev) => ({ ...prev, [page]: { ...prev[page], [key]: value } }));
+  }
+
+  function addKeyword(page: string) {
+    const val = (kwInputs[page] ?? "").trim();
+    if (!val) return;
+    const existing = (forms[page]?.keywords ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+    if (!existing.includes(val)) setField(page, "keywords", [...existing, val].join(", "));
+    setKwInputs((p) => ({ ...p, [page]: "" }));
+  }
+
+  function removeKeyword(page: string, kw: string) {
+    const existing = (forms[page]?.keywords ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+    setField(page, "keywords", existing.filter((k) => k !== kw).join(", "));
   }
 
   async function handleSave(page: string) {
@@ -84,7 +98,26 @@ export default function SeoManager({ pages, seoMap }: Props) {
                 </div>
                 <div>
                   <label className={labelClass}>Anahtar Kelimeler</label>
-                  <input className={inputClass} value={form.keywords ?? ""} onChange={(e) => setField(page, "keywords", e.target.value)} placeholder="virgülle ayırın" />
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {(form.keywords ?? "").split(",").map((s) => s.trim()).filter(Boolean).map((kw) => (
+                      <span key={kw} className="inline-flex items-center gap-1 text-xs px-2 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 rounded-full">
+                        {kw}
+                        <button type="button" onClick={() => removeKeyword(page, kw)}><X className="h-3 w-3" /></button>
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      className={inputClass}
+                      value={kwInputs[page] ?? ""}
+                      onChange={(e) => setKwInputs((p) => ({ ...p, [page]: e.target.value }))}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addKeyword(page); } }}
+                      placeholder="Anahtar kelime ekle…"
+                    />
+                    <button type="button" onClick={() => addKeyword(page)} className="px-3 py-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors shrink-0">
+                      <Plus className="h-4 w-4 text-zinc-600 dark:text-zinc-300" />
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label className={labelClass}>OG Başlık</label>

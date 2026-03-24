@@ -58,8 +58,17 @@ export default async function AdminSupportPage() {
               return (
                 <tr key={ticket.id} className="border-b border-zinc-100 dark:border-zinc-800 last:border-0">
                   <td className="px-3 py-2.5 sm:px-4 sm:py-3">
-                    <div className="font-medium text-zinc-900 dark:text-zinc-50 line-clamp-1">{ticket.subject}</div>
-                    <div className="text-xs text-zinc-400 font-mono">{ticket.ticketNumber}</div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium text-zinc-900 dark:text-zinc-50 line-clamp-1">{ticket.subject}</span>
+                      <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium shrink-0 ${
+                        ticket.user?.name
+                          ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                          : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400"
+                      }`}>
+                        {ticket.user?.name ? "Kayıtlı" : "Kayıtlı değil"}
+                      </span>
+                    </div>
+                    <div className="text-xs text-zinc-400 font-mono mt-0.5">{ticket.ticketNumber}</div>
                   </td>
                   <td className="px-3 py-2.5 sm:px-4 sm:py-3 hidden md:table-cell">
                     <div className="text-zinc-800 dark:text-zinc-200">{ticket.user?.name ?? "—"}</div>
