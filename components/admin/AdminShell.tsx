@@ -1,19 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { SidebarContext } from "./sidebar-context";
+import { SidebarContext, NotifCounts } from "./sidebar-context";
 import AdminSidebar from "./AdminSidebar";
 
-export default function AdminShell({ children }: { children: React.ReactNode }) {
+export default function AdminShell({
+  children,
+  notifCounts = { orders: 0, messages: 0, support: 0 },
+}: {
+  children: React.ReactNode;
+  notifCounts?: NotifCounts;
+}) {
   const [collapsed, setCollapsed] = useState(true);
 
   useEffect(() => {
     const saved = localStorage.getItem("mesopro-sidebar");
-    if (saved) {
-      setCollapsed(saved === "collapsed");
-    } else {
-      setCollapsed(true);
-    }
+    if (saved) setCollapsed(saved === "collapsed");
+    else setCollapsed(true);
   }, []);
 
   function toggleCollapsed() {
@@ -23,7 +26,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   }
 
   return (
-    <SidebarContext.Provider value={{ collapsed, toggleCollapsed, mobileOpen: false, setMobileOpen: () => {} }}>
+    <SidebarContext.Provider value={{ collapsed, toggleCollapsed, mobileOpen: false, setMobileOpen: () => {}, notifCounts }}>
       <div className="flex h-screen bg-zinc-50 dark:bg-zinc-950">
         <AdminSidebar />
         <main className="flex-1 overflow-y-auto p-3 md:p-6 min-w-0">{children}</main>

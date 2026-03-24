@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, User, ShoppingBag, MessageSquare } from "lucide-react";
 import UserStatusToggle from "./UserStatusToggle";
+import ToggleUserRoleButton from "../ToggleUserRoleButton";
 
 export const dynamic = "force-dynamic";
 
@@ -64,13 +65,7 @@ export default async function AdminUserDetailPage({
             </div>
           </div>
           <div className="flex items-center gap-2 flex-wrap justify-end">
-            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-              user.role === "admin"
-                ? "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
-                : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
-            }`}>
-              {user.role === "admin" ? "Admin" : "Müşteri"}
-            </span>
+            <ToggleUserRoleButton userId={user.id} role={user.role} />
             <UserStatusToggle userId={user.id} isActive={user.isActive} />
           </div>
         </div>

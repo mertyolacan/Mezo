@@ -1,8 +1,9 @@
 import { db } from "@/lib/db";
-import { users, orders } from "@/lib/db/schema";
-import { eq, count, desc, sql } from "drizzle-orm";
+import { users } from "@/lib/db/schema";
+import { count, desc } from "drizzle-orm";
 import Link from "next/link";
 import { Users, Search } from "lucide-react";
+import ToggleUserRoleButton from "./ToggleUserRoleButton";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,7 @@ export default async function AdminUsersPage({
       id: users.id,
       email: users.email,
       name: users.name,
+      phone: users.phone,
       role: users.role,
       isActive: users.isActive,
       createdAt: users.createdAt,
@@ -33,15 +35,9 @@ export default async function AdminUsersPage({
   const [{ total }] = await db.select({ total: count() }).from(users);
   const totalPages = Math.ceil(total / limit);
 
-  const roleMap: Record<string, string> = { admin: "Admin", user: "Müşteri" };
-  const roleCls: Record<string, string> = {
-    admin: "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300",
-    user: "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400",
-  };
-
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
             <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -69,8 +65,9 @@ export default async function AdminUsersPage({
           <thead>
             <tr className="border-b border-zinc-100 dark:border-zinc-800">
               <th className="text-left px-3 py-2.5 sm:px-5 sm:py-3 font-medium text-zinc-500">Ad / E-posta</th>
-              <th className="text-left px-3 py-2.5 sm:px-5 sm:py-3 font-medium text-zinc-500 hidden md:table-cell">Rol</th>
-              <th className="text-left px-3 py-2.5 sm:px-5 sm:py-3 font-medium text-zinc-500 hidden sm:table-cell">Durum</th>
+              <th className="text-left px-3 py-2.5 sm:px-5 sm:py-3 font-medium text-zinc-500 hidden sm:table-cell">Telefon</th>
+              <th className="text-left px-3 py-2.5 sm:px-5 sm:py-3 font-medium text-zinc-500">Rol</th>
+              <th className="text-left px-3 py-2.5 sm:px-5 sm:py-3 font-medium text-zinc-500 hidden md:table-cell">Durum</th>
               <th className="text-left px-3 py-2.5 sm:px-5 sm:py-3 font-medium text-zinc-500 hidden lg:table-cell">Kayıt Tarihi</th>
               <th className="px-3 py-2.5 sm:px-5 sm:py-3" />
             </tr>
@@ -82,12 +79,13 @@ export default async function AdminUsersPage({
                   <p className="font-medium text-zinc-900 dark:text-zinc-50 text-sm">{user.name ?? "—"}</p>
                   <p className="text-xs text-zinc-400">{user.email}</p>
                 </td>
-                <td className="px-3 py-2.5 sm:px-5 sm:py-3 hidden md:table-cell">
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${roleCls[user.role] ?? roleCls.user}`}>
-                    {roleMap[user.role] ?? user.role}
-                  </span>
+                <td className="px-3 py-2.5 sm:px-5 sm:py-3 hidden sm:table-cell text-xs text-zinc-500">
+                  {user.phone ?? "—"}
                 </td>
-                <td className="px-3 py-2.5 sm:px-5 sm:py-3 hidden sm:table-cell">
+                <td className="px-3 py-2.5 sm:px-5 sm:py-3">
+                  <ToggleUserRoleButton userId={user.id} role={user.role} />
+                </td>
+                <td className="px-3 py-2.5 sm:px-5 sm:py-3 hidden md:table-cell">
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                     user.isActive
                       ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
@@ -96,7 +94,7 @@ export default async function AdminUsersPage({
                     {user.isActive ? "Aktif" : "Pasif"}
                   </span>
                 </td>
-                <td className="px-3 py-2.5 sm:px-5 sm:py-3 text-xs text-zinc-400 hidden lg:table-cell">
+                <td className="px-3 py-2.5 sm:px-5 sm:py-3 text-xs text-zinc-400 hidden lg:table-cell whitespace-nowrap">
                   {new Date(user.createdAt).toLocaleDateString("tr-TR")}
                 </td>
                 <td className="px-3 py-2.5 sm:px-5 sm:py-3 text-right whitespace-nowrap">
@@ -111,7 +109,7 @@ export default async function AdminUsersPage({
             ))}
             {allUsers.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-5 py-8 text-center text-zinc-400 text-sm">Kullanıcı bulunamadı</td>
+                <td colSpan={6} className="px-5 py-8 text-center text-zinc-400 text-sm">Kullanıcı bulunamadı</td>
               </tr>
             )}
           </tbody>
@@ -120,7 +118,7 @@ export default async function AdminUsersPage({
 
       {/* Sayfalama */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center justify-center gap-2 flex-wrap">
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
             <Link
               key={p}
