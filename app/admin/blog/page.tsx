@@ -41,15 +41,15 @@ export default async function AdminBlogPage() {
         </Link>
       </div>
 
-      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-zinc-100 dark:border-zinc-800">
-              <th className="text-left px-4 py-3 font-medium text-zinc-500">Başlık</th>
-              <th className="text-left px-4 py-3 font-medium text-zinc-500 hidden md:table-cell">Yazar</th>
-              <th className="text-left px-4 py-3 font-medium text-zinc-500 hidden lg:table-cell">Tarih</th>
-              <th className="text-left px-4 py-3 font-medium text-zinc-500">Durum</th>
-              <th className="px-4 py-3" />
+              <th className="text-left px-3 py-2.5 sm:px-4 sm:py-3 font-medium text-zinc-500">Başlık</th>
+              <th className="text-left px-3 py-2.5 sm:px-4 sm:py-3 font-medium text-zinc-500 hidden md:table-cell">Yazar</th>
+              <th className="text-left px-3 py-2.5 sm:px-4 sm:py-3 font-medium text-zinc-500 hidden lg:table-cell">Tarih</th>
+              <th className="text-left px-3 py-2.5 sm:px-4 sm:py-3 font-medium text-zinc-500">Durum</th>
+              <th className="px-3 py-2.5 sm:px-4 sm:py-3" />
             </tr>
           </thead>
           <tbody>
@@ -57,20 +57,20 @@ export default async function AdminBlogPage() {
               const s = statusLabel[post.status] ?? statusLabel.draft;
               return (
                 <tr key={post.id} className="border-b border-zinc-100 dark:border-zinc-800 last:border-0">
-                  <td className="px-4 py-3">
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3">
                     <div className="font-medium text-zinc-900 dark:text-zinc-50 line-clamp-1">{post.title}</div>
                     <div className="text-xs text-zinc-400 mt-0.5">/blog/{post.slug}</div>
                   </td>
-                  <td className="px-4 py-3 text-zinc-500 hidden md:table-cell">{post.author?.name ?? "—"}</td>
-                  <td className="px-4 py-3 text-zinc-500 hidden lg:table-cell">
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3 text-zinc-500 hidden md:table-cell">{post.author?.name ?? "—"}</td>
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3 text-zinc-500 hidden lg:table-cell">
                     {post.publishedAt
                       ? new Date(post.publishedAt).toLocaleDateString("tr-TR")
                       : new Date(post.createdAt).toLocaleDateString("tr-TR")}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3">
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${s.cls}`}>{s.label}</span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3 whitespace-nowrap">
                     <div className="flex items-center justify-end gap-2">
                       <Link
                         href={`/admin/blog/${post.id}`}

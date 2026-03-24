@@ -40,22 +40,22 @@ export default async function AdminCampaignsPage() {
           <p className="text-sm">Henüz kampanya yok</p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-zinc-50 dark:bg-zinc-800/50">
               <tr>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500">Kampanya</th>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500 hidden md:table-cell">Tip</th>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500">İndirim</th>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500 hidden lg:table-cell">Kullanım</th>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500">Durum</th>
-                <th className="px-4 py-3 text-right font-medium text-zinc-500">İşlem</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3 text-left font-medium text-zinc-500">Kampanya</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3 text-left font-medium text-zinc-500 hidden md:table-cell">Tip</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3 text-left font-medium text-zinc-500">İndirim</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3 text-left font-medium text-zinc-500 hidden lg:table-cell">Kullanım</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3 text-left font-medium text-zinc-500">Durum</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3 text-right font-medium text-zinc-500">İşlem</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
               {rows.map((c) => (
                 <tr key={c.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
-                  <td className="px-4 py-3">
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3">
                     <p className="font-medium text-zinc-900 dark:text-zinc-50">{c.name}</p>
                     {c.couponCode && (
                       <code className="text-xs bg-zinc-100 dark:bg-zinc-800 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 rounded">
@@ -63,19 +63,19 @@ export default async function AdminCampaignsPage() {
                       </code>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-zinc-500 hidden md:table-cell">{typeLabels[c.type] ?? c.type}</td>
-                  <td className="px-4 py-3 font-medium text-zinc-900 dark:text-zinc-50">
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3 text-zinc-500 hidden md:table-cell">{typeLabels[c.type] ?? c.type}</td>
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3 font-medium text-zinc-900 dark:text-zinc-50 whitespace-nowrap">
                     {c.discountType === "percentage"
                       ? `%${c.discountValue}`
                       : formatPrice(Number(c.discountValue))}
                   </td>
-                  <td className="px-4 py-3 text-zinc-500 hidden lg:table-cell">
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3 text-zinc-500 hidden lg:table-cell">
                     {c.currentUsage}{c.maxUsage ? ` / ${c.maxUsage}` : ""}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3 whitespace-nowrap">
                     <ToggleCampaignButton id={c.id} isActive={c.isActive} />
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3 whitespace-nowrap">
                     <div className="flex items-center justify-end gap-2">
                       <Link href={`/admin/campaigns/${c.id}`} className="p-1.5 rounded-lg text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
                         <Pencil className="h-3.5 w-3.5" />

@@ -50,16 +50,16 @@ export default async function AdminProductsPage() {
           </Link>
         </div>
       ) : (
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-zinc-50 dark:bg-zinc-800/50">
               <tr>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500 dark:text-zinc-400">Ürün</th>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500 dark:text-zinc-400 hidden md:table-cell">Kategori</th>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500 dark:text-zinc-400">Fiyat</th>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500 dark:text-zinc-400 hidden lg:table-cell">Stok</th>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500 dark:text-zinc-400">Durum</th>
-                <th className="px-4 py-3 text-right font-medium text-zinc-500 dark:text-zinc-400">İşlem</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3 text-left font-medium text-zinc-500 dark:text-zinc-400">Ürün</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3 text-left font-medium text-zinc-500 dark:text-zinc-400 hidden md:table-cell">Kategori</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3 text-left font-medium text-zinc-500 dark:text-zinc-400">Fiyat</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3 text-left font-medium text-zinc-500 dark:text-zinc-400 hidden lg:table-cell">Stok</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3 text-left font-medium text-zinc-500 dark:text-zinc-400">Durum</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3 text-right font-medium text-zinc-500 dark:text-zinc-400">İşlem</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
@@ -68,7 +68,7 @@ export default async function AdminProductsPage() {
                 const isOutOfStock = p.stock === 0;
                 return (
                   <tr key={p.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-2.5 sm:px-4 sm:py-3">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center shrink-0 overflow-hidden">
                           {p.images[0] ? (
@@ -86,13 +86,13 @@ export default async function AdminProductsPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-zinc-500 dark:text-zinc-400 hidden md:table-cell">
+                    <td className="px-3 py-2.5 sm:px-4 sm:py-3 text-zinc-500 dark:text-zinc-400 hidden md:table-cell">
                       {p.category?.name ?? "—"}
                     </td>
                     <td className="px-4 py-3 font-medium text-zinc-900 dark:text-zinc-50">
                       {formatPrice(p.price)}
                     </td>
-                    <td className="px-4 py-3 hidden lg:table-cell">
+                    <td className="px-3 py-2.5 sm:px-4 sm:py-3 hidden lg:table-cell">
                       <span
                         className={`text-xs font-medium px-2 py-0.5 rounded-full ${
                           isOutOfStock
@@ -105,7 +105,7 @@ export default async function AdminProductsPage() {
                         {isOutOfStock ? "Tükendi" : isLowStock ? `Az stok: ${p.stock}` : p.stock}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-2.5 sm:px-4 sm:py-3">
                       <span
                         className={`text-xs font-medium px-2 py-0.5 rounded-full ${
                           p.isActive
@@ -116,7 +116,7 @@ export default async function AdminProductsPage() {
                         {p.isActive ? "Aktif" : "Pasif"}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-2.5 sm:px-4 sm:py-3 whitespace-nowrap">
                       <div className="flex items-center justify-end gap-2">
                         <Link
                           href={`/admin/products/${p.id}`}

@@ -64,30 +64,30 @@ export default async function AdminUsersPage({
         />
       </form>
 
-      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-zinc-100 dark:border-zinc-800">
-              <th className="text-left px-5 py-3 font-medium text-zinc-500">Ad / E-posta</th>
-              <th className="text-left px-5 py-3 font-medium text-zinc-500 hidden md:table-cell">Rol</th>
-              <th className="text-left px-5 py-3 font-medium text-zinc-500 hidden sm:table-cell">Durum</th>
-              <th className="text-left px-5 py-3 font-medium text-zinc-500 hidden lg:table-cell">Kayıt Tarihi</th>
-              <th className="px-5 py-3" />
+              <th className="text-left px-3 py-2.5 sm:px-5 sm:py-3 font-medium text-zinc-500">Ad / E-posta</th>
+              <th className="text-left px-3 py-2.5 sm:px-5 sm:py-3 font-medium text-zinc-500 hidden md:table-cell">Rol</th>
+              <th className="text-left px-3 py-2.5 sm:px-5 sm:py-3 font-medium text-zinc-500 hidden sm:table-cell">Durum</th>
+              <th className="text-left px-3 py-2.5 sm:px-5 sm:py-3 font-medium text-zinc-500 hidden lg:table-cell">Kayıt Tarihi</th>
+              <th className="px-3 py-2.5 sm:px-5 sm:py-3" />
             </tr>
           </thead>
           <tbody>
             {allUsers.map((user) => (
               <tr key={user.id} className="border-b border-zinc-100 dark:border-zinc-800 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
-                <td className="px-5 py-3">
+                <td className="px-3 py-2.5 sm:px-5 sm:py-3">
                   <p className="font-medium text-zinc-900 dark:text-zinc-50 text-sm">{user.name ?? "—"}</p>
                   <p className="text-xs text-zinc-400">{user.email}</p>
                 </td>
-                <td className="px-5 py-3 hidden md:table-cell">
+                <td className="px-3 py-2.5 sm:px-5 sm:py-3 hidden md:table-cell">
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${roleCls[user.role] ?? roleCls.user}`}>
                     {roleMap[user.role] ?? user.role}
                   </span>
                 </td>
-                <td className="px-5 py-3 hidden sm:table-cell">
+                <td className="px-3 py-2.5 sm:px-5 sm:py-3 hidden sm:table-cell">
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                     user.isActive
                       ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
@@ -96,10 +96,10 @@ export default async function AdminUsersPage({
                     {user.isActive ? "Aktif" : "Pasif"}
                   </span>
                 </td>
-                <td className="px-5 py-3 text-xs text-zinc-400 hidden lg:table-cell">
+                <td className="px-3 py-2.5 sm:px-5 sm:py-3 text-xs text-zinc-400 hidden lg:table-cell">
                   {new Date(user.createdAt).toLocaleDateString("tr-TR")}
                 </td>
-                <td className="px-5 py-3 text-right">
+                <td className="px-3 py-2.5 sm:px-5 sm:py-3 text-right whitespace-nowrap">
                   <Link
                     href={`/admin/users/${user.id}`}
                     className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
