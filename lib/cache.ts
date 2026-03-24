@@ -68,3 +68,14 @@ export const getSiteSettings = unstable_cache(
   ["site-settings"],
   { tags: [TAGS.settings], revalidate: 600 }
 );
+
+export const getAllSiteSettings = unstable_cache(
+  async (): Promise<Record<string, string | null>> => {
+    const rows = await db.select().from(siteSettings);
+    const map: Record<string, string | null> = {};
+    rows.forEach((r) => { map[r.key] = r.value; });
+    return map;
+  },
+  ["all-site-settings"],
+  { tags: [TAGS.settings], revalidate: 600 }
+);

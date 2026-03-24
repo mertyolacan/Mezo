@@ -4,6 +4,7 @@ import "./globals.css";
 import Providers from "@/components/shared/Providers";
 import CookieConsent from "@/components/shared/CookieConsent";
 import { getAuthUser } from "@/lib/auth";
+import { getAllSiteSettings } from "@/lib/cache";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -29,7 +30,12 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const user = await getAuthUser();
+  const [user, settings] = await Promise.all([getAuthUser(), getAllSiteSettings()]);
+  const contact = {
+    phone: settings["contact_phone"] ?? null,
+    email: settings["contact_email"] ?? null,
+    whatsapp: settings["social_whatsapp"] ?? null,
+  };
 
   return (
     <html lang="tr" suppressHydrationWarning className={inter.variable}>
@@ -42,7 +48,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 antialiased font-[var(--font-inter)]">
-        <Providers isLoggedIn={!!user}>
+        <Providers isLoggedIn={!!user} contact={contact}>
           {children}
           <CookieConsent />
         </Providers>

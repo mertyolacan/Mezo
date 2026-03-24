@@ -6,8 +6,23 @@ import CartDrawer from "./CartDrawer";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import NavigationProgress from "./NavigationProgress";
+import ContactBubble from "./ContactBubble";
 
-export default function Providers({ children, isLoggedIn }: { children: React.ReactNode; isLoggedIn: boolean }) {
+interface Contact {
+  phone?: string | null;
+  email?: string | null;
+  whatsapp?: string | null;
+}
+
+export default function Providers({
+  children,
+  isLoggedIn,
+  contact,
+}: {
+  children: React.ReactNode;
+  isLoggedIn: boolean;
+  contact?: Contact;
+}) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
 
@@ -20,6 +35,13 @@ export default function Providers({ children, isLoggedIn }: { children: React.Re
         {children}
         {!isAdmin && <Footer />}
       </div>
+      {!isAdmin && (
+        <ContactBubble
+          phone={contact?.phone}
+          email={contact?.email}
+          whatsapp={contact?.whatsapp}
+        />
+      )}
     </CartProvider>
   );
 }
