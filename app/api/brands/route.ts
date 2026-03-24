@@ -5,7 +5,6 @@ import { getAdminFromRequest } from "@/lib/auth";
 import { slugify } from "@/lib/utils";
 import { eq, asc } from "drizzle-orm";
 
-export const runtime = "edge";
 export const revalidate = 300;
 
 export async function GET() {

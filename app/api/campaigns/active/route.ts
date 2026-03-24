@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { getActiveCampaigns } from "@/lib/cache";
 
-export const runtime = "edge";
 export const revalidate = 60;
 
 function badge(type: string, name: string) {
