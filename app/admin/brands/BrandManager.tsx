@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Plus, Pencil, Trash2, Check, X, Award, ImageIcon } from "lucide-react";
 import Image from "next/image";
 import MediaPickerModal from "@/components/admin/MediaPickerModal";
@@ -17,7 +16,6 @@ type Brand = {
 };
 
 export default function BrandManager({ initialBrands }: { initialBrands: Brand[] }) {
-  const router = useRouter();
   const [brands, setBrands] = useState(initialBrands);
   const [newName, setNewName] = useState("");
   const [newLogo, setNewLogo] = useState("");
@@ -40,9 +38,10 @@ export default function BrandManager({ initialBrands }: { initialBrands: Brand[]
     });
     setAdding(false);
     if (res.ok) {
+      const data = await res.json();
+      setBrands((prev) => [...prev, { ...data.data, productCount: 0 }]);
       setNewName("");
       setNewLogo("");
-      router.refresh();
     }
   }
 
@@ -53,8 +52,12 @@ export default function BrandManager({ initialBrands }: { initialBrands: Brand[]
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: editName.trim(), logo: editLogo || null }),
     });
+    setBrands((prev) =>
+      prev.map((b) =>
+        b.id === id ? { ...b, name: editName.trim(), logo: editLogo || null } : b
+      )
+    );
     setEditId(null);
-    router.refresh();
   }
 
   async function handleDelete(id: number, name: string) {
@@ -69,7 +72,9 @@ export default function BrandManager({ initialBrands }: { initialBrands: Brand[]
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isActive: !current }),
     });
-    router.refresh();
+    setBrands((prev) =>
+      prev.map((b) => b.id === id ? { ...b, isActive: !current } : b)
+    );
   }
 
   function startEdit(brand: Brand) {
@@ -143,7 +148,7 @@ export default function BrandManager({ initialBrands }: { initialBrands: Brand[]
           ) : (
             <ul className="divide-y divide-zinc-100 dark:divide-zinc-800">
               {brands.map((brand) => (
-                <li key={brand.id} className="flex items-center gap-3 px-4 py-3">
+                <li key={brand.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
                   {editId === brand.id ? (
                     <div className="flex-1 flex items-center gap-2 flex-wrap">
                       <button

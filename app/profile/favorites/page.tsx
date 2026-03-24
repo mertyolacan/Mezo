@@ -48,7 +48,7 @@ export default async function FavoritesPage() {
               <Link href={`/products/${p.slug}`}>
                 <div className="relative aspect-square bg-zinc-50 dark:bg-zinc-800">
                   {p.images[0] ? (
-                    <Image src={p.images[0]} alt={p.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="200px" />
+                    <Image src={p.images[0]} alt={p.name} fill className="object-contain group-hover:scale-105 transition-transform duration-300" sizes="200px" />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <Package className="h-8 w-8 text-zinc-300" />

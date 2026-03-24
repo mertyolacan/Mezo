@@ -43,6 +43,7 @@ function randomCode() {
 export default function CampaignForm({ categories, products, initialData, campaignId }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
   const [codeCopied, setCodeCopied] = useState(false);
 
@@ -133,8 +134,13 @@ export default function CampaignForm({ categories, products, initialData, campai
     const data = await res.json();
     setLoading(false);
     if (!res.ok) { setError(data.error ?? "Bir hata oluştu"); return; }
-    router.push("/admin/campaigns");
-    router.refresh();
+    if (campaignId) {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } else {
+      router.push("/admin/campaigns");
+      router.refresh();
+    }
   }
 
   const inputClass = "w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition";
@@ -561,7 +567,8 @@ export default function CampaignForm({ categories, products, initialData, campai
         <button type="submit" disabled={loading}
           className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-medium px-6 py-2.5 rounded-lg transition-colors">
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-          {campaignId ? "Güncelle" : "Kampanyayı Kaydet"}
+          {!loading && saved && <Check className="h-4 w-4" />}
+          {saved ? "Kaydedildi!" : campaignId ? "Güncelle" : "Kampanyayı Kaydet"}
         </button>
         <a href="/admin/campaigns" className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 px-4 py-2.5 transition-colors">İptal</a>
       </div>

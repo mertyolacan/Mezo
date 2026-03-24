@@ -23,7 +23,7 @@ export default async function AdminCampaignsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Kampanyalar</h1>
         <Link
           href="/admin/campaigns/new"
@@ -45,9 +45,9 @@ export default async function AdminCampaignsPage() {
             <thead className="bg-zinc-50 dark:bg-zinc-800/50">
               <tr>
                 <th className="px-4 py-3 text-left font-medium text-zinc-500">Kampanya</th>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500">Tip</th>
+                <th className="px-4 py-3 text-left font-medium text-zinc-500 hidden md:table-cell">Tip</th>
                 <th className="px-4 py-3 text-left font-medium text-zinc-500">İndirim</th>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500">Kullanım</th>
+                <th className="px-4 py-3 text-left font-medium text-zinc-500 hidden lg:table-cell">Kullanım</th>
                 <th className="px-4 py-3 text-left font-medium text-zinc-500">Durum</th>
                 <th className="px-4 py-3 text-right font-medium text-zinc-500">İşlem</th>
               </tr>
@@ -63,13 +63,13 @@ export default async function AdminCampaignsPage() {
                       </code>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-zinc-500">{typeLabels[c.type] ?? c.type}</td>
+                  <td className="px-4 py-3 text-zinc-500 hidden md:table-cell">{typeLabels[c.type] ?? c.type}</td>
                   <td className="px-4 py-3 font-medium text-zinc-900 dark:text-zinc-50">
                     {c.discountType === "percentage"
                       ? `%${c.discountValue}`
                       : formatPrice(Number(c.discountValue))}
                   </td>
-                  <td className="px-4 py-3 text-zinc-500">
+                  <td className="px-4 py-3 text-zinc-500 hidden lg:table-cell">
                     {c.currentUsage}{c.maxUsage ? ` / ${c.maxUsage}` : ""}
                   </td>
                   <td className="px-4 py-3">

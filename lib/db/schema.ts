@@ -119,6 +119,7 @@ export const products = pgTable("products", {
     onDelete: "set null",
   }),
   tags: jsonb("tags").$type<string[]>().notNull().default([]),
+  crossSellIds: jsonb("cross_sell_ids").$type<number[]>().notNull().default([]),
   isActive: boolean("is_active").notNull().default(true),
   isFeatured: boolean("is_featured").notNull().default(false),
   seoTitle: varchar("seo_title", { length: 255 }),

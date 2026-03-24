@@ -30,7 +30,7 @@ export default async function AdminProductsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Ürünler</h1>
         <Link
           href="/admin/products/new"
@@ -55,9 +55,9 @@ export default async function AdminProductsPage() {
             <thead className="bg-zinc-50 dark:bg-zinc-800/50">
               <tr>
                 <th className="px-4 py-3 text-left font-medium text-zinc-500 dark:text-zinc-400">Ürün</th>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500 dark:text-zinc-400">Kategori</th>
+                <th className="px-4 py-3 text-left font-medium text-zinc-500 dark:text-zinc-400 hidden md:table-cell">Kategori</th>
                 <th className="px-4 py-3 text-left font-medium text-zinc-500 dark:text-zinc-400">Fiyat</th>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500 dark:text-zinc-400">Stok</th>
+                <th className="px-4 py-3 text-left font-medium text-zinc-500 dark:text-zinc-400 hidden lg:table-cell">Stok</th>
                 <th className="px-4 py-3 text-left font-medium text-zinc-500 dark:text-zinc-400">Durum</th>
                 <th className="px-4 py-3 text-right font-medium text-zinc-500 dark:text-zinc-400">İşlem</th>
               </tr>
@@ -73,7 +73,7 @@ export default async function AdminProductsPage() {
                         <div className="h-10 w-10 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center shrink-0 overflow-hidden">
                           {p.images[0] ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={p.images[0]} alt={p.name} className="h-full w-full object-cover" />
+                            <img src={p.images[0]} alt={p.name} className="h-full w-full object-contain" />
                           ) : (
                             <Package className="h-4 w-4 text-zinc-400" />
                           )}
@@ -86,13 +86,13 @@ export default async function AdminProductsPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-zinc-500 dark:text-zinc-400">
+                    <td className="px-4 py-3 text-zinc-500 dark:text-zinc-400 hidden md:table-cell">
                       {p.category?.name ?? "—"}
                     </td>
                     <td className="px-4 py-3 font-medium text-zinc-900 dark:text-zinc-50">
                       {formatPrice(p.price)}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 hidden lg:table-cell">
                       <span
                         className={`text-xs font-medium px-2 py-0.5 rounded-full ${
                           isOutOfStock

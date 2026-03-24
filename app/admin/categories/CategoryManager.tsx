@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Plus, Pencil, Trash2, Check, X, Tag, ImageIcon } from "lucide-react";
 import Image from "next/image";
 import MediaPickerModal from "@/components/admin/MediaPickerModal";
@@ -17,8 +16,7 @@ type Category = {
 };
 
 export default function CategoryManager({ initialCategories }: { initialCategories: Category[] }) {
-  const router = useRouter();
-  const [categories, setCategories] = useState(initialCategories);
+const [categories, setCategories] = useState(initialCategories);
   const [newName, setNewName] = useState("");
   const [newImage, setNewImage] = useState("");
   const [adding, setAdding] = useState(false);
@@ -40,9 +38,10 @@ export default function CategoryManager({ initialCategories }: { initialCategori
     });
     setAdding(false);
     if (res.ok) {
+      const data = await res.json();
+      setCategories((prev) => [...prev, { ...data.data, productCount: 0 }]);
       setNewName("");
       setNewImage("");
-      router.refresh();
     }
   }
 
@@ -53,8 +52,12 @@ export default function CategoryManager({ initialCategories }: { initialCategori
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: editName.trim(), image: editImage || null }),
     });
+    setCategories((prev) =>
+      prev.map((c) =>
+        c.id === id ? { ...c, name: editName.trim(), image: editImage || null } : c
+      )
+    );
     setEditId(null);
-    router.refresh();
   }
 
   async function handleDelete(id: number, name: string) {
@@ -69,7 +72,9 @@ export default function CategoryManager({ initialCategories }: { initialCategori
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isActive: !current }),
     });
-    router.refresh();
+    setCategories((prev) =>
+      prev.map((c) => c.id === id ? { ...c, isActive: !current } : c)
+    );
   }
 
   function startEdit(cat: Category) {
@@ -143,7 +148,7 @@ export default function CategoryManager({ initialCategories }: { initialCategori
           ) : (
             <ul className="divide-y divide-zinc-100 dark:divide-zinc-800">
               {categories.map((cat) => (
-                <li key={cat.id} className="flex items-center gap-3 px-4 py-3">
+                <li key={cat.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
                   {editId === cat.id ? (
                     <div className="flex-1 flex items-center gap-2 flex-wrap">
                       <button

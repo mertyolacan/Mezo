@@ -48,7 +48,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             <div key={i} className="flex items-center gap-4 px-5 py-4">
               <div className="relative h-14 w-14 shrink-0 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800">
                 {item.image ? (
-                  <Image src={item.image} alt={item.name} fill className="object-cover" sizes="56px" />
+                  <Image src={item.image} alt={item.name} fill className="object-contain" sizes="56px" />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <Package className="h-5 w-5 text-zinc-300" />

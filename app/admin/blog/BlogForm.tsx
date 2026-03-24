@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Plus, X } from "lucide-react";
+import { Loader2, Plus, X, Check } from "lucide-react";
 
 type BlogFormProps = {
   initialData?: {
@@ -23,6 +23,7 @@ type BlogFormProps = {
 export default function BlogForm({ initialData }: BlogFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
   const [tagInput, setTagInput] = useState("");
 
@@ -78,8 +79,13 @@ export default function BlogForm({ initialData }: BlogFormProps) {
       return;
     }
 
-    router.push("/admin/blog");
-    router.refresh();
+    if (initialData?.id) {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } else {
+      router.push("/admin/blog");
+      router.refresh();
+    }
   }
 
   const inputClass =
@@ -224,7 +230,8 @@ export default function BlogForm({ initialData }: BlogFormProps) {
           className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition-colors"
         >
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-          {initialData?.id ? "Güncelle" : "Oluştur"}
+          {!loading && saved && <Check className="h-4 w-4" />}
+          {saved ? "Kaydedildi!" : initialData?.id ? "Güncelle" : "Oluştur"}
         </button>
         <button
           type="button"

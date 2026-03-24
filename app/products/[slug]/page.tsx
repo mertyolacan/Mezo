@@ -9,7 +9,7 @@ import type { Metadata } from "next";
 import type { ClientCampaign } from "@/lib/campaign-engine-client";
 import ProductDetailClient from "./ProductDetailClient";
 import ProductImageGallery from "./ProductImageGallery";
-import ReviewSection from "./ReviewSection";
+import ProductTabs from "./ProductTabs";
 import { getAuthUser } from "@/lib/auth";
 
 export const revalidate = 60;
@@ -69,6 +69,8 @@ export default async function ProductDetailPage({ params }: Props) {
 
   // Kampanyalar, auth ve ilgili ürünleri paralel çek
   const now = new Date();
+  const productCols = { id: products.id, name: products.name, slug: products.slug, price: products.price, comparePrice: products.comparePrice, images: products.images, categoryId: products.categoryId };
+
   const [rawCampaigns, authUser, relatedProducts] = await Promise.all([
     db
       .select()
@@ -88,7 +90,7 @@ export default async function ProductDetailPage({ params }: Props) {
     getAuthUser(),
     p.categoryId
       ? db
-          .select({ id: products.id, name: products.name, slug: products.slug, price: products.price, comparePrice: products.comparePrice, images: products.images })
+          .select(productCols)
           .from(products)
           .where(and(eq(products.isActive, true), eq(products.categoryId, p.categoryId), ne(products.id, p.id)))
           .limit(4)
@@ -166,53 +168,49 @@ export default async function ProductDetailPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Açıklama */}
-      {p.description && (
-        <div className="mt-16 border-t border-zinc-100 dark:border-zinc-800 pt-10">
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-4">Ürün Açıklaması</h2>
-          <div className="prose prose-zinc dark:prose-invert max-w-none text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            {p.description}
-          </div>
-        </div>
-      )}
+      {/* Açıklama + Değerlendirmeler tabları */}
+      <ProductTabs description={p.description} productId={p.id} isLoggedIn={!!authUser} />
 
-      <ReviewSection productId={p.id} isLoggedIn={!!authUser} />
-
-      {/* İlgili Ürünler */}
+      {/* Benzer Ürünler */}
       {relatedProducts.length > 0 && (
         <div className="mt-16 border-t border-zinc-100 dark:border-zinc-800 pt-10">
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-6">İlgili Ürünler</h2>
+          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-6">Benzer Ürünler</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {relatedProducts.map((rp) => {
-              const rpDiscount = rp.comparePrice
-                ? Math.round((1 - Number(rp.price) / Number(rp.comparePrice)) * 100)
-                : null;
-              return (
-                <Link key={rp.id} href={`/products/${rp.slug}`} className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800 overflow-hidden hover:border-zinc-300 dark:hover:border-zinc-600 hover:shadow-sm transition-all">
-                  <div className="relative aspect-square bg-zinc-50 dark:bg-zinc-800">
-                    {rp.images[0] ? (
-                      <Image src={rp.images[0]} alt={rp.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 50vw, 25vw" />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center text-zinc-300 text-xs">Görsel yok</div>
-                    )}
-                    {rpDiscount && (
-                      <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md">-{rpDiscount}%</span>
-                    )}
-                  </div>
-                  <div className="p-3">
-                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50 line-clamp-2 leading-snug">{rp.name}</p>
-                    <div className="mt-1.5 flex items-baseline gap-2">
-                      <span className="text-sm font-bold text-zinc-900 dark:text-zinc-50">{formatPrice(rp.price)}</span>
-                      {rp.comparePrice && <span className="text-xs text-zinc-400 line-through">{formatPrice(rp.comparePrice)}</span>}
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
+            {relatedProducts.map((rp) => <ProductCard key={rp.id} product={rp} />)}
           </div>
         </div>
       )}
     </div>
     </>
+  );
+}
+
+type CardProduct = { id: number; name: string; slug: string; price: unknown; comparePrice: unknown; images: unknown };
+
+function ProductCard({ product: rp }: { product: CardProduct }) {
+  const price = Number(rp.price);
+  const comparePrice = rp.comparePrice ? Number(rp.comparePrice) : null;
+  const discount = comparePrice ? Math.round((1 - price / comparePrice) * 100) : null;
+  const images = rp.images as string[];
+  return (
+    <Link href={`/products/${rp.slug}`} className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800 overflow-hidden hover:border-zinc-300 dark:hover:border-zinc-600 hover:shadow-sm transition-all">
+      <div className="relative aspect-square bg-zinc-50 dark:bg-zinc-800">
+        {images[0] ? (
+          <Image src={images[0]} alt={rp.name} fill className="object-contain group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 50vw, 25vw" />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-zinc-300 text-xs">Görsel yok</div>
+        )}
+        {discount && (
+          <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md">-{discount}%</span>
+        )}
+      </div>
+      <div className="p-3">
+        <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50 line-clamp-2 leading-snug">{rp.name}</p>
+        <div className="mt-1.5 flex items-baseline gap-2">
+          <span className="text-sm font-bold text-zinc-900 dark:text-zinc-50">{formatPrice(price)}</span>
+          {comparePrice && <span className="text-xs text-zinc-400 line-through">{formatPrice(comparePrice)}</span>}
+        </div>
+      </div>
+    </Link>
   );
 }

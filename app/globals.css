@@ -57,6 +57,17 @@ body {
   outline-offset: 2px;
 }
 
+/* ─── Brand marquee ──────────────────────────────────────────────── */
+@keyframes marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+.animate-marquee {
+  animation: marquee 22s linear infinite;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
 /* ─── Prose dark mode overrides ─────────────────────────────────── */
 .prose img {
   border-radius: 0.75rem;

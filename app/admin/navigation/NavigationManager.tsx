@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, GripVertical, ExternalLink, Loader2 } from "lucide-react";
+import { Plus, Trash2, GripVertical, ExternalLink, Loader2, Check } from "lucide-react";
 
 type NavItem = {
   id: number;
@@ -29,6 +29,7 @@ export default function NavigationManager({ initialMenus }: { initialMenus: NavM
   const [newMenuLocation, setNewMenuLocation] = useState("");
   const [showNewMenu, setShowNewMenu] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [itemSaved, setItemSaved] = useState(false);
   const router = useRouter();
 
   const selectedMenu = menus.find((m) => m.id === selectedMenuId);
@@ -103,7 +104,8 @@ export default function NavigationManager({ initialMenus }: { initialMenus: NavM
             : m
         )
       );
-      setEditItem(null);
+      setItemSaved(true);
+      setTimeout(() => { setItemSaved(false); setEditItem(null); }, 1500);
     }
   }
 
@@ -234,9 +236,10 @@ export default function NavigationManager({ initialMenus }: { initialMenus: NavM
                           <option value="_self">Aynı sekme</option>
                           <option value="_blank">Yeni sekme</option>
                         </select>
-                        <button onClick={saveItem} disabled={loading} className="flex items-center gap-2 bg-indigo-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-60 transition-colors">
+                        <button onClick={saveItem} disabled={loading || itemSaved} className={`flex items-center gap-2 text-white text-sm font-semibold px-4 py-2 rounded-lg disabled:opacity-60 transition-colors ${itemSaved ? "bg-green-500" : "bg-indigo-600 hover:bg-indigo-700"}`}>
                           {loading && <Loader2 className="h-3 w-3 animate-spin" />}
-                          Kaydet
+                          {!loading && itemSaved && <Check className="h-3 w-3" />}
+                          {itemSaved ? "Kaydedildi!" : "Kaydet"}
                         </button>
                         <button onClick={() => setEditItem(null)} className="text-sm text-zinc-500 hover:text-zinc-700">İptal</button>
                       </div>

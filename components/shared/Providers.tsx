@@ -17,25 +17,27 @@ interface Contact {
 export default function Providers({
   children,
   isLoggedIn,
+  userIsAdmin,
   contact,
 }: {
   children: React.ReactNode;
   isLoggedIn: boolean;
+  userIsAdmin?: boolean;
   contact?: Contact;
 }) {
   const pathname = usePathname();
-  const isAdmin = pathname.startsWith("/admin");
+  const isAdminRoute = pathname.startsWith("/admin");
 
   return (
     <CartProvider>
       <NavigationProgress />
-      {!isAdmin && <Navbar isLoggedIn={isLoggedIn} />}
-      {!isAdmin && <CartDrawer />}
-      <div className={isAdmin ? undefined : "pt-16"}>
+      {!isAdminRoute && <Navbar isLoggedIn={isLoggedIn} isAdmin={userIsAdmin} />}
+      {!isAdminRoute && <CartDrawer />}
+      <div className={isAdminRoute ? undefined : "pt-16"}>
         {children}
-        {!isAdmin && <Footer />}
+        {!isAdminRoute && <Footer />}
       </div>
-      {!isAdmin && (
+      {!isAdminRoute && (
         <ContactBubble
           phone={contact?.phone}
           email={contact?.email}

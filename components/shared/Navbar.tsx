@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCart } from "@/contexts/CartContext";
-import { ShoppingBag, Moon, Sun, Menu, X, User } from "lucide-react";
+import { ShoppingBag, Moon, Sun, Menu, X, User, LayoutDashboard } from "lucide-react";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
@@ -14,7 +14,7 @@ const navLinks = [
   { href: "/contact", label: "İletişim" },
 ];
 
-export default function Navbar({ isLoggedIn }: { isLoggedIn: boolean }) {
+export default function Navbar({ isLoggedIn, isAdmin }: { isLoggedIn: boolean; isAdmin?: boolean }) {
   const { count, openCart } = useCart();
   const pathname = usePathname();
   const [dark, setDark] = useState(false);
@@ -86,6 +86,19 @@ export default function Navbar({ isLoggedIn }: { isLoggedIn: boolean }) {
               {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
 
+            {/* Admin Panel link — only for admins */}
+            {isAdmin && (
+              <Link
+                href="/admin"
+                aria-label="Yönetici Paneli"
+                title="Yönetici Paneli"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"
+              >
+                <LayoutDashboard className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Yönetici</span>
+              </Link>
+            )}
+
             {/* Profile / Login */}
             <Link
               href={loggedIn ? "/profile" : "/login"}
@@ -147,6 +160,15 @@ export default function Navbar({ isLoggedIn }: { isLoggedIn: boolean }) {
               <User className="h-4 w-4" />
               {loggedIn ? "Profilim" : "Giriş Yap"}
             </Link>
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/60"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                Yönetici Paneli
+              </Link>
+            )}
           </nav>
         )}
       </div>

@@ -114,6 +114,36 @@ export default function SiteSettingsForm({ initialSettings }: SiteSettingsFormPr
         ))}
       </div>
 
+      {/* Ödeme Yöntemleri */}
+      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
+        <div>
+          <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">Ödeme Yöntemleri</h2>
+          <p className="text-xs text-zinc-400 mt-1">Checkout sayfasında müşterilere sunulacak ödeme seçenekleri.</p>
+        </div>
+        {[
+          { key: "payment_cod_enabled", label: "Kapıda Ödeme", desc: "Nakit veya kart ile kapıda ödeme" },
+          { key: "payment_card_enabled", label: "Kredi / Banka Kartı", desc: "iyzico güvencesiyle online ödeme" },
+        ].map(({ key, label, desc }) => (
+          <div key={key} className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{label}</p>
+              <p className="text-xs text-zinc-400">{desc}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => set(key, val(key) === "0" ? "1" : "0")}
+              className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors ${val(key) === "0" ? "bg-zinc-200 dark:bg-zinc-700" : "bg-indigo-600"}`}
+              role="switch"
+              aria-checked={val(key) !== "0"}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition-transform ${val(key) === "0" ? "translate-x-0" : "translate-x-5"}`}
+              />
+            </button>
+          </div>
+        ))}
+      </div>
+
       {/* Scripts */}
       <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
         <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">Scriptler</h2>

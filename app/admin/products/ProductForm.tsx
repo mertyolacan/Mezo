@@ -2,28 +2,33 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Upload, X, ImageIcon, Images } from "lucide-react";
+import { Loader2, Upload, X, ImageIcon, Images, Search, ShoppingBag, Check } from "lucide-react";
 import Image from "next/image";
 import MediaPickerModal from "@/components/admin/MediaPickerModal";
 
 type Category = { id: number; name: string };
 type Brand = { id: number; name: string };
+type ProductOption = { id: number; name: string; images: unknown };
 
 type ProductFormProps = {
   categories: Category[];
   brands: Brand[];
+  allProducts?: ProductOption[];
   initialData?: Record<string, unknown>;
   productId?: number;
 };
 
-export default function ProductForm({ categories, brands, initialData, productId }: ProductFormProps) {
+export default function ProductForm({ categories, brands, allProducts = [], initialData, productId }: ProductFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
   const [images, setImages] = useState<string[]>((initialData?.images as string[]) ?? []);
   const [uploading, setUploading] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [crossSellIds, setCrossSellIds] = useState<number[]>((initialData?.crossSellIds as number[]) ?? []);
+  const [crossSellSearch, setCrossSellSearch] = useState("");
   const [form, setForm] = useState({
     name: (initialData?.name as string) ?? "",
     slug: (initialData?.slug as string) ?? "",
@@ -68,6 +73,10 @@ export default function ProductForm({ categories, brands, initialData, productId
     setImages((prev) => prev.filter((img) => img !== url));
   }
 
+  function setCover(url: string) {
+    setImages((prev) => [url, ...prev.filter((img) => img !== url)]);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -83,6 +92,7 @@ export default function ProductForm({ categories, brands, initialData, productId
       brandId: form.brandId ? Number(form.brandId) : null,
       tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean),
       images,
+      crossSellIds,
     };
 
     const res = await fetch(
@@ -102,8 +112,13 @@ export default function ProductForm({ categories, brands, initialData, productId
       return;
     }
 
-    router.push("/admin/products");
-    router.refresh();
+    if (productId) {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } else {
+      router.push("/admin/products");
+      router.refresh();
+    }
   }
 
   const inputClass =
@@ -140,14 +155,35 @@ export default function ProductForm({ categories, brands, initialData, productId
         </div>
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
           {images.map((url, i) => (
-            <div key={url} className="relative aspect-square rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700 group">
-              <Image src={url} alt={`Resim ${i + 1}`} fill className="object-cover" sizes="150px" />
+            <div
+              key={url}
+              onClick={() => i !== 0 && setCover(url)}
+              className={`relative aspect-square rounded-lg overflow-hidden border-2 group transition-all ${
+                i === 0
+                  ? "border-indigo-500 cursor-default"
+                  : "border-zinc-200 dark:border-zinc-700 cursor-pointer hover:border-indigo-400"
+              }`}
+            >
+              <Image src={url} alt={`Resim ${i + 1}`} fill className="object-contain" sizes="150px" />
+
+              {/* Kapak rozeti */}
               {i === 0 && (
-                <span className="absolute bottom-0 left-0 right-0 text-center text-xs bg-indigo-600 text-white py-0.5">Ana</span>
+                <span className="absolute bottom-0 left-0 right-0 text-center text-xs bg-indigo-600 text-white py-0.5 font-medium">
+                  Kapak
+                </span>
               )}
+
+              {/* Hover overlay — kapak yap */}
+              {i !== 0 && (
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                  <span className="text-white text-[10px] font-semibold bg-indigo-600 px-2 py-1 rounded-full">Kapak Yap</span>
+                </div>
+              )}
+
+              {/* Sil butonu */}
               <button
                 type="button"
-                onClick={() => removeImage(url)}
+                onClick={(e) => { e.stopPropagation(); removeImage(url); }}
                 className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <X className="h-3 w-3" />
@@ -165,7 +201,7 @@ export default function ProductForm({ categories, brands, initialData, productId
           </button>
         </div>
         {images.length === 0 && !uploading && (
-          <p className="text-xs text-zinc-400 flex items-center gap-1"><ImageIcon className="h-3.5 w-3.5" /> İlk eklenen resim ana resim olarak kullanılır.</p>
+          <p className="text-xs text-zinc-400 flex items-center gap-1"><ImageIcon className="h-3.5 w-3.5" /> Resme tıklayarak kapak fotoğrafını belirleyebilirsiniz.</p>
         )}
         <input
           ref={fileInputRef}
@@ -263,6 +299,88 @@ export default function ProductForm({ categories, brands, initialData, productId
         </label>
       </div>
 
+      {/* Birlikte Alınan Ürünler */}
+      {allProducts.length > 0 && (() => {
+        const filtered = allProducts.filter(
+          (p) => !crossSellIds.includes(p.id) && p.name.toLowerCase().includes(crossSellSearch.toLowerCase())
+        );
+        const selected = allProducts.filter((p) => crossSellIds.includes(p.id));
+        return (
+          <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
+            <div>
+              <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">Birlikte Alınan Ürünler</h2>
+              <p className="text-xs text-zinc-400 mt-1">Checkout sayfasında müşteriye tavsiye edilecek ürünler.</p>
+            </div>
+
+            {/* Seçili ürünler */}
+            {selected.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {selected.map((p) => {
+                  const imgs = p.images as string[];
+                  return (
+                    <div key={p.id} className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-lg px-2 py-1.5">
+                      {imgs[0] && (
+                        <div className="relative h-6 w-6 rounded overflow-hidden shrink-0">
+                          <Image src={imgs[0]} alt={p.name} fill className="object-contain" sizes="24px" />
+                        </div>
+                      )}
+                      <span className="text-xs font-medium text-indigo-700 dark:text-indigo-300 max-w-[140px] truncate">{p.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => setCrossSellIds((prev) => prev.filter((id) => id !== p.id))}
+                        className="text-indigo-400 hover:text-red-500 transition-colors"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Arama */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
+              <input
+                className={`${inputClass} pl-8`}
+                placeholder="Ürün ara ve ekle..."
+                value={crossSellSearch}
+                onChange={(e) => setCrossSellSearch(e.target.value)}
+              />
+            </div>
+
+            {crossSellSearch && (
+              <div className="border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden max-h-48 overflow-y-auto">
+                {filtered.length === 0 ? (
+                  <p className="text-xs text-zinc-400 px-3 py-2">Sonuç bulunamadı</p>
+                ) : (
+                  filtered.slice(0, 8).map((p) => {
+                    const imgs = p.images as string[];
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => { setCrossSellIds((prev) => [...prev, p.id]); setCrossSellSearch(""); }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                      >
+                        <div className="relative h-7 w-7 rounded bg-zinc-100 dark:bg-zinc-800 overflow-hidden shrink-0">
+                          {imgs[0] ? (
+                            <Image src={imgs[0]} alt={p.name} fill className="object-contain" sizes="28px" />
+                          ) : (
+                            <ShoppingBag className="h-3.5 w-3.5 text-zinc-400 absolute inset-0 m-auto" />
+                          )}
+                        </div>
+                        <span className="text-sm text-zinc-700 dark:text-zinc-300 truncate">{p.name}</span>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
       {/* SEO */}
       <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
         <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">SEO</h2>
@@ -287,7 +405,8 @@ export default function ProductForm({ categories, brands, initialData, productId
           className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-medium px-6 py-2.5 rounded-lg transition-colors"
         >
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-          {productId ? "Güncelle" : "Kaydet"}
+          {!loading && saved && <Check className="h-4 w-4" />}
+          {saved ? "Kaydedildi!" : productId ? "Güncelle" : "Kaydet"}
         </button>
         <a href="/admin/products" className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 px-4 py-2.5 transition-colors">
           İptal

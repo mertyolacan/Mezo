@@ -14,7 +14,7 @@ type Review = {
 
 type Stats = { avgRating: number; totalCount: number; distribution: Record<number, number> };
 
-export default function ReviewSection({ productId, isLoggedIn }: { productId: number; isLoggedIn: boolean }) {
+export default function ReviewSection({ productId, isLoggedIn, compact = false }: { productId: number; isLoggedIn: boolean; compact?: boolean }) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -53,8 +53,8 @@ export default function ReviewSection({ productId, isLoggedIn }: { productId: nu
   }
 
   return (
-    <div className="mt-16 border-t border-zinc-100 dark:border-zinc-800 pt-10">
-      <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-6">Değerlendirmeler</h2>
+    <div className={compact ? undefined : "mt-16 border-t border-zinc-100 dark:border-zinc-800 pt-10"}>
+      {!compact && <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-6">Değerlendirmeler</h2>}
 
       {/* İstatistik */}
       {stats && stats.totalCount > 0 && (

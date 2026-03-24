@@ -2,7 +2,7 @@ import { getAuthUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { users, userAddresses } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { getActiveCampaigns } from "@/lib/cache";
+import { getActiveCampaigns, getAllSiteSettings } from "@/lib/cache";
 import CheckoutForm from "./CheckoutForm";
 import type { ClientCampaign } from "@/lib/campaign-engine-client";
 
@@ -18,7 +18,7 @@ const badgeMap: Record<string, string> = {
 export default async function CheckoutPage() {
   const authUser = await getAuthUser();
 
-  const [fullUser, addresses, rawCampaigns] = await Promise.all([
+  const [fullUser, addresses, rawCampaigns, siteSettings] = await Promise.all([
     authUser
       ? db.select({ name: users.name, email: users.email, phone: users.phone })
           .from(users).where(eq(users.id, authUser.id)).limit(1).then((r) => r[0] ?? null)
@@ -27,6 +27,7 @@ export default async function CheckoutPage() {
       ? db.select().from(userAddresses).where(eq(userAddresses.userId, authUser.id))
       : Promise.resolve([]),
     getActiveCampaigns(),
+    getAllSiteSettings(),
   ]);
 
   const initialCampaigns: ClientCampaign[] = rawCampaigns
@@ -58,6 +59,8 @@ export default async function CheckoutPage() {
       }
       initialAddresses={addresses}
       initialCampaigns={initialCampaigns}
+      codEnabled={siteSettings["payment_cod_enabled"] !== "0"}
+      cardEnabled={siteSettings["payment_card_enabled"] !== "0"}
     />
   );
 }

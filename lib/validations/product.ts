@@ -13,6 +13,7 @@ export const productSchema = z.object({
   categoryId: z.number().int().positive().optional().nullable(),
   brandId: z.number().int().positive().optional().nullable(),
   tags: z.array(z.string()).default([]),
+  crossSellIds: z.array(z.number().int().positive()).default([]),
   isActive: z.boolean().default(true),
   isFeatured: z.boolean().default(false),
   seoTitle: z.string().max(255).optional(),

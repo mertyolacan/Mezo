@@ -1,17 +1,19 @@
 import { db } from "@/lib/db";
-import { products, categories } from "@/lib/db/schema";
+import { products, categories, brands } from "@/lib/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, ShieldCheck, Truck, RefreshCcw, Headphones } from "lucide-react";
 import AddToCartButton from "@/components/shared/AddToCartButton";
+import BrandMarquee from "@/components/shared/BrandMarquee";
 
 export const revalidate = 60;
 
 export default async function Home() {
-  const [featuredProducts, allCategories] = await Promise.all([
+  const [featuredProducts, allCategories, allBrands] = await Promise.all([
     db.select().from(products).where(and(eq(products.isActive, true), eq(products.isFeatured, true))).orderBy(desc(products.createdAt)).limit(8),
     db.select().from(categories).where(eq(categories.isActive, true)).orderBy(categories.sortOrder).limit(6),
+    db.select({ id: brands.id, name: brands.name, logo: brands.logo }).from(brands).where(eq(brands.isActive, true)),
   ]);
 
   const features = [
@@ -68,6 +70,9 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Brand Marquee */}
+      <BrandMarquee brands={allBrands} />
+
       {/* Categories */}
       {allCategories.length > 0 && (
         <section className="max-w-5xl mx-auto px-4 py-14">
@@ -115,7 +120,7 @@ export default async function Home() {
                   <Link href={`/products/${product.slug}`}>
                     <div className="relative aspect-square bg-zinc-100 dark:bg-zinc-800">
                       {images[0] ? (
-                        <Image src={images[0]} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="250px" />
+                        <Image src={images[0]} alt={product.name} fill className="object-contain group-hover:scale-105 transition-transform duration-300" sizes="250px" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-zinc-300 text-xs">Görsel yok</div>
                       )}

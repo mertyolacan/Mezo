@@ -123,7 +123,7 @@ export default function CartDrawer() {
                 <div key={item.id} className="flex gap-3 px-5 py-4">
                   <div className="relative shrink-0 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800" style={{ width: 72, height: 72 }}>
                     {item.image ? (
-                      <Image src={item.image} alt={item.name} fill className="object-cover" sizes="72px" />
+                      <Image src={item.image} alt={item.name} fill className="object-contain" sizes="72px" />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
                         <Package className="h-6 w-6 text-zinc-300" />

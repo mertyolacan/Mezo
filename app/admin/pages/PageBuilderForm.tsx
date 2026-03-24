@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Plus, Trash2, ChevronUp, ChevronDown } from "lucide-react";
+import { Loader2, Plus, Trash2, ChevronUp, ChevronDown, Check } from "lucide-react";
 
 type Section = {
   type: string;
@@ -66,6 +66,7 @@ const SECTION_FIELDS: Record<string, Array<{ key: string; label: string; type?: 
 export default function PageBuilderForm({ initialData }: PageBuilderFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
 
   const [form, setForm] = useState({
@@ -125,8 +126,13 @@ export default function PageBuilderForm({ initialData }: PageBuilderFormProps) {
       return;
     }
 
-    router.push("/admin/pages");
-    router.refresh();
+    if (initialData?.id) {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } else {
+      router.push("/admin/pages");
+      router.refresh();
+    }
   }
 
   const inputClass =
@@ -257,7 +263,8 @@ export default function PageBuilderForm({ initialData }: PageBuilderFormProps) {
           className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition-colors"
         >
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-          {initialData?.id ? "Güncelle" : "Oluştur"}
+          {!loading && saved && <Check className="h-4 w-4" />}
+          {saved ? "Kaydedildi!" : initialData?.id ? "Güncelle" : "Oluştur"}
         </button>
         <button
           type="button"

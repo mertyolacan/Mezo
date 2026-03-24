@@ -48,7 +48,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 antialiased font-[var(--font-inter)]">
-        <Providers isLoggedIn={!!user} contact={contact}>
+        <Providers isLoggedIn={!!user} userIsAdmin={user?.role === "admin"} contact={contact}>
           {children}
           <CookieConsent />
         </Providers>

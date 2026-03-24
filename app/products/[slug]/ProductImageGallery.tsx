@@ -23,7 +23,7 @@ export default function ProductImageGallery({ images, name, discount }: Props) {
             src={images[active]}
             alt={`${name} ${active + 1}`}
             fill
-            className="object-cover transition-opacity duration-300"
+            className="object-contain transition-opacity duration-300"
             priority={active === 0}
             sizes="(max-width: 1024px) 100vw, 50vw"
           />
@@ -53,7 +53,7 @@ export default function ProductImageGallery({ images, name, discount }: Props) {
                   : "border-zinc-100 dark:border-zinc-800 opacity-60 hover:opacity-100"
               }`}
             >
-              <Image src={img} alt={`${name} ${i + 1}`} fill className="object-cover" sizes="80px" />
+              <Image src={img} alt={`${name} ${i + 1}`} fill className="object-contain" sizes="80px" />
             </button>
           ))}
         </div>

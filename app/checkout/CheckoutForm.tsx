@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 import {
   ShoppingBag, Loader2, Tag, CheckCircle2, Minus, Plus, Trash2,
-  User, MapPin, FileText, Banknote, ChevronRight, Package, CreditCard,
+  User, MapPin, FileText, Banknote, ChevronRight, Package, CreditCard, Sparkles,
 } from "lucide-react";
 import { evaluateCampaignsClient } from "@/lib/campaign-engine-client";
 import type { ClientCampaign } from "@/lib/campaign-engine-client";
@@ -24,9 +25,11 @@ interface Props {
   initialUser: InitialUser;
   initialAddresses: SavedAddress[];
   initialCampaigns: ClientCampaign[];
+  codEnabled?: boolean;
+  cardEnabled?: boolean;
 }
 
-export default function CheckoutForm({ initialUser, initialAddresses, initialCampaigns }: Props) {
+export default function CheckoutForm({ initialUser, initialAddresses, initialCampaigns, codEnabled = true, cardEnabled = true }: Props) {
   const { items, total, clear, updateQty, remove } = useCart();
   const router = useRouter();
 
@@ -36,8 +39,9 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
   const [couponInput, setCouponInput] = useState("");
   const [activeCampaigns, setActiveCampaigns] = useState<ClientCampaign[]>(initialCampaigns);
   const [couponError, setCouponError] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"cod" | "card">("cod");
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "card">(codEnabled ? "cod" : "card");
   const [savedAddresses] = useState<SavedAddress[]>(initialAddresses);
+  const [crossSells, setCrossSells] = useState<{ id: number; name: string; slug: string; price: unknown; comparePrice: unknown; images: unknown }[]>([]);
 
   // Form — server-side verilerle önceden doldurulmuş, useEffect yok
   const defaultAddr = initialAddresses.find((a) => a.isDefault) ?? initialAddresses[0];
@@ -51,6 +55,35 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
     postalCode: defaultAddr?.postalCode ?? "",
     notes: "",
   });
+
+  function addCrossSellToCart(cs: { id: number; name: string; price: unknown; images: unknown; slug: string }) {
+    const cart = JSON.parse(localStorage.getItem("mesopro-cart") ?? "[]");
+    const existing = cart.find((i: { id: number }) => i.id === cs.id);
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      cart.push({
+        id: cs.id,
+        name: cs.name,
+        price: Number(cs.price),
+        image: ((cs.images as string[])[0]) ?? "",
+        slug: cs.slug,
+        categoryId: null,
+        quantity: 1,
+      });
+    }
+    localStorage.setItem("mesopro-cart", JSON.stringify(cart));
+    window.dispatchEvent(new Event("cart-update"));
+  }
+
+  // Fetch cross-sell suggestions based on cart items
+  useEffect(() => {
+    if (items.length === 0) return;
+    const ids = items.map((i) => i.id).join(",");
+    fetch(`/api/products/cross-sell?ids=${ids}`)
+      .then((r) => r.json())
+      .then((d) => setCrossSells(d.data ?? []));
+  }, [items]);
 
   const { applied, totalDiscount, qualifiable } = useMemo(() => {
     if (items.length === 0) return { applied: [], totalDiscount: 0, qualifiable: [] };
@@ -307,35 +340,39 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
               </div>
             </div>
             <div className="p-4 space-y-2">
-              <button
-                type="button"
-                onClick={() => setPaymentMethod("cod")}
-                className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border-2 transition-all ${paymentMethod === "cod" ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40" : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600"}`}
-              >
-                <div className={`h-4 w-4 rounded-full border-2 shrink-0 flex items-center justify-center ${paymentMethod === "cod" ? "border-indigo-500" : "border-zinc-300 dark:border-zinc-600"}`}>
-                  {paymentMethod === "cod" && <div className="h-2 w-2 rounded-full bg-indigo-500" />}
-                </div>
-                <Banknote className={`h-5 w-5 shrink-0 ${paymentMethod === "cod" ? "text-indigo-600 dark:text-indigo-400" : "text-zinc-400"}`} />
-                <div className="text-left">
-                  <p className={`text-sm font-semibold ${paymentMethod === "cod" ? "text-indigo-700 dark:text-indigo-300" : "text-zinc-700 dark:text-zinc-300"}`}>Kapıda Ödeme</p>
-                  <p className="text-xs text-zinc-400 mt-0.5">Nakit veya kart ile kapıda öde</p>
-                </div>
-              </button>
+              {codEnabled && (
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("cod")}
+                  className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border-2 transition-all ${paymentMethod === "cod" ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40" : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600"}`}
+                >
+                  <div className={`h-4 w-4 rounded-full border-2 shrink-0 flex items-center justify-center ${paymentMethod === "cod" ? "border-indigo-500" : "border-zinc-300 dark:border-zinc-600"}`}>
+                    {paymentMethod === "cod" && <div className="h-2 w-2 rounded-full bg-indigo-500" />}
+                  </div>
+                  <Banknote className={`h-5 w-5 shrink-0 ${paymentMethod === "cod" ? "text-indigo-600 dark:text-indigo-400" : "text-zinc-400"}`} />
+                  <div className="text-left">
+                    <p className={`text-sm font-semibold ${paymentMethod === "cod" ? "text-indigo-700 dark:text-indigo-300" : "text-zinc-700 dark:text-zinc-300"}`}>Kapıda Ödeme</p>
+                    <p className="text-xs text-zinc-400 mt-0.5">Nakit veya kart ile kapıda öde</p>
+                  </div>
+                </button>
+              )}
 
-              <button
-                type="button"
-                onClick={() => setPaymentMethod("card")}
-                className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border-2 transition-all ${paymentMethod === "card" ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40" : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600"}`}
-              >
-                <div className={`h-4 w-4 rounded-full border-2 shrink-0 flex items-center justify-center ${paymentMethod === "card" ? "border-indigo-500" : "border-zinc-300 dark:border-zinc-600"}`}>
-                  {paymentMethod === "card" && <div className="h-2 w-2 rounded-full bg-indigo-500" />}
-                </div>
-                <CreditCard className={`h-5 w-5 shrink-0 ${paymentMethod === "card" ? "text-indigo-600 dark:text-indigo-400" : "text-zinc-400"}`} />
-                <div className="text-left">
-                  <p className={`text-sm font-semibold ${paymentMethod === "card" ? "text-indigo-700 dark:text-indigo-300" : "text-zinc-700 dark:text-zinc-300"}`}>Kredi / Banka Kartı</p>
-                  <p className="text-xs text-zinc-400 mt-0.5">iyzico güvencesiyle güvenli ödeme</p>
-                </div>
-              </button>
+              {cardEnabled && (
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("card")}
+                  className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border-2 transition-all ${paymentMethod === "card" ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40" : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600"}`}
+                >
+                  <div className={`h-4 w-4 rounded-full border-2 shrink-0 flex items-center justify-center ${paymentMethod === "card" ? "border-indigo-500" : "border-zinc-300 dark:border-zinc-600"}`}>
+                    {paymentMethod === "card" && <div className="h-2 w-2 rounded-full bg-indigo-500" />}
+                  </div>
+                  <CreditCard className={`h-5 w-5 shrink-0 ${paymentMethod === "card" ? "text-indigo-600 dark:text-indigo-400" : "text-zinc-400"}`} />
+                  <div className="text-left">
+                    <p className={`text-sm font-semibold ${paymentMethod === "card" ? "text-indigo-700 dark:text-indigo-300" : "text-zinc-700 dark:text-zinc-300"}`}>Kredi / Banka Kartı</p>
+                    <p className="text-xs text-zinc-400 mt-0.5">iyzico güvencesiyle güvenli ödeme</p>
+                  </div>
+                </button>
+              )}
             </div>
           </div>
 
@@ -356,7 +393,59 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
         </form>
 
         {/* ── Sipariş Özeti ─────────────────────────────────────── */}
-        <div className="lg:col-span-2 sticky top-20">
+        <div className="lg:col-span-2 sticky top-20 space-y-4">
+
+          {/* Birlikte Alınan Ürünler */}
+          {crossSells.length > 0 && (
+            <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+              <div className="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-indigo-500 shrink-0" />
+                <h2 className="font-semibold text-zinc-900 dark:text-zinc-50 text-sm">Birlikte Alınan Ürünler</h2>
+              </div>
+              <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                {crossSells.map((cs) => {
+                  const imgs = cs.images as string[];
+                  const price = Number(cs.price);
+                  const comparePrice = cs.comparePrice ? Number(cs.comparePrice) : null;
+                  const inCart = items.some((i) => i.id === cs.id);
+                  return (
+                    <div key={cs.id} className="flex items-center gap-3 px-4 py-3">
+                      <Link href={`/products/${cs.slug}`} className="relative h-12 w-12 shrink-0 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800">
+                        {imgs[0] ? (
+                          <Image src={imgs[0]} alt={cs.name} fill className="object-contain" sizes="48px" />
+                        ) : (
+                          <Package className="h-5 w-5 text-zinc-300 absolute inset-0 m-auto" />
+                        )}
+                      </Link>
+                      <div className="flex-1 min-w-0">
+                        <Link href={`/products/${cs.slug}`} className="text-xs font-medium text-zinc-800 dark:text-zinc-100 line-clamp-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                          {cs.name}
+                        </Link>
+                        <div className="flex items-baseline gap-1.5 mt-0.5">
+                          <span className="text-xs font-bold text-zinc-900 dark:text-zinc-50">{formatPrice(price)}</span>
+                          {comparePrice && <span className="text-[10px] text-zinc-400 line-through">{formatPrice(comparePrice)}</span>}
+                        </div>
+                      </div>
+                      {inCart ? (
+                        <span className="flex items-center gap-1 text-[10px] font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950 px-2 py-1 rounded-full shrink-0">
+                          <CheckCircle2 className="h-3 w-3" /> Sepette
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => addCrossSellToCart(cs)}
+                          className="flex items-center gap-1 text-[10px] font-semibold bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1.5 rounded-lg transition-colors shrink-0"
+                        >
+                          <Plus className="h-3 w-3" /> Ekle
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
 
             <div className="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800">
@@ -368,7 +457,7 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
                 <div key={item.id} className="flex gap-3 px-5 py-4">
                   <div className="relative h-16 w-16 shrink-0 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800">
                     {item.image ? (
-                      <Image src={item.image} alt={item.name} fill className="object-cover" sizes="64px" />
+                      <Image src={item.image} alt={item.name} fill className="object-contain" sizes="64px" />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
                         <Package className="h-6 w-6 text-zinc-300" />
