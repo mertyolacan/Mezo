@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCart } from "@/contexts/CartContext";
-import { ShoppingBag, Moon, Sun, Menu, X, User, LayoutDashboard } from "lucide-react";
+import { ShoppingBag, Moon, Sun, Menu, X, User, LayoutDashboard, Heart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
@@ -99,12 +99,25 @@ export default function Navbar({ isLoggedIn, isAdmin }: { isLoggedIn: boolean; i
               </Link>
             )}
 
+            {/* Favorites */}
+            <Link
+              href="/profile/favorites"
+              aria-label="Favorilerim"
+              className={`p-2 rounded-lg transition-colors ${
+                isActive("/profile/favorites")
+                  ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60"
+                  : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              }`}
+            >
+              <Heart className="h-4 w-4" />
+            </Link>
+
             {/* Profile / Login */}
             <Link
               href={loggedIn ? "/profile" : "/login"}
               aria-label={loggedIn ? "Profilim" : "Giriş yap"}
               className={`p-2 rounded-lg transition-colors ${
-                isActive("/profile")
+                isActive("/profile") && !isActive("/profile/favorites")
                   ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60"
                   : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               }`}
@@ -153,22 +166,6 @@ export default function Navbar({ isLoggedIn, isAdmin }: { isLoggedIn: boolean; i
                 {label}
               </Link>
             ))}
-            <Link
-              href={loggedIn ? "/profile" : "/login"}
-              className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-            >
-              <User className="h-4 w-4" />
-              {loggedIn ? "Profilim" : "Giriş Yap"}
-            </Link>
-            {isAdmin && (
-              <Link
-                href="/admin"
-                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/60"
-              >
-                <LayoutDashboard className="h-4 w-4" />
-                Yönetici Paneli
-              </Link>
-            )}
           </nav>
         )}
       </div>

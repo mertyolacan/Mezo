@@ -26,9 +26,7 @@ export default async function EditBlogPage({ params }: Props) {
           image: post.image ?? "",
           tags: (post.tags as string[]) ?? [],
           status: post.status,
-          seoTitle: post.seoTitle ?? "",
-          seoDescription: post.seoDescription ?? "",
-          ogImage: post.ogImage ?? "",
+          seoSettings: post.seoSettings ?? {},
         }}
       />
     </div>

@@ -122,10 +122,14 @@ export const products = pgTable("products", {
   crossSellIds: jsonb("cross_sell_ids").$type<number[]>().notNull().default([]),
   isActive: boolean("is_active").notNull().default(true),
   isFeatured: boolean("is_featured").notNull().default(false),
-  seoTitle: varchar("seo_title", { length: 255 }),
-  seoDescription: text("seo_description"),
-  seoKeywords: text("seo_keywords"),
-  ogImage: text("og_image"),
+  seoSettings: jsonb("seo_settings").$type<{
+    title?: string;
+    description?: string;
+    keywords?: string[];
+    ogImage?: string;
+    noIndex?: boolean;
+    canonicalUrl?: string;
+  }>(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 }, (t) => [
@@ -264,10 +268,14 @@ export const blogPosts = pgTable("blog_posts", {
   authorId: integer("author_id").references(() => users.id, {
     onDelete: "set null",
   }),
-  seoTitle: varchar("seo_title", { length: 255 }),
-  seoDescription: text("seo_description"),
-  seoKeywords: text("seo_keywords"),
-  ogImage: text("og_image"),
+  seoSettings: jsonb("seo_settings").$type<{
+    title?: string;
+    description?: string;
+    keywords?: string[];
+    ogImage?: string;
+    noIndex?: boolean;
+    canonicalUrl?: string;
+  }>(),
   publishedAt: timestamp("published_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -337,8 +345,44 @@ export const seoPages = pgTable("seo_pages", {
 
 export const siteSettings = pgTable("site_settings", {
   id: serial("id").primaryKey(),
-  key: varchar("key", { length: 100 }).notNull().unique(),
-  value: text("value"),
+
+  // ── SEO / Meta (GlobalSettingsForm tarafından yönetilir) ──────────────────
+  siteName: varchar("site_name", { length: 255 }).notNull().default("MesoPro"),
+  titleSeparator: varchar("title_separator", { length: 20 }).notNull().default(" | "),
+  defaultDescription: text("default_description"),
+  defaultOgImage: text("default_og_image"),
+  gaId: varchar("ga_id", { length: 50 }),
+  gscId: varchar("gsc_id", { length: 100 }),
+  faviconUrl: text("favicon_url"),
+  customScripts: jsonb("custom_scripts").$type<{
+    head?: string;
+    bodyStart?: string;
+    bodyEnd?: string;
+  }>(),
+
+  // ── Marka / Genel (SiteSettingsForm tarafından yönetilir) ─────────────────
+  siteTagline: varchar("site_tagline", { length: 255 }),
+  logoUrl: text("logo_url"),
+
+  // ── İletişim ──────────────────────────────────────────────────────────────
+  contactPhone: varchar("contact_phone", { length: 50 }),
+  contactEmail: varchar("contact_email", { length: 100 }),
+  contactAddress: text("contact_address"),
+  workingHours: varchar("working_hours", { length: 255 }),
+
+  // ── Sosyal Medya ──────────────────────────────────────────────────────────
+  socialInstagram: varchar("social_instagram", { length: 255 }),
+  socialFacebook: varchar("social_facebook", { length: 255 }),
+  socialTwitter: varchar("social_twitter", { length: 255 }),
+  socialYoutube: varchar("social_youtube", { length: 255 }),
+  socialLinkedin: varchar("social_linkedin", { length: 255 }),
+  socialTiktok: varchar("social_tiktok", { length: 255 }),
+  socialWhatsapp: varchar("social_whatsapp", { length: 50 }),
+
+  // ── Ödeme ─────────────────────────────────────────────────────────────────
+  paymentCodEnabled: boolean("payment_cod_enabled").notNull().default(true),
+  paymentCardEnabled: boolean("payment_card_enabled").notNull().default(false),
+
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 

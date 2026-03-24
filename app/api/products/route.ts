@@ -82,6 +82,17 @@ export async function POST(req: NextRequest) {
   const data = parsed.data;
   const slug = data.slug || slugify(data.name);
 
+  const seo = data.seoSettings
+    ? {
+        title:        data.seoSettings.title        ?? undefined,
+        description:  data.seoSettings.description  ?? undefined,
+        keywords:     data.seoSettings.keywords,
+        ogImage:      data.seoSettings.ogImage      ?? undefined,
+        noIndex:      data.seoSettings.noIndex,
+        canonicalUrl: data.seoSettings.canonicalUrl ?? undefined,
+      }
+    : undefined;
+
   const [product] = await db
     .insert(products)
     .values({
@@ -89,6 +100,7 @@ export async function POST(req: NextRequest) {
       slug,
       price: String(data.price),
       comparePrice: data.comparePrice ? String(data.comparePrice) : null,
+      seoSettings: seo,
     })
     .returning();
 

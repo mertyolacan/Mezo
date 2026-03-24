@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
       publishedAt: blogPosts.publishedAt,
       createdAt: blogPosts.createdAt,
       author: { name: users.name },
+      seoSettings: blogPosts.seoSettings,
     })
     .from(blogPosts)
     .leftJoin(users, eq(blogPosts.authorId, users.id))

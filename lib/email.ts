@@ -3,10 +3,8 @@ import { db } from "@/lib/db";
 import { siteSettings } from "@/lib/db/schema";
 
 async function getSiteEmail(): Promise<string> {
-  const rows = await db.select().from(siteSettings);
-  const settings: Record<string, string | null> = {};
-  rows.forEach((r) => { settings[r.key] = r.value; });
-  return settings["contact_email"] ?? process.env.SMTP_FROM ?? "noreply@mesopro.com.tr";
+  const row = await db.select().from(siteSettings).limit(1).then((r) => r[0]);
+  return row?.contactEmail ?? process.env.SMTP_FROM ?? "noreply@mesopro.com.tr";
 }
 
 function createTransport() {

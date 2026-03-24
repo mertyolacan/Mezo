@@ -1,16 +1,24 @@
-import type { MetadataRoute } from "next";
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://mesopro.com.tr";
+import { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://mesopro.com";
+
   return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: "/",
-        disallow: ["/admin", "/admin-login", "/api/", "/profile/", "/checkout/"],
-      },
-    ],
-    sitemap: `${BASE_URL}/sitemap.xml`,
+    rules: {
+      userAgent: "*",
+      allow: "/",
+      disallow: [
+        "/admin",
+        "/admin/*",
+        "/api/*",
+        "/checkout/*",
+        "/profile/*",
+        "/login",
+        "/register",
+        "/forgot-password",
+        "/reset-password"
+      ],
+    },
+    sitemap: `${baseUrl}/sitemap.xml`,
   };
 }

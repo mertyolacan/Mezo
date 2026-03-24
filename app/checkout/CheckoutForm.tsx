@@ -393,7 +393,7 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
         </form>
 
         {/* ── Sipariş Özeti ─────────────────────────────────────── */}
-        <div className="lg:col-span-2 sticky top-20 space-y-4">
+        <div className="lg:col-span-2 lg:sticky lg:top-20 space-y-4">
 
           {/* Birlikte Alınan Ürünler */}
           {crossSells.length > 0 && (

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { SidebarContext, NotifCounts } from "./sidebar-context";
 import AdminSidebar from "./AdminSidebar";
+import AdminHeader from "./AdminHeader";
 
 export default function AdminShell({
   children,
@@ -12,6 +13,7 @@ export default function AdminShell({
   notifCounts?: NotifCounts;
 }) {
   const [collapsed, setCollapsed] = useState(true);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("mesopro-sidebar");
@@ -26,10 +28,24 @@ export default function AdminShell({
   }
 
   return (
-    <SidebarContext.Provider value={{ collapsed, toggleCollapsed, mobileOpen: false, setMobileOpen: () => {}, notifCounts }}>
-      <div className="flex h-screen bg-zinc-50 dark:bg-zinc-950">
+    <SidebarContext.Provider value={{ collapsed, toggleCollapsed, mobileOpen, setMobileOpen, notifCounts }}>
+      <div className="flex h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 overflow-hidden font-sans">
+        {/* Mobile overlay */}
+        {mobileOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 lg:hidden"
+            onClick={() => setMobileOpen(false)}
+          />
+        )}
         <AdminSidebar />
-        <main className="flex-1 overflow-y-auto p-3 md:p-6 min-w-0">{children}</main>
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+          <AdminHeader />
+          <main className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth antialiased">
+            <div className="max-w-[1400px] mx-auto animate-in fade-in slide-in-from-bottom-2 duration-500">
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
     </SidebarContext.Provider>
   );

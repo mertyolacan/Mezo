@@ -30,7 +30,7 @@ export default function CookieConsent() {
     <div
       role="dialog"
       aria-label="Çerez izni"
-      className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm z-50 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl shadow-lg p-4"
+      className="fixed bottom-4 left-4 right-20 sm:left-auto sm:right-4 sm:max-w-sm z-[60] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl shadow-lg p-4"
     >
       <div className="flex items-start gap-3">
         <Cookie className="h-5 w-5 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />

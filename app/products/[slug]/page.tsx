@@ -11,6 +11,8 @@ import ProductDetailClient from "./ProductDetailClient";
 import ProductImageGallery from "./ProductImageGallery";
 import ProductTabs from "./ProductTabs";
 import { getAuthUser } from "@/lib/auth";
+import FavoriteButton from "../FavoriteButton";
+import { favorites } from "@/lib/db/schema";
 
 export const revalidate = 60;
 
@@ -19,20 +21,31 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const [row] = await db
-    .select({ name: products.name, seoTitle: products.seoTitle, seoDescription: products.seoDescription, ogImage: products.ogImage, images: products.images })
+    .select({ 
+      name: products.name, 
+      seoSettings: products.seoSettings, 
+      images: products.images 
+    })
     .from(products)
     .where(eq(products.slug, slug))
     .limit(1);
 
   if (!row) return { title: "Ürün Bulunamadı" };
 
+  const seo = row.seoSettings;
+
   return {
-    title: row.seoTitle || row.name,
-    description: row.seoDescription || undefined,
+    title: seo?.title || row.name,
+    description: seo?.description || undefined,
+    keywords: seo?.keywords || undefined,
+    alternates: {
+      canonical: seo?.canonicalUrl || undefined,
+    },
+    robots: seo?.noIndex ? "noindex, nofollow" : "index, follow",
     openGraph: {
-      title: row.seoTitle || row.name,
-      description: row.seoDescription || undefined,
-      images: row.ogImage ? [row.ogImage] : row.images[0] ? [row.images[0]] : [],
+      title: seo?.title || row.name,
+      description: seo?.description || undefined,
+      images: seo?.ogImage ? [seo.ogImage] : row.images[0] ? [row.images[0]] : [],
     },
   };
 }
@@ -96,6 +109,12 @@ export default async function ProductDetailPage({ params }: Props) {
           .limit(4)
       : Promise.resolve([]),
   ]);
+
+  const favoriteSet = new Set<number>();
+  if (authUser) {
+    const favs = await db.select({ pid: favorites.productId }).from(favorites).where(eq(favorites.userId, authUser.id));
+    favs.forEach(f => favoriteSet.add(f.pid));
+  }
 
   const clientCampaigns: ClientCampaign[] = rawCampaigns.map((c) => ({
     id: c.id,
@@ -176,7 +195,7 @@ export default async function ProductDetailPage({ params }: Props) {
         <div className="mt-16 border-t border-zinc-100 dark:border-zinc-800 pt-10">
           <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-6">Benzer Ürünler</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {relatedProducts.map((rp) => <ProductCard key={rp.id} product={rp} />)}
+            {relatedProducts.map((rp) => <ProductCard key={rp.id} product={rp} isFavorited={favoriteSet.has(rp.id)} />)}
           </div>
         </div>
       )}
@@ -187,7 +206,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
 type CardProduct = { id: number; name: string; slug: string; price: unknown; comparePrice: unknown; images: unknown };
 
-function ProductCard({ product: rp }: { product: CardProduct }) {
+function ProductCard({ product: rp, isFavorited }: { product: CardProduct, isFavorited: boolean }) {
   const price = Number(rp.price);
   const comparePrice = rp.comparePrice ? Number(rp.comparePrice) : null;
   const discount = comparePrice ? Math.round((1 - price / comparePrice) * 100) : null;
@@ -203,6 +222,7 @@ function ProductCard({ product: rp }: { product: CardProduct }) {
         {discount && (
           <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md">-{discount}%</span>
         )}
+        <FavoriteButton productId={rp.id} initialFavorited={isFavorited} />
       </div>
       <div className="p-3">
         <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50 line-clamp-2 leading-snug">{rp.name}</p>

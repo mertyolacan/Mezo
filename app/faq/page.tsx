@@ -4,12 +4,16 @@ import { eq, asc } from "drizzle-orm";
 import type { Metadata } from "next";
 import FaqAccordion from "./FaqAccordion";
 
+import { getSeoMetadata } from "@/lib/seo";
+
 export const revalidate = 300;
 
-export const metadata: Metadata = {
-  title: "Sıkça Sorulan Sorular",
-  description: "MesoPro ürünleri ve sipariş süreciyle ilgili sık sorulan sorular.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return getSeoMetadata("faq", {
+    title: "Sıkça Sorulan Sorular",
+    description: "MesoPro ürünleri ve sipariş süreciyle ilgili sık sorulan sorular.",
+  });
+}
 
 export default async function FaqPage() {
   const rows = await db

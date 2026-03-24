@@ -24,6 +24,12 @@ export default function FavoriteButton({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId }),
       });
+
+      if (res.status === 401) {
+        window.location.href = "/login";
+        return;
+      }
+
       if (res.ok) {
         const d = await res.json();
         setFavorited(d.data.favorited);

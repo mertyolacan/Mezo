@@ -11,13 +11,33 @@ type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const [post] = await db.select({ title: blogPosts.title, seoTitle: blogPosts.seoTitle, seoDescription: blogPosts.seoDescription, ogImage: blogPosts.ogImage })
-    .from(blogPosts).where(eq(blogPosts.slug, slug)).limit(1);
+  const [post] = await db
+    .select({ 
+      title: blogPosts.title, 
+      seoSettings: blogPosts.seoSettings, 
+      image: blogPosts.image 
+    })
+    .from(blogPosts)
+    .where(eq(blogPosts.slug, slug))
+    .limit(1);
+
   if (!post) return { title: "Yazı Bulunamadı" };
+
+  const seo = post.seoSettings;
+
   return {
-    title: post.seoTitle || post.title,
-    description: post.seoDescription || undefined,
-    openGraph: { images: post.ogImage ? [post.ogImage] : [] },
+    title: seo?.title || post.title,
+    description: seo?.description || undefined,
+    keywords: seo?.keywords || undefined,
+    alternates: {
+      canonical: seo?.canonicalUrl || undefined,
+    },
+    robots: seo?.noIndex ? "noindex, nofollow" : "index, follow",
+    openGraph: {
+      title: seo?.title || post.title,
+      description: seo?.description || undefined,
+      images: seo?.ogImage ? [seo.ogImage] : post.image ? [post.image] : [],
+    },
   };
 }
 
@@ -40,8 +60,8 @@ export default async function BlogPostPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: post.title,
-    description: post.seoDescription ?? post.excerpt ?? undefined,
-    image: post.image ?? post.ogImage ?? undefined,
+    description: post.seoSettings?.description ?? post.excerpt ?? undefined,
+    image: post.image ?? post.seoSettings?.ogImage ?? undefined,
     datePublished: post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
     dateModified: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
     ...(author?.name ? { author: { "@type": "Person", name: author.name } } : {}),
@@ -78,9 +98,10 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
       )}
 
-      <div className="prose prose-zinc dark:prose-invert max-w-none text-sm leading-relaxed whitespace-pre-wrap text-zinc-700 dark:text-zinc-300">
-        {post.content}
-      </div>
+      <div
+        className="prose prose-zinc dark:prose-invert max-w-none text-sm leading-relaxed text-zinc-700 dark:text-zinc-300 blog-content"
+        dangerouslySetInnerHTML={{ __html: post.content }}
+      />
     </article>
     </>
   );

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Plus, Trash2, ChevronUp, ChevronDown, Check } from "lucide-react";
+import SeoFields from "@/components/admin/SeoFields";
+import ImageInput from "@/components/admin/ImageInput";
 
 type Section = {
   type: string;
@@ -35,7 +37,7 @@ const SECTION_FIELDS: Record<string, Array<{ key: string; label: string; type?: 
   hero: [
     { key: "title", label: "Başlık" },
     { key: "subtitle", label: "Alt Başlık" },
-    { key: "image", label: "Arka Plan Görseli URL" },
+    { key: "image", label: "Arka Plan Görseli", type: "image" },
     { key: "buttonText", label: "Buton Metni" },
     { key: "buttonUrl", label: "Buton URL" },
   ],
@@ -44,7 +46,7 @@ const SECTION_FIELDS: Record<string, Array<{ key: string; label: string; type?: 
     { key: "content", label: "İçerik", type: "textarea" },
   ],
   image: [
-    { key: "url", label: "Görsel URL" },
+    { key: "url", label: "Görsel", type: "image" },
     { key: "alt", label: "Alt Metin" },
     { key: "caption", label: "Altyazı" },
   ],
@@ -78,6 +80,20 @@ export default function PageBuilderForm({ initialData }: PageBuilderFormProps) {
     ogImage: initialData?.ogImage ?? "",
   });
   const [sections, setSections] = useState<Section[]>(initialData?.sections ?? []);
+  const [seoKeywords, setSeoKeywords] = useState<string[]>(
+    ((initialData as any)?.seoKeywords ?? "").split(",").map((s: string) => s.trim()).filter(Boolean)
+  );
+  const [keywordInput, setKeywordInput] = useState("");
+
+  function addKeyword() {
+    const kw = keywordInput.trim();
+    if (kw && !seoKeywords.includes(kw)) setSeoKeywords((p) => [...p, kw]);
+    setKeywordInput("");
+  }
+
+  function removeKeyword(kw: string) {
+    setSeoKeywords((p) => p.filter((k) => k !== kw));
+  }
 
   function addSection(type: string) {
     setSections((prev) => [...prev, { type, data: {} }]);
@@ -115,7 +131,7 @@ export default function PageBuilderForm({ initialData }: PageBuilderFormProps) {
     const res = await fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, sections }),
+      body: JSON.stringify({ ...form, sections, seoKeywords: seoKeywords.join(", ") }),
     });
 
     const data = await res.json();
@@ -208,6 +224,13 @@ export default function PageBuilderForm({ initialData }: PageBuilderFormProps) {
                           value={section.data[field.key] ?? ""}
                           onChange={(e) => updateSectionField(index, field.key, e.target.value)}
                         />
+                      ) : field.type === "image" ? (
+                        <ImageInput
+                          value={section.data[field.key] ?? ""}
+                          onChange={(url) => updateSectionField(index, field.key, url)}
+                          previewType="video"
+                          inputClass={inputClass}
+                        />
                       ) : (
                         <input
                           className={inputClass}
@@ -242,18 +265,20 @@ export default function PageBuilderForm({ initialData }: PageBuilderFormProps) {
       {/* SEO */}
       <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
         <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">SEO</h2>
-        <div>
-          <label className={labelClass}>SEO Başlık</label>
-          <input className={inputClass} value={form.seoTitle} onChange={(e) => setForm((p) => ({ ...p, seoTitle: e.target.value }))} />
-        </div>
-        <div>
-          <label className={labelClass}>Meta Açıklama</label>
-          <textarea rows={2} className={inputClass} value={form.seoDescription} onChange={(e) => setForm((p) => ({ ...p, seoDescription: e.target.value }))} />
-        </div>
-        <div>
-          <label className={labelClass}>OG Görsel URL</label>
-          <input className={inputClass} value={form.ogImage} onChange={(e) => setForm((p) => ({ ...p, ogImage: e.target.value }))} />
-        </div>
+        <SeoFields
+          title={form.seoTitle}
+          onTitleChange={(v) => setForm((p) => ({ ...p, seoTitle: v }))}
+          description={form.seoDescription}
+          onDescriptionChange={(v) => setForm((p) => ({ ...p, seoDescription: v }))}
+          keywords={seoKeywords}
+          keywordInput={keywordInput}
+          onKeywordInputChange={setKeywordInput}
+          onAddKeyword={addKeyword}
+          onRemoveKeyword={removeKeyword}
+          ogImage={form.ogImage}
+          onOgImageChange={(v) => setForm((p) => ({ ...p, ogImage: v }))}
+          previewUrl={`mesopro.com › ${form.slug || form.title || "sayfa"}`}
+        />
       </div>
 
       <div className="flex gap-3">

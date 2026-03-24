@@ -1,20 +1,38 @@
 import { db } from "@/lib/db";
-import { products, categories, brands } from "@/lib/db/schema";
+import { products, categories, brands, favorites } from "@/lib/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, ShieldCheck, Truck, RefreshCcw, Headphones } from "lucide-react";
 import AddToCartButton from "@/components/shared/AddToCartButton";
 import BrandMarquee from "@/components/shared/BrandMarquee";
+import { getSeoMetadata } from "@/lib/seo";
+import type { Metadata } from "next";
+import { getAuthUser } from "@/lib/auth";
+import FavoriteButton from "./products/FavoriteButton";
 
 export const revalidate = 60;
 
+export async function generateMetadata(): Promise<Metadata> {
+  return getSeoMetadata("home", {
+    title: "MesoPro | Profesyonel Mezoterapi Ürünleri",
+    description: "Klinikler ve doktorlar için profesyonel mezoterapi ürünleri.",
+  });
+}
+
 export default async function Home() {
-  const [featuredProducts, allCategories, allBrands] = await Promise.all([
+  const [user, featuredProducts, allCategories, allBrands] = await Promise.all([
+    getAuthUser(),
     db.select().from(products).where(and(eq(products.isActive, true), eq(products.isFeatured, true))).orderBy(desc(products.createdAt)).limit(8),
     db.select().from(categories).where(eq(categories.isActive, true)).orderBy(categories.sortOrder).limit(6),
     db.select({ id: brands.id, name: brands.name, logo: brands.logo }).from(brands).where(eq(brands.isActive, true)),
   ]);
+
+  const favoriteSet = new Set<number>();
+  if (user) {
+    const favs = await db.select({ pid: favorites.productId }).from(favorites).where(eq(favorites.userId, user.id));
+    favs.forEach(f => favoriteSet.add(f.pid));
+  }
 
   const features = [
     { icon: ShieldCheck, title: "Güvenli Alışveriş", desc: "SSL ile şifreli, güvenli ödeme" },
@@ -129,6 +147,7 @@ export default async function Home() {
                           -{discount}%
                         </span>
                       )}
+                      <FavoriteButton productId={product.id} initialFavorited={favoriteSet.has(product.id)} />
                     </div>
                     <div className="p-3">
                       <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200 line-clamp-2 mb-1">{product.name}</p>

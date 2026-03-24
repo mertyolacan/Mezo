@@ -23,14 +23,7 @@ export async function GET(req: NextRequest, { params }: Params) {
 
   if (!order) return NextResponse.json({ error: "Bulunamadı" }, { status: 404 });
 
-  let siteName = "MesoPro";
-  try {
-    const raw = settings[0]?.value;
-    const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
-    if (parsed && typeof parsed === "object" && typeof parsed.siteName === "string") {
-      siteName = parsed.siteName;
-    }
-  } catch { /* parse hatası — varsayılan kullan */ }
+  const siteName = settings[0]?.siteName ?? "MesoPro";
 
   const element = React.createElement(InvoiceDocument, {
     orderNumber: order.orderNumber,

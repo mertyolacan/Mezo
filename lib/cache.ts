@@ -1,6 +1,6 @@
 import { unstable_cache, revalidateTag } from "next/cache";
 import { db } from "@/lib/db";
-import { campaigns, categories, brands, siteSettings } from "@/lib/db/schema";
+import { campaigns, categories, brands, siteSettings, products, blogPosts } from "@/lib/db/schema";
 import { and, eq, gte, lte, or, isNull, asc } from "drizzle-orm";
 
 // ── Tags ──────────────────────────────────────────────────────────────────────
@@ -62,20 +62,48 @@ export const getBrands = unstable_cache(
 
 export const getSiteSettings = unstable_cache(
   async () => {
-    const rows = await db.select().from(siteSettings).limit(1);
-    return rows[0] ?? null;
+    const [settings] = await db
+      .select()
+      .from(siteSettings)
+      .where(eq(siteSettings.id, 1))
+      .limit(1);
+    return settings || null;
   },
   ["site-settings"],
   { tags: [TAGS.settings], revalidate: 600 }
 );
 
-export const getAllSiteSettings = unstable_cache(
-  async (): Promise<Record<string, string | null>> => {
-    const rows = await db.select().from(siteSettings);
-    const map: Record<string, string | null> = {};
-    rows.forEach((r) => { map[r.key] = r.value; });
-    return map;
-  },
-  ["all-site-settings"],
-  { tags: [TAGS.settings], revalidate: 600 }
+// getAllSiteSettings: getSiteSettings ile aynı veriyi döner, geriye dönük uyumluluk için
+export async function getAllSiteSettings(): Promise<Record<string, any>> {
+  const settings = await getSiteSettings();
+  if (!settings) return {};
+  return {
+    site_name: settings.siteName,
+    contact_phone: settings.contactPhone,
+    contact_email: settings.contactEmail,
+    social_whatsapp: settings.socialWhatsapp,
+    social_instagram: settings.socialInstagram,
+    ...settings,
+  };
+}
+
+// ── Sitemap Fetchers ──────────────────────────────────────────────────────────
+export const getSitemapProducts = unstable_cache(
+  async () =>
+    db
+      .select({ slug: products.slug, updatedAt: products.updatedAt })
+      .from(products)
+      .where(eq(products.isActive, true)),
+  ["sitemap-products"],
+  { tags: [TAGS.products], revalidate: 3600 }
+);
+
+export const getSitemapPosts = unstable_cache(
+  async () =>
+    db
+      .select({ slug: blogPosts.slug, updatedAt: blogPosts.updatedAt })
+      .from(blogPosts)
+      .where(eq(blogPosts.status, "published")),
+  ["sitemap-posts"],
+  { tags: ["blog-posts"], revalidate: 3600 }
 );

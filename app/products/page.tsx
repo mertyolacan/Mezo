@@ -11,13 +11,16 @@ import ProductSearch from "./ProductSearch";
 import FavoriteButton from "./FavoriteButton";
 import PriceFilter from "./PriceFilter";
 import { getAuthUser } from "@/lib/auth";
+import { getSeoMetadata } from "@/lib/seo";
 
 export const revalidate = 30;
 
-export const metadata: Metadata = {
-  title: "Ürünler",
-  description: "Profesyonel mezoterapi ürünleri kataloğu.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return getSeoMetadata("products", {
+    title: "Ürünler",
+    description: "Profesyonel mezoterapi ürünleri kataloğu.",
+  });
+}
 
 const PAGE_SIZE = 24;
 

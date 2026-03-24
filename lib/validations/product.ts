@@ -16,10 +16,14 @@ export const productSchema = z.object({
   crossSellIds: z.array(z.number().int().positive()).default([]),
   isActive: z.boolean().default(true),
   isFeatured: z.boolean().default(false),
-  seoTitle: z.string().max(255).optional(),
-  seoDescription: z.string().optional(),
-  seoKeywords: z.string().optional(),
-  ogImage: z.string().optional(),
+  seoSettings: z.object({
+    title: z.string().max(60).optional().nullable(),
+    description: z.string().max(160).optional().nullable(),
+    keywords: z.array(z.string()).optional().default([]),
+    ogImage: z.string().optional().nullable(),
+    noIndex: z.boolean().optional().default(false),
+    canonicalUrl: z.string().optional().nullable(),
+  }).optional(),
 });
 
 export type ProductInput = z.infer<typeof productSchema>;

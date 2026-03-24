@@ -133,7 +133,7 @@ export default async function AdminDashboard() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-x-auto">
         <div className="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
           <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">Son Siparişler</h2>
           <Link href="/admin/orders" className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline">

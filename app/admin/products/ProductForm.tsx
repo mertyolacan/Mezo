@@ -2,9 +2,14 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Upload, X, ImageIcon, Images, Search, ShoppingBag, Check, Plus } from "lucide-react";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2, Upload, X, ImageIcon, Images, Search, ShoppingBag, Check, Plus, Save, ArrowLeft, Package, Trash2, Layers, Globe } from "lucide-react";
 import Image from "next/image";
 import MediaPickerModal from "@/components/admin/MediaPickerModal";
+import SeoForm from "@/components/admin/SeoForm";
+import { productSchema, type ProductInput } from "@/lib/validations/product";
+import { slugify } from "@/lib/utils";
 
 type Category = { id: number; name: string };
 type Brand = { id: number; name: string };
@@ -14,7 +19,7 @@ type ProductFormProps = {
   categories: Category[];
   brands: Brand[];
   allProducts?: ProductOption[];
-  initialData?: Record<string, unknown>;
+  initialData?: any;
   productId?: number;
 };
 
@@ -23,438 +28,346 @@ export default function ProductForm({ categories, brands, allProducts = [], init
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
-  const [images, setImages] = useState<string[]>((initialData?.images as string[]) ?? []);
-  const [uploading, setUploading] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [crossSellIds, setCrossSellIds] = useState<number[]>((initialData?.crossSellIds as number[]) ?? []);
   const [crossSellSearch, setCrossSellSearch] = useState("");
-  const [tags, setTags] = useState<string[]>((initialData?.tags as string[]) ?? []);
   const [tagInput, setTagInput] = useState("");
-  const [seoKeywords, setSeoKeywords] = useState<string[]>(
-    ((initialData?.seoKeywords as string) ?? "").split(",").map((s) => s.trim()).filter(Boolean)
-  );
-  const [keywordInput, setKeywordInput] = useState("");
-  const [form, setForm] = useState({
-    name: (initialData?.name as string) ?? "",
-    slug: (initialData?.slug as string) ?? "",
-    description: (initialData?.description as string) ?? "",
-    shortDescription: (initialData?.shortDescription as string) ?? "",
-    price: (initialData?.price as string) ?? "",
-    comparePrice: (initialData?.comparePrice as string) ?? "",
-    stock: String(initialData?.stock ?? 0),
-    lowStockThreshold: String(initialData?.lowStockThreshold ?? 5),
-    categoryId: String(initialData?.categoryId ?? ""),
-    brandId: String(initialData?.brandId ?? ""),
-    isActive: (initialData?.isActive as boolean) ?? true,
-    isFeatured: (initialData?.isFeatured as boolean) ?? false,
-    seoTitle: (initialData?.seoTitle as string) ?? "",
-    seoDescription: (initialData?.seoDescription as string) ?? "",
+
+  const methods = useForm<ProductInput>({
+    resolver: zodResolver(productSchema) as any,
+    defaultValues: {
+      name: initialData?.name ?? "",
+      slug: initialData?.slug ?? "",
+      description: initialData?.description ?? "",
+      shortDescription: initialData?.shortDescription ?? "",
+      price: initialData?.price ? Number(initialData.price) : 0,
+      comparePrice: initialData?.comparePrice ? Number(initialData.comparePrice) : null,
+      stock: initialData?.stock ?? 0,
+      lowStockThreshold: initialData?.lowStockThreshold ?? 5,
+      images: initialData?.images ?? [],
+      categoryId: initialData?.categoryId ?? null,
+      brandId: initialData?.brandId ?? null,
+      tags: initialData?.tags ?? [],
+      crossSellIds: initialData?.crossSellIds ?? [],
+      isActive: initialData?.isActive ?? true,
+      isFeatured: initialData?.isFeatured ?? false,
+      seoSettings: initialData?.seoSettings ?? {
+        title: "",
+        description: "",
+        keywords: [],
+        ogImage: "",
+        noIndex: false,
+        canonicalUrl: ""
+      }
+    }
   });
 
-  function set(key: string, value: string | boolean) {
-    setForm((prev) => ({ ...prev, [key]: value }));
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = methods;
+  const images = watch("images") || [];
+  const tags = watch("tags") || [];
+  const crossSellIds = watch("crossSellIds") || [];
+  const productName = watch("name");
+
+  async function onSubmit(data: ProductInput) {
+    setLoading(true);
+    setError("");
+
+    const payload = {
+      ...data,
+      slug: data.slug || slugify(data.name),
+    };
+
+    try {
+      const res = await fetch(productId ? `/api/products/${productId}` : "/api/products", {
+        method: productId ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error ?? "Bir hata oluştu");
+
+      if (productId) {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+      } else {
+        router.push("/admin/products");
+        router.refresh();
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
+  // --- Image Helpers ---
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
     setUploading(true);
+    const newUrls: string[] = [];
     for (const file of files) {
       const formData = new FormData();
       formData.append("file", file);
       const res = await fetch("/api/media/upload", { method: "POST", body: formData });
       if (res.ok) {
         const data = await res.json();
-        setImages((prev) => [...prev, data.data.url]);
+        newUrls.push(data.data.url);
       }
     }
+    setValue("images", [...images, ...newUrls], { shouldDirty: true });
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  function removeImage(url: string) {
-    setImages((prev) => prev.filter((img) => img !== url));
-  }
+  const removeImage = (url: string) => setValue("images", images.filter((img: string) => img !== url));
+  const setCover = (url: string) => setValue("images", [url, ...images.filter((img: string) => img !== url)]);
 
-  function setCover(url: string) {
-    setImages((prev) => [url, ...prev.filter((img) => img !== url)]);
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    const payload = {
-      ...form,
-      price: Number(form.price),
-      comparePrice: form.comparePrice ? Number(form.comparePrice) : null,
-      stock: Number(form.stock),
-      lowStockThreshold: Number(form.lowStockThreshold),
-      categoryId: form.categoryId ? Number(form.categoryId) : null,
-      brandId: form.brandId ? Number(form.brandId) : null,
-      tags,
-      seoKeywords: seoKeywords.join(", "),
-      images,
-      crossSellIds,
-    };
-
-    const res = await fetch(
-      productId ? `/api/products/${productId}` : "/api/products",
-      {
-        method: productId ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      }
-    );
-
-    const data = await res.json();
-    setLoading(false);
-
-    if (!res.ok) {
-      setError(data.error ?? "Bir hata oluştu");
-      return;
+  // --- Tag Helpers ---
+  const addTag = () => {
+    const val = tagInput.trim();
+    if (val && !tags.includes(val)) {
+      setValue("tags", [...tags, val], { shouldDirty: true });
     }
+    setTagInput("");
+  };
 
-    if (productId) {
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
-    } else {
-      router.push("/admin/products");
-      router.refresh();
-    }
-  }
+  const removeTag = (tag: string) => setValue("tags", tags.filter((t: string) => t !== tag));
 
-  const inputClass =
-    "w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition";
-
-  const labelClass = "block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1";
+  const inputClass = "w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none";
+  const labelClass = "block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl">
-      {error && (
-        <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm px-4 py-3 rounded-lg">
-          {error}
-        </div>
-      )}
-
+    <FormProvider {...methods}>
       <MediaPickerModal
         open={pickerOpen}
         onClose={() => setPickerOpen(false)}
-        onSelect={(urls) => setImages((prev) => [...prev, ...urls.filter((u) => !prev.includes(u))])}
+        onSelect={(urls) => setValue("images", [...images, ...urls.filter((u) => !images.includes(u))], { shouldDirty: true })}
       />
 
-      {/* Resimler */}
-      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">Ürün Resimleri</h2>
-          <button
-            type="button"
-            onClick={() => setPickerOpen(true)}
-            className="flex items-center gap-1.5 text-sm text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
-          >
-            <Images className="h-4 w-4" />
-            Medyadan seç
-          </button>
-        </div>
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-          {images.map((url, i) => (
-            <div
-              key={url}
-              onClick={() => i !== 0 && setCover(url)}
-              className={`relative aspect-square rounded-lg overflow-hidden border-2 group transition-all ${
-                i === 0
-                  ? "border-indigo-500 cursor-default"
-                  : "border-zinc-200 dark:border-zinc-700 cursor-pointer hover:border-indigo-400"
-              }`}
-            >
-              <Image src={url} alt={`Resim ${i + 1}`} fill className="object-contain" sizes="150px" />
-
-              {/* Kapak rozeti */}
-              {i === 0 && (
-                <span className="absolute bottom-0 left-0 right-0 text-center text-xs bg-indigo-600 text-white py-0.5 font-medium">
-                  Kapak
-                </span>
-              )}
-
-              {/* Hover overlay — kapak yap */}
-              {i !== 0 && (
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                  <span className="text-white text-[10px] font-semibold bg-indigo-600 px-2 py-1 rounded-full">Kapak Yap</span>
-                </div>
-              )}
-
-              {/* Sil butonu */}
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); removeImage(url); }}
-                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
-            className="aspect-square rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-600 flex flex-col items-center justify-center gap-1 text-zinc-400 hover:border-indigo-400 hover:text-indigo-500 transition-colors disabled:opacity-50"
-          >
-            {uploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
-            <span className="text-xs">{uploading ? "Yükleniyor" : "Ekle"}</span>
-          </button>
-        </div>
-        {images.length === 0 && !uploading && (
-          <p className="text-xs text-zinc-400 flex items-center gap-1"><ImageIcon className="h-3.5 w-3.5" /> Resme tıklayarak kapak fotoğrafını belirleyebilirsiniz.</p>
+      <form onSubmit={handleSubmit(onSubmit)} className="max-w-6xl mx-auto space-y-8 pb-32 animate-in fade-in duration-700">
+        {error && (
+          <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 text-sm px-6 py-4 rounded-2xl flex items-center gap-3">
+            <X className="h-5 w-5" /> {error}
+          </div>
         )}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          multiple
-          className="hidden"
-          onChange={handleImageUpload}
-        />
-      </div>
 
-      {/* Temel Bilgiler */}
-      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
-        <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">Temel Bilgiler</h2>
-        <div>
-          <label className={labelClass}>Ürün Adı *</label>
-          <input className={inputClass} value={form.name} onChange={(e) => set("name", e.target.value)} required />
-        </div>
-        <div>
-          <label className={labelClass}>Slug</label>
-          <input className={inputClass} value={form.slug} onChange={(e) => set("slug", e.target.value)} placeholder="otomatik-olusturulur" />
-        </div>
-        <div>
-          <label className={labelClass}>Kısa Açıklama</label>
-          <textarea className={inputClass} rows={2} value={form.shortDescription} onChange={(e) => set("shortDescription", e.target.value)} />
-        </div>
-        <div>
-          <label className={labelClass}>Açıklama</label>
-          <textarea className={inputClass} rows={5} value={form.description} onChange={(e) => set("description", e.target.value)} />
-        </div>
-      </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content (Left) */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Images Grid */}
+            <section className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-zinc-100 dark:border-zinc-800">
+                <div className="flex items-center gap-2">
+                  <Images className="h-4 w-4 text-indigo-500" />
+                  <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-widest">Ürün Resimleri</h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPickerOpen(true)}
+                  className="text-xs font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 transition-colors uppercase tracking-wider"
+                >
+                  Medyadan Seç
+                </button>
+              </div>
 
-      {/* Fiyat & Stok */}
-      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
-        <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">Fiyat & Stok</h2>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className={labelClass}>Fiyat (₺) *</label>
-            <input type="number" min="0" step="0.01" className={inputClass} value={form.price} onChange={(e) => set("price", e.target.value)} required />
-          </div>
-          <div>
-            <label className={labelClass}>Eski Fiyat (₺)</label>
-            <input type="number" min="0" step="0.01" className={inputClass} value={form.comparePrice} onChange={(e) => set("comparePrice", e.target.value)} />
-          </div>
-          <div>
-            <label className={labelClass}>Stok</label>
-            <input type="number" min="0" className={inputClass} value={form.stock} onChange={(e) => set("stock", e.target.value)} />
-          </div>
-          <div>
-            <label className={labelClass}>Düşük Stok Eşiği</label>
-            <input type="number" min="0" className={inputClass} value={form.lowStockThreshold} onChange={(e) => set("lowStockThreshold", e.target.value)} />
-          </div>
-        </div>
-      </div>
-
-      {/* Kategori & Marka */}
-      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
-        <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">Kategori & Marka</h2>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className={labelClass}>Kategori</label>
-            <select className={inputClass} value={form.categoryId} onChange={(e) => set("categoryId", e.target.value)}>
-              <option value="">Seçiniz</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className={labelClass}>Marka</label>
-            <select className={inputClass} value={form.brandId} onChange={(e) => set("brandId", e.target.value)}>
-              <option value="">Seçiniz</option>
-              {brands.map((b) => (
-                <option key={b.id} value={b.id}>{b.name}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <div>
-          <label className={labelClass}>Etiketler</label>
-          <div className="flex flex-wrap gap-1.5 mb-2">
-            {tags.map((tag) => (
-              <span key={tag} className="inline-flex items-center gap-1 text-xs px-2 py-1 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 rounded-full">
-                {tag}
-                <button type="button" onClick={() => setTags((p) => p.filter((t) => t !== tag))}><X className="h-3 w-3" /></button>
-              </span>
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <input
-              className={inputClass}
-              value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const v = tagInput.trim(); if (v && !tags.includes(v)) setTags((p) => [...p, v]); setTagInput(""); } }}
-              placeholder="Etiket ekle…"
-            />
-            <button type="button" onClick={() => { const v = tagInput.trim(); if (v && !tags.includes(v)) setTags((p) => [...p, v]); setTagInput(""); }} className="px-3 py-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors shrink-0">
-              <Plus className="h-4 w-4 text-zinc-600 dark:text-zinc-300" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Ayarlar */}
-      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-3">
-        <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">Ayarlar</h2>
-        <label className="flex items-center gap-3 cursor-pointer">
-          <input type="checkbox" checked={form.isActive} onChange={(e) => set("isActive", e.target.checked)} className="w-4 h-4 accent-indigo-600" />
-          <span className="text-sm text-zinc-700 dark:text-zinc-300">Aktif (sitede görünsün)</span>
-        </label>
-        <label className="flex items-center gap-3 cursor-pointer">
-          <input type="checkbox" checked={form.isFeatured} onChange={(e) => set("isFeatured", e.target.checked)} className="w-4 h-4 accent-indigo-600" />
-          <span className="text-sm text-zinc-700 dark:text-zinc-300">Öne çıkan ürün</span>
-        </label>
-      </div>
-
-      {/* Birlikte Alınan Ürünler */}
-      {allProducts.length > 0 && (() => {
-        const filtered = allProducts.filter(
-          (p) => !crossSellIds.includes(p.id) && p.name.toLowerCase().includes(crossSellSearch.toLowerCase())
-        );
-        const selected = allProducts.filter((p) => crossSellIds.includes(p.id));
-        return (
-          <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
-            <div>
-              <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">Birlikte Alınan Ürünler</h2>
-              <p className="text-xs text-zinc-400 mt-1">Checkout sayfasında müşteriye tavsiye edilecek ürünler.</p>
-            </div>
-
-            {/* Seçili ürünler */}
-            {selected.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {selected.map((p) => {
-                  const imgs = p.images as string[];
-                  return (
-                    <div key={p.id} className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-lg px-2 py-1.5">
-                      {imgs[0] && (
-                        <div className="relative h-6 w-6 rounded overflow-hidden shrink-0">
-                          <Image src={imgs[0]} alt={p.name} fill className="object-contain" sizes="24px" />
-                        </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {images.map((url: string, i: number) => (
+                  <div
+                    key={url}
+                    className={`relative aspect-square rounded-2xl overflow-hidden border-2 transition-all group ${
+                      i === 0 ? "border-indigo-500 shadow-lg shadow-indigo-500/10" : "border-zinc-100 dark:border-zinc-800 hover:border-indigo-300"
+                    }`}
+                  >
+                    <Image src={url} alt={`Ürün ${i}`} fill className="object-contain p-2" sizes="200px" />
+                    {i === 0 && (
+                      <div className="absolute top-2 left-2 bg-indigo-600 text-[9px] font-bold text-white px-2 py-0.5 rounded-full uppercase tracking-tighter">
+                        Kapak
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                      {i !== 0 && (
+                        <button type="button" onClick={() => setCover(url)} className="p-2 bg-white text-zinc-900 rounded-full hover:scale-110 transition-transform">
+                          <Check className="h-4 w-4" />
+                        </button>
                       )}
-                      <span className="text-xs font-medium text-indigo-700 dark:text-indigo-300 max-w-[140px] truncate">{p.name}</span>
-                      <button
-                        type="button"
-                        onClick={() => setCrossSellIds((prev) => prev.filter((id) => id !== p.id))}
-                        className="text-indigo-400 hover:text-red-500 transition-colors"
-                      >
-                        <X className="h-3 w-3" />
+                      <button type="button" onClick={() => removeImage(url)} className="p-2 bg-red-500 text-white rounded-full hover:scale-110 transition-transform">
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
+                
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="aspect-square rounded-2xl border-2 border-dashed border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center gap-2 text-zinc-400 hover:border-indigo-400 hover:text-indigo-500 transition-all bg-zinc-50/30 dark:bg-zinc-800/10"
+                >
+                  {uploading ? <Loader2 className="h-6 w-6 animate-spin text-indigo-500" /> : <Plus className="h-6 w-6" />}
+                  <span className="text-[10px] font-bold uppercase tracking-wider">{uploading ? "Yükleniyor" : "Yeni Ekle"}</span>
+                </button>
               </div>
-            )}
+              <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} />
+            </section>
 
-            {/* Arama */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
-              <input
-                className={`${inputClass} pl-8`}
-                placeholder="Ürün ara ve ekle..."
-                value={crossSellSearch}
-                onChange={(e) => setCrossSellSearch(e.target.value)}
+            {/* Basic Info */}
+            <section className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-6">
+              <div className="flex items-center gap-2 border-b border-zinc-100 dark:border-zinc-800 -mx-6 px-6 pb-4 mb-2">
+                <Package className="h-4 w-4 text-amber-500" />
+                <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-widest">Temel Bilgiler</h2>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-1.5">
+                    <label className={labelClass}>Ürün Adı *</label>
+                    <input {...register("name")} className={inputClass + " font-bold text-zinc-900"} placeholder="Ürün başlığını girin..." />
+                    {errors.name && <p className="text-[10px] text-red-500 mt-1">{errors.name.message}</p>}
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className={labelClass}>Katalog Uzantısı (Slug)</label>
+                    <input {...register("slug")} className={inputClass} placeholder="urun-adi-slug" />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className={labelClass}>Kısa Açıklama</label>
+                  <textarea {...register("shortDescription")} rows={2} className={inputClass} placeholder="Liste görünümünde gösterilecek özet..." />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className={labelClass}>Detaylı Açıklama</label>
+                  <textarea {...register("description")} rows={6} className={inputClass} placeholder="Ürün özelliklerini ve detaylarını anlatın..." />
+                </div>
+              </div>
+            </section>
+
+            {/* SEO Section */}
+            <section className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-6">
+              <div className="flex items-center gap-2 border-b border-zinc-100 dark:border-zinc-800 -mx-6 px-6 pb-4 mb-2">
+                <Globe className="h-4 w-4 text-emerald-500" />
+                <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-widest">Arama Motoru Optimizasyonu (SEO)</h2>
+              </div>
+              <SeoForm 
+                prefix="seoSettings." 
+                defaultValues={{ title: productName }}
+                previewUrl={`mesopro.com/urun/${watch("slug") || slugify(productName || "")}`} 
               />
-            </div>
+            </section>
+          </div>
 
-            {crossSellSearch && (
-              <div className="border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden max-h-48 overflow-y-auto">
-                {filtered.length === 0 ? (
-                  <p className="text-xs text-zinc-400 px-3 py-2">Sonuç bulunamadı</p>
-                ) : (
-                  filtered.slice(0, 8).map((p) => {
-                    const imgs = p.images as string[];
-                    return (
-                      <button
-                        key={p.id}
-                        type="button"
-                        onClick={() => { setCrossSellIds((prev) => [...prev, p.id]); setCrossSellSearch(""); }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-                      >
-                        <div className="relative h-7 w-7 rounded bg-zinc-100 dark:bg-zinc-800 overflow-hidden shrink-0">
-                          {imgs[0] ? (
-                            <Image src={imgs[0]} alt={p.name} fill className="object-contain" sizes="28px" />
-                          ) : (
-                            <ShoppingBag className="h-3.5 w-3.5 text-zinc-400 absolute inset-0 m-auto" />
-                          )}
-                        </div>
-                        <span className="text-sm text-zinc-700 dark:text-zinc-300 truncate">{p.name}</span>
-                      </button>
-                    );
-                  })
-                )}
+          {/* Sidebar (Right) */}
+          <div className="space-y-8">
+            {/* Pricing & Stock */}
+            <section className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-6">
+              <div className="flex items-center gap-2 border-b border-zinc-100 dark:border-zinc-800 -mx-6 px-6 pb-4 mb-2">
+                <ShoppingBag className="h-4 w-4 text-zinc-400" />
+                <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-widest">Fiyat & Envanter</h2>
               </div>
-            )}
-          </div>
-        );
-      })()}
 
-      {/* SEO */}
-      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
-        <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">SEO</h2>
-        <div>
-          <label className={labelClass}>SEO Başlığı</label>
-          <input className={inputClass} value={form.seoTitle} onChange={(e) => set("seoTitle", e.target.value)} maxLength={255} />
-        </div>
-        <div>
-          <label className={labelClass}>SEO Açıklaması</label>
-          <textarea className={inputClass} rows={2} value={form.seoDescription} onChange={(e) => set("seoDescription", e.target.value)} />
-        </div>
-        <div>
-          <label className={labelClass}>Anahtar Kelimeler</label>
-          <div className="flex flex-wrap gap-1.5 mb-2">
-            {seoKeywords.map((kw) => (
-              <span key={kw} className="inline-flex items-center gap-1 text-xs px-2 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 rounded-full">
-                {kw}
-                <button type="button" onClick={() => setSeoKeywords((p) => p.filter((k) => k !== kw))}><X className="h-3 w-3" /></button>
-              </span>
-            ))}
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className={labelClass}>Satış Fiyatı (₺)</label>
+                    <input type="number" step="0.01" {...register("price", { valueAsNumber: true })} className={inputClass} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className={labelClass}>Eski Fiyat (₺)</label>
+                    <input type="number" step="0.01" {...register("comparePrice", { valueAsNumber: true })} className={inputClass} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className={labelClass}>Stok Adedi</label>
+                    <input type="number" {...register("stock", { valueAsNumber: true })} className={inputClass} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className={labelClass}>Düşük Stok Uyarı</label>
+                    <input type="number" {...register("lowStockThreshold", { valueAsNumber: true })} className={inputClass} />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Categorization */}
+            <section className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-6">
+              <div className="flex items-center gap-2 border-b border-zinc-100 dark:border-zinc-800 -mx-6 px-6 pb-4 mb-2">
+                <Layers className="h-4 w-4 text-zinc-400" />
+                <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-widest">Kategorizasyon</h2>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className={labelClass}>Kategori</label>
+                  <select {...register("categoryId", { valueAsNumber: true })} className={inputClass}>
+                    <option value="">Seçiniz</option>
+                    {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className={labelClass}>Marka</label>
+                  <select {...register("brandId", { valueAsNumber: true })} className={inputClass}>
+                    <option value="">Seçiniz</option>
+                    {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className={labelClass}>Etiketler</label>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {tags.map((tag: string) => (
+                      <span key={tag} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-[10px] font-bold rounded-lg border border-zinc-200 dark:border-zinc-700">
+                        {tag}
+                        <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-500 transition-colors">×</button>
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
+                      className={inputClass}
+                      placeholder="Yeni etiket..."
+                    />
+                    <button type="button" onClick={addTag} className="p-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-xl hover:bg-zinc-200 transition-colors">
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
           </div>
-          <div className="flex gap-2">
-            <input
-              className={inputClass}
-              value={keywordInput}
-              onChange={(e) => setKeywordInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const v = keywordInput.trim(); if (v && !seoKeywords.includes(v)) setSeoKeywords((p) => [...p, v]); setKeywordInput(""); } }}
-              placeholder="Anahtar kelime ekle…"
-            />
-            <button type="button" onClick={() => { const v = keywordInput.trim(); if (v && !seoKeywords.includes(v)) setSeoKeywords((p) => [...p, v]); setKeywordInput(""); }} className="px-3 py-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors shrink-0">
-              <Plus className="h-4 w-4 text-zinc-600 dark:text-zinc-300" />
+        </div>
+
+        {/* Floating Save Bar */}
+        <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-t border-zinc-200 dark:border-zinc-800">
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="flex items-center gap-2 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 font-medium transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" /> Vazgeç
             </button>
+            <div className="flex items-center gap-4">
+              {saved && <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest animate-pulse">Ürün Başarıyla Kaydedildi</span>}
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex items-center gap-2 bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 font-bold px-12 py-3.5 rounded-2xl shadow-xl transition-all active:scale-[0.98] disabled:opacity-50"
+              >
+                {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
+                {loading ? "Kaydediliyor..." : productId ? "Ürünü Güncelle" : "Ürünü Oluştur"}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-
-      <div className="flex gap-3">
-        <button
-          type="submit"
-          disabled={loading}
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-medium px-6 py-2.5 rounded-lg transition-colors"
-        >
-          {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-          {!loading && saved && <Check className="h-4 w-4" />}
-          {saved ? "Kaydedildi!" : productId ? "Güncelle" : "Kaydet"}
-        </button>
-        <a href="/admin/products" className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 px-4 py-2.5 transition-colors">
-          İptal
-        </a>
-      </div>
-    </form>
+      </form>
+    </FormProvider>
   );
 }

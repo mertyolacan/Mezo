@@ -121,7 +121,7 @@ export default function CartDrawer() {
             <div className="divide-y divide-zinc-100 dark:divide-zinc-800/60">
               {items.map((item) => (
                 <div key={item.id} className="flex gap-3 px-5 py-4">
-                  <div className="relative shrink-0 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800" style={{ width: 72, height: 72 }}>
+                  <div className="relative shrink-0 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 w-[72px] h-[72px]">
                     {item.image ? (
                       <Image src={item.image} alt={item.name} fill className="object-contain" sizes="72px" />
                     ) : (

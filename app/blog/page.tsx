@@ -5,13 +5,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { FileText } from "lucide-react";
 import type { Metadata } from "next";
+import { getSeoMetadata } from "@/lib/seo";
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: "Blog",
-  description: "Mezoterapi hakkında uzman içerikler ve güncel haberler.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return getSeoMetadata("blog", {
+    title: "Blog",
+    description: "Mezoterapi hakkında uzman içerikler ve güncel haberler.",
+  });
+}
 
 export default async function BlogPage() {
   const posts = await db
@@ -43,10 +46,10 @@ export default async function BlogPage() {
         <div className="space-y-8">
           {posts.map((p) => (
             <article key={p.id} className="group">
-              <Link href={`/blog/${p.slug}`} className="flex gap-6">
+              <Link href={`/blog/${p.slug}`} className="flex flex-col sm:flex-row gap-4 sm:gap-6">
                 {p.image && (
-                  <div className="relative h-40 w-56 shrink-0 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800">
-                    <Image src={p.image} alt={p.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="224px" />
+                  <div className="relative h-48 sm:h-40 w-full sm:w-56 shrink-0 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800">
+                    <Image src={p.image} alt={p.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 100vw, 224px" />
                   </div>
                 )}
                 <div className="flex-1 py-2">
