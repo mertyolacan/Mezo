@@ -33,7 +33,7 @@ export default function ProductImageGallery({ images, name, discount }: Props) {
           </div>
         )}
         {discount && (
-          <span className="absolute top-4 left-4 bg-red-500 text-white text-sm font-bold px-2 py-1 rounded-lg">
+          <span className="absolute top-4 left-4 bg-indigo-600 text-white text-sm font-bold px-2 py-1 rounded-lg shadow-sm">
             -{discount}%
           </span>
         )}

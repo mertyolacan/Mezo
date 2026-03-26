@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { identifier, password } = parsed.data;
+    const { identifier, password, rememberMe } = parsed.data;
 
     const limitKey = `login:${ip}:${identifier}`;
     const rl = await rateLimit(limitKey, { limit: 5, window: 5 * 60_000 });
@@ -56,12 +56,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const token = signToken({ id: user.id, email: user.email, role: user.role });
+    const expiresInStr = rememberMe ? "30d" : "1d";
+    const maxAgeSec = rememberMe ? 30 * 24 * 60 * 60 : 24 * 60 * 60;
+    
+    const token = signToken({ id: user.id, email: user.email, role: user.role }, expiresInStr);
 
     const response = NextResponse.json({
       data: { id: user.id, name: user.name, email: user.email, role: user.role },
     });
-    response.cookies.set("mesopro_token", token, getAuthCookieOptions());
+    response.cookies.set("mesopro_token", token, getAuthCookieOptions(maxAgeSec));
     return response;
   } catch {
     return NextResponse.json({ error: "Sunucu hatası" }, { status: 500 });

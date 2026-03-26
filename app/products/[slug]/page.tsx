@@ -220,7 +220,7 @@ function ProductCard({ product: rp, isFavorited }: { product: CardProduct, isFav
           <div className="absolute inset-0 flex items-center justify-center text-zinc-300 text-xs">Görsel yok</div>
         )}
         {discount && (
-          <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md">-{discount}%</span>
+          <span className="absolute top-2 left-2 bg-indigo-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-md">-{discount}%</span>
         )}
         <FavoriteButton productId={rp.id} initialFavorited={isFavorited} />
       </div>

@@ -27,17 +27,23 @@ export default function Providers({
 }) {
   const pathname = usePathname();
   const isAdminRoute = pathname.startsWith("/admin");
+  const isAuthRoute = pathname === "/login" || pathname === "/register" || pathname === "/forgot-password";
+
+  const showNavbar = !isAdminRoute;
+  const showFooter = !isAdminRoute && !isAuthRoute;
+  const showContactBubble = !isAdminRoute && !isAuthRoute;
+  const showCartDrawer = !isAdminRoute;
 
   return (
     <CartProvider>
       <NavigationProgress />
-      {!isAdminRoute && <Navbar isLoggedIn={isLoggedIn} isAdmin={userIsAdmin} />}
-      {!isAdminRoute && <CartDrawer />}
-      <div className={isAdminRoute ? undefined : "pt-16"}>
+      {showNavbar && <Navbar isLoggedIn={isLoggedIn} isAdmin={userIsAdmin} />}
+      {showCartDrawer && <CartDrawer />}
+      <div className={isAdminRoute ? undefined : (pathname === "/products" ? "pt-[110px]" : "pt-[115px]")}>
         {children}
-        {!isAdminRoute && <Footer />}
+        {showFooter && <Footer />}
       </div>
-      {!isAdminRoute && (
+      {showContactBubble && (
         <ContactBubble
           phone={contact?.phone}
           email={contact?.email}

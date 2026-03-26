@@ -20,6 +20,7 @@ export const registerSchema = z.object({
 export const loginSchema = z.object({
   identifier: z.string().min(1, "E-posta veya telefon numarası girin"),
   password: z.string().min(1, "Şifre gerekli"),
+  rememberMe: z.boolean().optional(),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;

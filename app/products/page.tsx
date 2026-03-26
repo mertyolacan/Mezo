@@ -12,6 +12,8 @@ import FavoriteButton from "./FavoriteButton";
 import PriceFilter from "./PriceFilter";
 import { getAuthUser } from "@/lib/auth";
 import { getSeoMetadata } from "@/lib/seo";
+import MobileFilterBar from "./MobileFilterBar";
+import AddToCartButton from "@/components/shared/AddToCartButton";
 
 export const revalidate = 30;
 
@@ -101,10 +103,21 @@ export default async function ProductsPage({ searchParams }: Props) {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Sidebar */}
-        <aside className="w-full lg:w-56 shrink-0 space-y-6">
+    <div className="max-w-7xl mx-auto lg:px-8 lg:py-12">
+      <MobileFilterBar
+        categories={cats}
+        brands={brnds}
+        currentCategory={category}
+        currentBrand={brand}
+        currentSort={sort}
+        minPrice={minPrice}
+        maxPrice={maxPrice}
+        totalCount={totalCount}
+      />
+
+      <div className="flex flex-col lg:flex-row gap-8 lg:mt-0 px-2 sm:px-6 lg:px-0">
+        {/* Sidebar (Desktop Only) */}
+        <aside className="hidden lg:flex flex-col w-56 shrink-0 space-y-6">
           {/* Arama */}
           <ProductSearch defaultValue={search} />
 
@@ -149,7 +162,7 @@ export default async function ProductsPage({ searchParams }: Props) {
 
         {/* Ürün grid */}
         <div className="flex-1">
-          <div className="flex items-center justify-between mb-6">
+          <div className="hidden lg:flex items-center justify-between mb-6">
             <p className="text-sm text-zinc-500">{totalCount} ürün</p>
             <SortSelect value={sort} />
           </div>
@@ -168,8 +181,8 @@ export default async function ProductsPage({ searchParams }: Props) {
                   : null;
 
                 return (
-                  <Link key={p.id} href={`/products/${p.slug}`} className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800 overflow-hidden hover:border-zinc-300 dark:hover:border-zinc-600 hover:shadow-sm transition-all">
-                    <div className="relative aspect-square bg-zinc-50 dark:bg-zinc-800">
+                  <div key={p.id} className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800 overflow-hidden hover:border-zinc-300 dark:hover:border-zinc-600 transition-all flex flex-col">
+                    <Link href={`/products/${p.slug}`} className="relative aspect-square bg-zinc-50 dark:bg-zinc-800 block">
                       {p.images[0] ? (
                         <Image
                           src={p.images[0]}
@@ -183,34 +196,67 @@ export default async function ProductsPage({ searchParams }: Props) {
                           <Package className="h-10 w-10 text-zinc-300" />
                         </div>
                       )}
+                      
                       {outOfStock && (
-                        <div className="absolute inset-0 bg-white/70 dark:bg-zinc-900/70 flex items-center justify-center">
+                        <div className="absolute inset-0 bg-white/70 dark:bg-zinc-900/70 flex items-center justify-center z-10">
                           <span className="text-xs font-semibold text-zinc-500">Tükendi</span>
                         </div>
                       )}
                       {discount && !outOfStock && (
-                        <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md">
+                        <span className="absolute top-2 left-2 z-10 bg-indigo-600 text-white text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded">
                           -{discount}%
                         </span>
                       )}
                       {p.isFeatured && !discount && (
-                        <span className="absolute top-2 left-2 bg-amber-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md">
+                        <span className="absolute top-2 left-2 z-10 bg-amber-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-md">
                           Öne Çıkan
                         </span>
                       )}
-                      <FavoriteButton productId={p.id} initialFavorited={favSet.has(p.id)} />
-                    </div>
-                    <div className="p-3">
-                      {p.brand && <p className="text-xs text-zinc-400 mb-0.5">{p.brand.name}</p>}
-                      <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50 line-clamp-2 leading-snug">{p.name}</p>
-                      <div className="mt-2 flex items-baseline gap-2">
-                        <span className="text-sm font-bold text-zinc-900 dark:text-zinc-50">{formatPrice(p.price)}</span>
-                        {p.comparePrice && (
-                          <span className="text-xs text-zinc-400 line-through">{formatPrice(p.comparePrice)}</span>
-                        )}
+                      <div className="absolute top-2 right-2 z-10 bg-white dark:bg-zinc-900 rounded-full shadow-sm">
+                        <FavoriteButton productId={p.id} initialFavorited={favSet.has(p.id)} />
+                      </div>
+                    </Link>
+                    
+                    <div className="p-3 flex-1 flex flex-col">
+                      <Link href={`/products/${p.slug}`} className="flex-1">
+                        {p.brand && <p className="text-[11px] font-bold text-zinc-500 mb-0.5 uppercase tracking-wide">{p.brand.name}</p>}
+                        <p className="text-xs sm:text-sm font-medium text-zinc-900 dark:text-zinc-50 line-clamp-2 leading-snug hover:text-indigo-600 transition-colors">{p.name}</p>
+                        
+                        {/* Fake Star Rating (Visual only placeholder for Trendyol style layout) */}
+                        <div className="flex items-center gap-1 mt-1.5 opacity-60">
+                          <div className="flex text-amber-400 text-[10px]">
+                            ★★★★★
+                          </div>
+                          <span className="text-[10px] text-zinc-500">(10+)</span>
+                        </div>
+
+                        <div className="mt-2.5 flex flex-col justify-end">
+                          <span className="text-sm sm:text-base font-bold text-indigo-600 dark:text-indigo-400">
+                            {formatPrice(p.price)}
+                          </span>
+                          {p.comparePrice && (
+                            <span className="text-[10px] sm:text-xs text-zinc-400 line-through">
+                              {formatPrice(p.comparePrice)}
+                            </span>
+                          )}
+                        </div>
+                      </Link>
+
+                      <div className="mt-auto pt-4 pb-1">
+                        <AddToCartButton
+                          product={{
+                            id: p.id,
+                            name: p.name,
+                            price: Number(p.price),
+                            image: p.images[0] || "",
+                            slug: p.slug,
+                            categoryId: null, // Safe placeholder
+                          }}
+                          stock={p.stock}
+                        />
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 );
               })}
             </div>
