@@ -209,9 +209,11 @@ export default function Navbar({ isLoggedIn, isAdmin }: { isLoggedIn: boolean; i
             </Link>
 
             {/* Cart */}
-            <button
-              onClick={openCart}
-              className="relative flex items-center gap-2 transition-colors text-zinc-900 dark:text-zinc-50 hover:text-indigo-600 dark:hover:text-indigo-400"
+            <Link
+              href="/cart"
+              className={`relative flex items-center gap-2 transition-colors hover:text-indigo-600 dark:hover:text-indigo-400 ${
+                isActive("/cart") ? "text-indigo-600 dark:text-indigo-400" : "text-zinc-900 dark:text-zinc-50"
+              }`}
             >
               <div className="relative">
                 <ShoppingBag className="h-6 w-6" />
@@ -222,7 +224,7 @@ export default function Navbar({ isLoggedIn, isAdmin }: { isLoggedIn: boolean; i
                 )}
               </div>
               <span className="hidden md:block text-sm font-medium">Sepetim</span>
-            </button>
+            </Link>
 
 
           </div>
@@ -419,20 +421,22 @@ export default function Navbar({ isLoggedIn, isAdmin }: { isLoggedIn: boolean; i
             >
               <Heart className="h-6 w-6" />
             </Link>
-            <button
-              onClick={() => {
-                setMobileOpen(false);
-                openCart();
-              }}
-              className="relative text-zinc-900 dark:text-zinc-50"
+            <Link
+              href="/cart"
+              onClick={() => setMobileOpen(false)}
+              className={`relative flex items-center gap-2 transition-colors hover:text-indigo-600 dark:hover:text-indigo-400 ${
+                isActive("/cart") ? "text-indigo-600 dark:text-indigo-400" : "text-zinc-900 dark:text-zinc-50"
+              }`}
             >
-              <ShoppingBag className="h-6 w-6" />
-              {count > 0 && (
-                <span className="absolute -top-1 -right-1.5 h-4 w-4 bg-indigo-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
-                  {count > 9 ? "9+" : count}
-                </span>
-              )}
-            </button>
+              <div className="relative">
+                <ShoppingBag className="h-6 w-6" />
+                {count > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-indigo-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+                    {count > 9 ? "9+" : count}
+                  </span>
+                )}
+              </div>
+            </Link>
           </div>
         </div>
 

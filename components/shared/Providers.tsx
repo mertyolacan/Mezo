@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import { CartProvider } from "@/contexts/CartContext";
-import CartDrawer from "./CartDrawer";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import NavigationProgress from "./NavigationProgress";
@@ -30,15 +29,13 @@ export default function Providers({
   const isAuthRoute = pathname === "/login" || pathname === "/register" || pathname === "/forgot-password";
 
   const showNavbar = !isAdminRoute;
-  const showFooter = !isAdminRoute && !isAuthRoute;
-  const showContactBubble = !isAdminRoute && !isAuthRoute;
-  const showCartDrawer = !isAdminRoute;
+  const showFooter = !isAdminRoute && !isAuthRoute && pathname !== "/cart";
+  const showContactBubble = !isAdminRoute && !isAuthRoute && pathname !== "/cart";
 
   return (
     <CartProvider>
       <NavigationProgress />
       {showNavbar && <Navbar isLoggedIn={isLoggedIn} isAdmin={userIsAdmin} />}
-      {showCartDrawer && <CartDrawer />}
       <div className={isAdminRoute ? undefined : (pathname === "/products" ? "pt-[110px]" : "pt-[115px]")}>
         {children}
         {showFooter && <Footer />}

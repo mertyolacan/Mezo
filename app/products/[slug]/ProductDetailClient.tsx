@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { ShoppingCart, Check, Plus, Minus, Truck, ShieldCheck } from "lucide-react";
+import { ShoppingCart, Check, Plus, Minus, Truck, ShieldCheck, X } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import type { ClientCampaign } from "@/lib/campaign-engine-client";
 import { evaluateCampaignsClient } from "@/lib/campaign-engine-client";
+import Link from "next/link";
+import Image from "next/image";
 
 type Props = {
   product: {
@@ -26,6 +28,7 @@ type Props = {
 export default function ProductDetailClient({ product: p, campaigns }: Props) {
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const outOfStock = p.stock === 0;
   const subtotal = p.price * qty;
@@ -61,6 +64,7 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
     localStorage.setItem("mesopro-cart", JSON.stringify(cart));
     window.dispatchEvent(new Event("cart-update"));
     setAdded(true);
+    setIsModalOpen(true);
     setTimeout(() => setAdded(false), 2000);
   }
 
@@ -141,7 +145,7 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
       {/* Adet seçici + Sepete ekle */}
       {!outOfStock && (
         <div className="flex items-center gap-3">
-          <div className="flex items-center border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden bg-zinc-50/50 dark:bg-zinc-900/50">
+          <div className="flex items-center border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden bg-white dark:bg-zinc-900 shadow-sm">
             <button
               type="button"
               onClick={() => setQty((q) => Math.max(1, q - 1))}
@@ -252,22 +256,48 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
           </div>
         )}
 
-        <div className="bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 px-6 py-4 flex items-center justify-between gap-6 shadow-[0_-8px_30px_rgb(0,0,0,0.06)]">
-          <div className="flex flex-col">
+        <div className="bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 px-4 py-4 flex items-center justify-between gap-3 shadow-[0_-8px_30px_rgb(0,0,0,0.06)]">
+          <div className="flex flex-col min-w-[80px]">
             {(totalDiscount > 0 || p.comparePrice) && (
-              <span className="text-xs text-zinc-400 line-through font-medium">
+              <span className="text-[10px] text-zinc-400 line-through font-medium leading-none mb-1">
                 {formatPrice(subtotal)}
               </span>
             )}
-            <span className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
+            <span className="text-xl font-bold text-zinc-900 dark:text-zinc-50 leading-none">
               {formatPrice(finalPrice)}
             </span>
           </div>
 
+          {!outOfStock && (
+            <div className="flex items-center border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden bg-white dark:bg-zinc-900 h-12 shadow-sm">
+              <button
+                type="button"
+                onClick={() => setQty((q) => Math.max(1, q - 1))}
+                disabled={qty <= 1}
+                className="h-full px-3 flex items-center justify-center text-zinc-500 active:bg-zinc-50 dark:active:bg-zinc-800 disabled:opacity-30 transition-colors"
+                aria-label="Azalt"
+              >
+                <Minus className="h-4 w-4" />
+              </button>
+              <span className="w-6 text-center text-sm font-bold text-zinc-900 dark:text-zinc-50">
+                {qty}
+              </span>
+              <button
+                type="button"
+                onClick={() => setQty((q) => q + 1)}
+                disabled={qty >= p.stock}
+                className="h-full px-3 flex items-center justify-center text-zinc-500 active:bg-zinc-50 dark:active:bg-zinc-800 transition-colors"
+                aria-label="Artır"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+
           <button
             onClick={handleAdd}
             disabled={outOfStock}
-            className={`flex-1 h-12 flex items-center justify-center rounded-xl text-sm font-bold transition-all shadow-md active:scale-95 ${
+            className={`flex-1 h-12 flex items-center justify-center gap-2 rounded-xl text-sm font-bold transition-all shadow-md active:scale-95 ${
               outOfStock
                 ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-400 cursor-not-allowed"
                 : added
@@ -275,12 +305,73 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
                 : "bg-indigo-600 text-white"
             }`}
           >
-            {added ? "Eklendi" : outOfStock ? "Stokta Yok" : "Sepete Ekle"}
+            {added ? (
+              <>
+                <Check className="h-5 w-5" />
+                <span>Eklendi</span>
+              </>
+            ) : outOfStock ? (
+              "Stokta Yok"
+            ) : (
+              <>
+                <ShoppingCart className="h-4 w-4" />
+                <span>Sepete Ekle</span>
+              </>
+            )}
           </button>
         </div>
       </div>
+
+      {/* BOYNAR STYLE SUCCESS MODAL */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div 
+            className="absolute inset-0 bg-zinc-950/40 backdrop-blur-[2px] animate-in fade-in duration-300"
+            onClick={() => setIsModalOpen(false)}
+          />
+          <div className="relative w-full sm:max-w-[420px] bg-white dark:bg-zinc-950 rounded-t-[32px] sm:rounded-3xl shadow-[0_-8px_40px_rgba(0,0,0,0.12)] overflow-hidden animate-in slide-in-from-bottom duration-500 sm:zoom-in-95">
+            <div className="flex items-center justify-between px-8 pt-8 pb-4">
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 tracking-tight">Ürün Sepete Eklendi</h3>
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="p-2 -mr-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors group"
+                aria-label="Kapat"
+              >
+                <X className="h-6 w-6 text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100" />
+              </button>
+            </div>
+
+            <div className="px-8 pb-8">
+              <div className="h-px bg-zinc-100 dark:bg-zinc-800 w-full mb-8" />
+              
+              <div className="flex gap-4 mb-10">
+                <div className="relative h-24 w-24 rounded-2xl overflow-hidden bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shrink-0">
+                  <Image src={p.image} alt={p.name} fill className="object-contain p-3" />
+                </div>
+                <div className="flex flex-col justify-center space-y-1">
+                  <p className="text-base font-bold text-zinc-900 dark:text-zinc-50 line-clamp-2 leading-snug">{p.name}</p>
+                  <p className="text-sm font-medium text-zinc-500">{qty} Adet · {formatPrice(finalPrice)}</p>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <Link 
+                  href="/cart"
+                  className="w-full h-14 bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center rounded-2xl text-[15px] font-bold transition-all active:scale-[0.98] shadow-lg shadow-indigo-600/20"
+                >
+                  SEPETE GİT
+                </Link>
+                <button 
+                  onClick={() => setIsModalOpen(false)}
+                  className="w-full h-14 bg-white dark:bg-zinc-900 border-2 border-zinc-100 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 flex items-center justify-center rounded-2xl text-[15px] font-bold hover:border-zinc-300 dark:hover:border-zinc-600 transition-all active:scale-[0.98]"
+                >
+                  ALIŞVERİŞE DEVAM ET
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-
-
   );
 }
