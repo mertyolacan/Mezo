@@ -20,7 +20,17 @@ const navLinks = [
   { href: "/contact", label: "İletişim" },
 ];
 
-export default function Navbar({ isLoggedIn, isAdmin }: { isLoggedIn: boolean; isAdmin?: boolean }) {
+export default function Navbar({ 
+  isLoggedIn, 
+  isAdmin,
+  siteName = "MesoPro",
+  logoUrl
+}: { 
+  isLoggedIn: boolean; 
+  isAdmin?: boolean;
+  siteName?: string;
+  logoUrl?: string | null;
+}) {
   const { count, openCart } = useCart();
   const pathname = usePathname();
   const router = useRouter();
@@ -123,16 +133,48 @@ export default function Navbar({ isLoggedIn, isAdmin }: { isLoggedIn: boolean; i
     return exact ? pathname === href : pathname.startsWith(href);
   }
 
+  const renderBrand = () => {
+    if (logoUrl) {
+      return (
+        <div className="relative h-8 md:h-10 w-auto flex items-center">
+          <img src={logoUrl} alt={siteName} className="max-h-full w-auto object-contain" />
+        </div>
+      );
+    }
+    
+    if (siteName === "MesoPro") {
+      return <>Meso<span className="text-brand-primary">Pro</span></>;
+    }
+    
+    if (typeof siteName === "string" && siteName.includes(" ")) {
+      return (
+        <>
+          {siteName.split(" ")[0]}<span className="text-brand-primary ml-1">{siteName.substring(siteName.indexOf(" ") + 1)}</span>
+        </>
+      );
+    }
+
+    return (
+      <>
+        {typeof siteName === "string" && siteName.slice(0, Math.max(1, Math.ceil(siteName.length / 2)))}
+        <span className="text-brand-primary">{typeof siteName === "string" && siteName.slice(Math.max(1, Math.ceil(siteName.length / 2)))}</span>
+      </>
+    );
+  };
+
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-30 transition-all duration-500 border-b bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border-zinc-200/50 dark:border-zinc-800/50 ${
-          scrolled ? "shadow-[0_20px_50px_rgba(0,0,0,0.03)] border-b-transparent" : "border-b-zinc-100"
-        }`}
+        className={`fixed top-0 left-0 right-0 z-30 transition-all duration-500 border-b border-zinc-200/50 dark:border-zinc-800/50 
+          [[data-nav-style=glass]_&]:bg-white/90 [[data-nav-style=glass]_&]:dark:bg-zinc-950/90 [[data-nav-style=glass]_&]:backdrop-blur-md
+          [[data-nav-style=solid]_&]:bg-white [[data-nav-style=solid]_&]:dark:bg-zinc-950
+          [[data-nav-style=minimal]_&]:bg-transparent [[data-nav-style=minimal]_&]:border-none
+          ${scrolled ? "shadow-[0_20px_50px_rgba(0,0,0,0.03)] border-b-transparent" : "border-b-zinc-100"}
+        `}
       >
         {/* Scroll Progress Bar */}
         <div 
-          className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-150 ease-out z-50 shadow-[0_0_10px_rgba(99,102,241,0.3)]"
+          className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-brand-primary via-brand-tertiary to-brand-secondary transition-all duration-150 ease-out z-50 shadow-[0_0_10px_rgba(var(--primary-color),0.3)]"
           style={{ width: `${scrollProgress}%` }}
         />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -148,8 +190,8 @@ export default function Navbar({ isLoggedIn, isAdmin }: { isLoggedIn: boolean; i
             >
               {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
-            <Link href="/" className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 shrink-0">
-              Meso<span className="text-indigo-500">Pro</span>
+            <Link href="/" className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 shrink-0 flex items-center min-h-[32px]">
+              {renderBrand()}
             </Link>
           </div>
 
@@ -158,9 +200,9 @@ export default function Navbar({ isLoggedIn, isAdmin }: { isLoggedIn: boolean; i
               <input
                 type="text"
                 placeholder="Ürün, kategori veya marka ara"
-                className="w-full bg-zinc-100/60 dark:bg-zinc-800/40 border border-zinc-200/50 dark:border-zinc-700/50 focus:border-indigo-500/50 focus:bg-white dark:focus:bg-zinc-900 text-zinc-900 dark:text-zinc-50 rounded-2xl py-2.5 pl-12 pr-4 text-sm outline-none transition-all duration-300 placeholder:text-zinc-500 focus:shadow-[0_0_20px_rgba(79,70,229,0.08)]"
+                className="w-full bg-zinc-100/60 dark:bg-zinc-800/40 border border-zinc-200/50 dark:border-zinc-700/50 focus:border-brand-primary focus:bg-white dark:focus:bg-zinc-900 text-zinc-900 dark:text-zinc-50 rounded-input py-2.5 pl-12 pr-4 text-sm outline-none transition-all duration-300 placeholder:text-zinc-500 shadow-sm"
               />
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors group-focus-within:text-indigo-500">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors group-focus-within:text-brand-primary">
                 <Search className="h-5 w-5 text-zinc-400 group-focus-within:scale-110 transition-transform" />
               </div>
             </div>
@@ -175,7 +217,7 @@ export default function Navbar({ isLoggedIn, isAdmin }: { isLoggedIn: boolean; i
                 href="/admin"
                 aria-label="Yönetici Paneli"
                 title="Yönetici Paneli"
-                className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"
+                className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-semibold bg-brand-primary hover:bg-brand-primary/90 text-white transition-colors shadow-lg shadow-brand-primary/20"
               >
                 <LayoutDashboard className="h-3.5 w-3.5" />
                 <span>Yönetici</span>
@@ -185,9 +227,9 @@ export default function Navbar({ isLoggedIn, isAdmin }: { isLoggedIn: boolean; i
             {/* Profile / Login */}
             <Link
               href={loggedIn ? "/profile" : "/login"}
-              className={`flex items-center gap-2 transition-colors hover:text-indigo-600 dark:hover:text-indigo-400 ${
+              className={`flex items-center gap-2 transition-colors hover:text-brand-primary ${
                 isActive("/profile") && !isActive("/profile/favorites")
-                  ? "text-indigo-600 dark:text-indigo-400"
+                  ? "text-brand-primary"
                   : "text-zinc-900 dark:text-zinc-50"
               }`}
             >
@@ -198,9 +240,9 @@ export default function Navbar({ isLoggedIn, isAdmin }: { isLoggedIn: boolean; i
             {/* Favorites */}
             <Link
               href="/profile/favorites"
-              className={`flex items-center gap-2 transition-colors hover:text-indigo-600 dark:hover:text-indigo-400 ${
+              className={`flex items-center gap-2 transition-colors hover:text-brand-primary ${
                 isActive("/profile/favorites")
-                  ? "text-indigo-600 dark:text-indigo-400"
+                  ? "text-brand-primary"
                   : "text-zinc-900 dark:text-zinc-50"
               }`}
             >
@@ -211,14 +253,14 @@ export default function Navbar({ isLoggedIn, isAdmin }: { isLoggedIn: boolean; i
             {/* Cart */}
             <Link
               href="/cart"
-              className={`relative flex items-center gap-2 transition-colors hover:text-indigo-600 dark:hover:text-indigo-400 ${
-                isActive("/cart") ? "text-indigo-600 dark:text-indigo-400" : "text-zinc-900 dark:text-zinc-50"
+              className={`relative flex items-center gap-2 transition-colors hover:text-brand-primary ${
+                isActive("/cart") ? "text-brand-primary" : "text-zinc-900 dark:text-zinc-50"
               }`}
             >
               <div className="relative">
                 <ShoppingBag className="h-6 w-6" />
                 {count > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-indigo-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+                  <span className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-brand-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none shadow-sm">
                     {count > 9 ? "9+" : count}
                   </span>
                 )}
@@ -255,8 +297,8 @@ export default function Navbar({ isLoggedIn, isAdmin }: { isLoggedIn: boolean; i
             >
               <X className="h-7 w-7" />
             </button>
-            <Link href="/" onClick={() => setMobileOpen(false)} className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 uppercase tracking-wide">
-              Meso<span className="text-indigo-500">Pro</span>
+            <Link href="/" onClick={() => setMobileOpen(false)} className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 uppercase tracking-wide flex items-center max-h-[28px] overflow-hidden">
+              {renderBrand()}
             </Link>
           </div>
           
@@ -274,14 +316,14 @@ export default function Navbar({ isLoggedIn, isAdmin }: { isLoggedIn: boolean; i
             <Link
               href="/cart"
               onClick={() => setMobileOpen(false)}
-              className={`relative flex items-center gap-2 transition-colors hover:text-indigo-600 dark:hover:text-indigo-400 ${
-                isActive("/cart") ? "text-indigo-600 dark:text-indigo-400" : "text-zinc-900 dark:text-zinc-50"
+              className={`relative flex items-center gap-2 transition-colors hover:text-brand-primary ${
+                isActive("/cart") ? "text-brand-primary" : "text-zinc-900 dark:text-zinc-50"
               }`}
             >
               <div className="relative">
                 <ShoppingBag className="h-6 w-6" />
                 {count > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-indigo-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+                  <span className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-brand-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none shadow-sm">
                     {count > 9 ? "9+" : count}
                   </span>
                 )}
@@ -326,7 +368,7 @@ export default function Navbar({ isLoggedIn, isAdmin }: { isLoggedIn: boolean; i
                   key={cat.id || cat.slug}
                   href={`/category/${cat.slug}`}
                   onClick={() => setMobileOpen(false)}
-                  className="py-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                  className="py-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-brand-primary transition-colors"
                 >
                   {cat.name}
                 </Link>
@@ -339,7 +381,7 @@ export default function Navbar({ isLoggedIn, isAdmin }: { isLoggedIn: boolean; i
               <Link
                 href="/admin"
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center px-4 py-3 rounded-lg text-sm font-semibold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:hover:bg-indigo-900/50 dark:text-indigo-400 transition-colors"
+                className="flex items-center px-4 py-3 rounded-brand text-sm font-semibold bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary transition-colors"
               >
                 <LayoutDashboard className="h-5 w-5 mr-3" />
                 Yönetici Paneli
@@ -353,7 +395,7 @@ export default function Navbar({ isLoggedIn, isAdmin }: { isLoggedIn: boolean; i
       <button
         onClick={toggleTheme}
         aria-label="Tema değiştir"
-        className="fixed bottom-6 left-6 z-50 p-3 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-lg text-zinc-600 dark:text-zinc-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all hover:-translate-y-1 hover:shadow-xl"
+        className="fixed bottom-6 left-6 z-50 p-3 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-lg text-zinc-600 dark:text-zinc-300 hover:text-brand-primary transition-all hover:-translate-y-1 hover:shadow-xl"
       >
         {dark ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
       </button>

@@ -75,7 +75,7 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
       {/* Fiyat + Kampanyalar — DESKTOP ONLY */}
       <div className="hidden md:flex flex-col gap-4">
         <div className="flex items-baseline gap-4">
-          <span className="text-4xl font-black text-indigo-600 tabular-nums tracking-tighter">
+          <span className="text-4xl font-black text-brand-primary tabular-nums tracking-tighter">
             {formatPrice(finalPrice)}
           </span>
           {(totalDiscount > 0 || p.comparePrice) && (
@@ -104,7 +104,7 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
                 return (
                   <div
                     key={c.id}
-                    className={`flex items-center gap-2 text-[10px] sm:text-[11px] font-bold px-3 py-1.5 rounded-lg border transition-all duration-300 uppercase leading-none ${
+                    className={`flex items-center gap-2 text-[10px] sm:text-[11px] font-bold px-3 py-1.5 rounded-btn border transition-all duration-300 uppercase leading-none ${
                       isLit
                         ? "bg-emerald-50 border-emerald-100 text-emerald-700 shadow-sm"
                         : "bg-white border-zinc-200 text-zinc-700"
@@ -135,7 +135,7 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
         )}
 
         <div className="flex items-center gap-2">
-          <span className={`inline-flex items-center text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${
+          <span className={`inline-flex items-center text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-btn ${
             outOfStock
               ? "bg-red-50 text-red-600 border border-red-100"
               : p.stock <= (p.lowStockThreshold ?? 5)
@@ -154,10 +154,10 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
 
       {/* Adet seçici + Sepete ekle — DESKTOP ONLY */}
       {!outOfStock && (
-        <div className="hidden md:flex flex-col gap-6 bg-zinc-50 dark:bg-zinc-900/50 p-6 rounded-[2rem] border border-zinc-100 dark:border-zinc-800">
+        <div className="hidden md:flex flex-col gap-6 bg-zinc-50 dark:bg-zinc-900/50 p-6 rounded-card border border-zinc-100 dark:border-zinc-800">
            <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Sipariş Adeti</span>
-              <div className="flex items-center border border-zinc-200 dark:border-zinc-700 rounded-2xl overflow-hidden bg-white dark:bg-zinc-900 shadow-sm h-12">
+              <div className="flex items-center border border-zinc-200 dark:border-zinc-700 rounded-btn overflow-hidden bg-white dark:bg-zinc-900 shadow-sm h-12">
                 <button
                   type="button"
                   onClick={() => setQty((q) => Math.max(1, q - 1))}
@@ -182,10 +182,10 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
 
           <button
             onClick={handleAdd}
-            className={`w-full h-16 flex items-center justify-center gap-3 rounded-2xl text-base font-black transition-all shadow-xl active:scale-95 uppercase tracking-widest ${
+            className={`w-full h-16 flex items-center justify-center gap-3 rounded-btn text-base font-black transition-all shadow-xl active:scale-95 uppercase tracking-widest ${
               added
                 ? "bg-green-500 text-white shadow-green-500/20"
-                : "bg-indigo-900 hover:bg-indigo-800 text-white shadow-indigo-900/20"
+                : "bg-brand-primary hover:bg-brand-primary/90 text-white shadow-brand-primary/20"
             }`}
           >
             {added ? <Check className="h-5 w-5" /> : <ShoppingCart className="h-5 w-5" />}
@@ -197,7 +197,7 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
       {outOfStock && (
         <button
           disabled
-          className="hidden md:flex w-full h-16 items-center justify-center gap-2 rounded-2xl text-base font-black bg-zinc-100 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed uppercase tracking-widest"
+          className="hidden md:flex w-full h-16 items-center justify-center gap-2 rounded-btn text-base font-black bg-zinc-100 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed uppercase tracking-widest"
         >
           <ShoppingCart className="h-4 w-4" />
           Stokta yok
@@ -207,11 +207,11 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
       {/* Avantajlar */}
       <div className="border-t border-zinc-100 dark:border-zinc-800 pt-6 space-y-3">
         <div className="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400">
-          <Truck className="h-4 w-4 text-indigo-500 shrink-0" />
+          <Truck className="h-4 w-4 text-brand-primary shrink-0" />
           Ücretsiz Kargo İmkanı
         </div>
         <div className="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400">
-          <ShieldCheck className="h-4 w-4 text-indigo-500 shrink-0" />
+          <ShieldCheck className="h-4 w-4 text-brand-primary shrink-0" />
           Orijinal ürün garantisi
         </div>
       </div>
@@ -222,7 +222,7 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
           {p.tags.map((tag) => (
             <span
               key={tag}
-              className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 rounded-md"
+              className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 rounded-btn"
             >
               {tag}
             </span>
@@ -242,7 +242,7 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
         )}
 
         {/* Main Sticky Container (Drawer + Footer) — Matches Cart Page Structure */}
-        <div className="bg-white dark:bg-zinc-950 rounded-t-[2.5rem] shadow-[0_-15px_50px_rgba(0,0,0,0.12)] pointer-events-auto flex flex-col w-full overflow-hidden relative z-50">
+        <div className="bg-white dark:bg-zinc-950 rounded-t-card shadow-[0_-15px_50px_rgba(0,0,0,0.12)] pointer-events-auto flex flex-col w-full overflow-hidden relative z-50">
           
           {/* Campaign Breakdown (Expandable Drawer Area) */}
           <div className={`overflow-hidden transition-all duration-500 ease-out ${showCampaignDetails && applied.length > 0 ? 'max-h-[50vh] opacity-100' : 'max-h-0 opacity-0'}`}>
@@ -275,12 +275,12 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
                    Kampanya Detayları {applied.length > 0 && (showCampaignDetails ? <ChevronDown className="h-3 w-3 text-zinc-400" /> : <ChevronUp className="h-3 w-3 text-zinc-400" />)}
                </div>
                <div className="flex flex-col">
-                   <div className="text-xl xs:text-2xl font-black text-indigo-600 tabular-nums tracking-tight leading-none">
+                   <div className="text-xl xs:text-2xl font-black text-brand-primary tabular-nums tracking-tight leading-none">
                        {formatPrice(finalPrice)}
                    </div>
                    {totalDiscount > 0 && (
                       <div className="flex items-center gap-1.5 mt-1.5 overflow-hidden">
-                         <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1 py-0.5 rounded uppercase leading-none shrink-0">Kazanç:</span>
+                         <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1 py-0.5 rounded-btn uppercase leading-none shrink-0">Kazanç:</span>
                          <span className="text-[11px] font-black text-emerald-600 tabular-nums leading-none tracking-tight truncate">{formatPrice(totalDiscount)}</span>
                       </div>
                    )}
@@ -289,7 +289,7 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
 
             <div className="flex flex-1 items-center gap-2">
               {!outOfStock && (
-                <div className="flex items-center border border-zinc-200 dark:border-zinc-700 rounded-2xl overflow-hidden bg-zinc-50 dark:bg-zinc-900 h-14 shadow-sm">
+                <div className="flex items-center border border-zinc-200 dark:border-zinc-700 rounded-btn overflow-hidden bg-zinc-50 dark:bg-zinc-900 h-14 shadow-sm">
                   <button
                     type="button"
                     onClick={() => setQty((q) => Math.max(1, q - 1))}
@@ -315,12 +315,12 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
               <button
                 onClick={handleAdd}
                 disabled={outOfStock}
-                className={`flex-1 h-14 flex items-center justify-center gap-2 rounded-2xl text-[11px] xs:text-xs font-black transition-all shadow-lg active:scale-95 uppercase tracking-wide px-2 ${
+                className={`flex-1 h-14 flex items-center justify-center gap-2 rounded-btn text-[11px] xs:text-xs font-black transition-all shadow-lg active:scale-95 uppercase tracking-wide px-2 ${
                   outOfStock
                     ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-400 cursor-not-allowed"
                     : added
                     ? "bg-green-500 text-white shadow-green-500/20"
-                    : "bg-indigo-900 text-white shadow-indigo-900/20"
+                    : "bg-brand-primary text-white shadow-brand-primary/20"
                 }`}
               >
                 {added ? <Check className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
@@ -338,7 +338,7 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
             className="absolute inset-0 bg-zinc-950/40 backdrop-blur-sm animate-in fade-in duration-300"
             onClick={() => setIsModalOpen(false)}
           />
-          <div className="relative w-full sm:max-w-[420px] bg-white dark:bg-zinc-950 rounded-t-[2.5rem] sm:rounded-3xl shadow-[0_-10px_50px_rgba(0,0,0,0.25)] overflow-hidden animate-in slide-in-from-bottom duration-500 sm:zoom-in-95">
+          <div className="relative w-full sm:max-w-[420px] bg-white dark:bg-zinc-950 rounded-t-card sm:rounded-card shadow-[0_-10px_50px_rgba(0,0,0,0.25)] overflow-hidden animate-in slide-in-from-bottom duration-500 sm:zoom-in-95">
             <div className="flex items-center justify-between px-6 xs:px-8 pt-8 pb-4">
               <h3 className="text-xl font-black text-zinc-900 dark:text-zinc-50 tracking-tight flex items-center gap-2">
                  <Check className="h-6 w-6 text-emerald-500" /> Sepete Eklendi
@@ -354,8 +354,8 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
             <div className="px-6 xs:px-8 pb-8">
               <div className="h-px bg-zinc-100 dark:bg-zinc-800 w-full mb-6" />
               
-              <div className="flex gap-4 mb-8 bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-3xl border border-zinc-100 dark:border-zinc-800">
-                <div className="relative h-20 w-20 rounded-2xl overflow-hidden bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shrink-0 shadow-sm flex items-center justify-center">
+              <div className="flex gap-4 mb-8 bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-card border border-zinc-100 dark:border-zinc-800">
+                <div className="relative h-20 w-20 rounded-btn overflow-hidden bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shrink-0 shadow-sm flex items-center justify-center">
                   <Image src={p.image} alt={p.name} fill className="object-contain p-2" />
                 </div>
                 <div className="flex flex-col justify-center min-w-0">
@@ -367,13 +367,13 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
               <div className="flex flex-col gap-3">
                 <Link 
                   href="/cart"
-                  className="w-full h-14 bg-indigo-900 hover:bg-indigo-800 text-white flex items-center justify-center rounded-2xl text-sm font-black transition-all active:scale-[0.98] shadow-xl shadow-indigo-900/20 uppercase tracking-widest"
+                  className="w-full h-14 bg-brand-primary hover:bg-brand-primary/90 text-white flex items-center justify-center rounded-btn text-sm font-black transition-all active:scale-[0.98] shadow-xl shadow-brand-primary/20 uppercase tracking-widest"
                 >
                   SEPETE GİT
                 </Link>
                 <button 
                   onClick={() => setIsModalOpen(false)}
-                  className="w-full h-14 bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 flex items-center justify-center rounded-2xl text-sm font-black hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all active:scale-[0.98] uppercase tracking-widest"
+                  className="w-full h-14 bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 flex items-center justify-center rounded-btn text-sm font-black hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all active:scale-[0.98] uppercase tracking-widest"
                 >
                   ALIŞVERİŞE DEVAM ET
                 </button>

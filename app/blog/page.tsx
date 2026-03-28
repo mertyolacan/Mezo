@@ -55,12 +55,12 @@ export default async function BlogPage() {
                 <div className="flex-1 py-2">
                   <div className="flex items-center gap-2 mb-2">
                     {(p.tags as string[]).slice(0, 2).map((tag) => (
-                      <span key={tag} className="text-xs px-2 py-0.5 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 rounded-full">
+                      <span key={tag} className="text-[10px] font-black uppercase tracking-wider px-3 py-1 bg-brand-primary/10 dark:bg-brand-primary/20 text-brand-primary dark:text-brand-primary-vibrant rounded-full">
                         {tag}
                       </span>
                     ))}
                   </div>
-                  <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-snug mb-2">
+                  <h2 className="text-lg font-black text-zinc-900 dark:text-zinc-50 group-hover:text-brand-primary dark:group-hover:text-brand-primary-vibrant transition-colors leading-snug mb-2">
                     {p.title}
                   </h2>
                   {p.excerpt && (

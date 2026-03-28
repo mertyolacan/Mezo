@@ -39,7 +39,7 @@ export default async function SupportPage() {
       </div>
 
       {rows.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-48 text-zinc-400 gap-3 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800">
+        <div className="flex flex-col items-center justify-center h-48 text-zinc-400 gap-3 bg-white dark:bg-zinc-900 rounded-card border border-zinc-200 dark:border-zinc-800">
           <HeadphonesIcon className="h-10 w-10" />
           <p className="text-sm">Henüz destek talebiniz yok</p>
         </div>
@@ -51,7 +51,7 @@ export default async function SupportPage() {
               <Link
                 key={t.id}
                 href={`/profile/support/${t.id}`}
-                className="flex items-center justify-between bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 hover:border-zinc-300 dark:hover:border-zinc-600 transition-colors group"
+                className="flex items-center justify-between bg-white dark:bg-zinc-900 rounded-card border border-zinc-200 dark:border-zinc-800 p-4 hover:border-zinc-300 dark:hover:border-zinc-600 transition-colors group"
               >
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">

@@ -5,7 +5,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, formatTurkeyPhone, parseTurkeyAddress, cleanPhone } from "@/lib/utils";
 import {
   ShoppingBag, Loader2, Tag, CheckCircle2, Minus, Plus, Trash2,
   User, MapPin, FileText, Banknote, ChevronRight, Package, CreditCard, Sparkles,
@@ -28,14 +28,7 @@ interface Props {
   cardEnabled?: boolean;
 }
 
-function parseAddress(fullStreet: string) {
-  // Daha esnek regex: "Sultan Selim Mah.", "Sultan Selim Mah", "Sultan Selim Mahallesi" vb. durumları kapsar
-  const match = fullStreet.match(/^(.*?)\s+Mah\.?\s*,?\s*(.*)$/i) || 
-                fullStreet.match(/^(.*?)\s+Mahallesi\s*,?\s*(.*)$/i);
-  
-  if (match) return { neighbourhood: match[1], street: match[2] };
-  return { neighbourhood: "", street: fullStreet };
-}
+
 
 export default function CheckoutForm({ initialUser, initialAddresses, initialCampaigns, codEnabled = true, cardEnabled = true }: Props) {
   const { items, total, clear, updateQty, remove } = useCart();
@@ -55,13 +48,13 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
 
   // Form — server-side verilerle önceden doldurulmuş
   const [form, setForm] = useState(() => {
-    const defaultAddr = initialAddresses.find((a) => a.isDefault) ?? initialAddresses[0];
-    const parsed = defaultAddr ? parseAddress(defaultAddr.street) : { neighbourhood: "", street: "" };
+    const defaultAddr = localAddresses.find((a) => a.isDefault) ?? localAddresses[0];
+    const parsed = defaultAddr ? parseTurkeyAddress(defaultAddr.street) : { neighbourhood: "", street: "" };
     
     return {
       customerName: initialUser?.name ?? "",
       customerEmail: initialUser?.email ?? "",
-      customerPhone: initialUser?.phone ? initialUser.phone : "0 (5",
+      customerPhone: formatTurkeyPhone(defaultAddr?.phone || initialUser?.phone || "05"),
       street: defaultAddr ? parsed.street : "",
       district: defaultAddr?.district ?? "",
       city: defaultAddr?.city ?? "",
@@ -116,11 +109,11 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
   );
 
   function applyAddress(a: SavedAddress) {
-    const parsed = parseAddress(a.street);
+    const parsed = parseTurkeyAddress(a.street);
     setForm((f) => ({
       ...f,
       customerName: a.fullName,
-      customerPhone: a.phone ?? f.customerPhone,
+      customerPhone: formatTurkeyPhone(a.phone || f.customerPhone),
       street: parsed.street,
       district: a.district ?? "",
       city: a.city,
@@ -138,27 +131,7 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
   }
 
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
-    let input = e.target.value.replace(/\D/g, "");
-    
-    if (input.length < 2) {
-      input = "05";
-    } else if (!input.startsWith("05")) {
-      if (input.startsWith("5")) {
-        input = "0" + input;
-      } else {
-        input = "05";
-      }
-    }
-    
-    if (input.length > 11) input = input.slice(0, 11);
-
-    let formatted = input;
-    if (input.length > 1) formatted = input.slice(0, 1) + " (" + input.slice(1, 4);
-    if (input.length > 4) formatted = formatted + ") " + input.slice(4, 7);
-    if (input.length > 7) formatted = formatted + " " + input.slice(7, 9);
-    if (input.length > 9) formatted = formatted + " " + input.slice(9, 11);
-    
-    setForm((p) => ({ ...p, customerPhone: formatted }));
+    setForm((p) => ({ ...p, customerPhone: formatTurkeyPhone(e.target.value) }));
   }
 
   async function applyCoupon() {
@@ -256,7 +229,7 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
         <p className="text-sm text-zinc-500 mb-8">Sipariş verebilmek için sepete ürün ekleyin.</p>
         <a
           href="/products"
-          className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-6 py-3 rounded-xl transition-colors"
+          className="inline-flex items-center gap-2 bg-brand-primary hover:bg-brand-primary/90 text-white text-sm font-semibold px-6 py-3 rounded-btn transition-colors shadow-lg shadow-brand-primary/20"
         >
           Ürünlere Göz At <ChevronRight className="h-4 w-4" />
         </a>
@@ -265,7 +238,7 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
   }
 
   const inputClass =
-    "w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-3 text-sm text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-zinc-900 transition";
+    "w-full rounded-input border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50 px-4 py-3 text-sm text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:bg-white dark:focus:bg-zinc-900 transition";
   const labelClass = "block text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-1.5";
 
   return (
@@ -281,17 +254,17 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
         {/* ── Form ─────────────────────────────────────────────── */}
         <form id="checkout-form" onSubmit={handleSubmit} className="lg:col-span-3 space-y-5">
           {error && (
-            <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm px-4 py-3 rounded-xl">
+            <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm px-4 py-3 rounded-btn">
               {error}
             </div>
           )}
 
 
           {/* Teslimat Adresi */}
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
+          <div className="bg-white dark:bg-zinc-900 rounded-card border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-[var(--card-shadow)]">
             <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
               <div className="flex items-center gap-3">
-                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-indigo-600 text-white text-xs font-bold shrink-0">1</span>
+                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-brand-primary text-white text-xs font-bold shrink-0">1</span>
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-zinc-400" />
                   <h2 className="font-semibold text-zinc-900 dark:text-zinc-50 text-sm">Teslimat Adresi</h2>
@@ -300,7 +273,7 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
               <button 
                 type="button"
                 onClick={() => setIsAddressModalOpen(true)}
-                className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 underline underline-offset-4"
+                className="text-xs font-bold text-brand-primary transition-colors hover:text-brand-primary/80 underline underline-offset-4"
               >
                 {form.street ? "Değiştir / Düzenle" : "Adres Ekle"}
               </button>
@@ -308,8 +281,8 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
 
             <div className="p-6">
               {form.street ? (
-                <div className="flex items-start gap-4 p-5 rounded-3xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
-                  <div className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-indigo-600 shrink-0">
+                <div className="flex items-start gap-4 p-5 rounded-card bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
+                  <div className="w-12 h-12 rounded-btn bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-brand-primary shrink-0">
                     <MapPin className="h-6 w-6" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -321,7 +294,7 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
                       {form.neighbourhood ? `${form.neighbourhood} Mah., ` : ""}{form.street}<br />
                       {form.district}, {form.city}
                     </p>
-                    <div className="mt-3 py-1.5 px-3 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-xl inline-flex items-center gap-2">
+                    <div className="mt-3 py-1.5 px-3 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-btn inline-flex items-center gap-2">
                        <Phone className="h-3 w-3 text-zinc-400" />
                        <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">{form.customerPhone}</span>
                     </div>
@@ -331,9 +304,9 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
                 <button 
                   type="button"
                   onClick={() => setIsAddressModalOpen(true)}
-                  className="w-full py-12 rounded-3xl border-2 border-dashed border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center gap-3 text-zinc-400 hover:border-indigo-500 hover:text-indigo-500 transition-all group"
+                  className="w-full py-12 rounded-card border-2 border-dashed border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center gap-3 text-zinc-400 hover:border-brand-primary hover:text-brand-primary transition-all group"
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center group-hover:bg-indigo-50 dark:group-hover:bg-indigo-950/30 transition-colors">
+                  <div className="w-12 h-12 rounded-btn bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center group-hover:bg-brand-primary/5 dark:group-hover:bg-brand-primary/10 transition-colors">
                     <Plus className="h-6 w-6" />
                   </div>
                   <span className="font-bold text-sm">Teslimat Adresi Seçin veya Ekleyin</span>
@@ -353,7 +326,7 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
 
 
           {/* Sipariş Notu */}
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+          <div className="bg-white dark:bg-zinc-900 rounded-card border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-[var(--card-shadow)]">
             <div className="flex items-center gap-3 px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
               <span className="flex items-center justify-center w-7 h-7 rounded-full bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400 text-xs font-bold shrink-0">2</span>
               <div className="flex items-center gap-2">
@@ -373,7 +346,7 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
           </div>
 
           {/* Ödeme Yöntemi */}
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+          <div className="bg-white dark:bg-zinc-900 rounded-card border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-[var(--card-shadow)]">
             <div className="flex items-center gap-3 px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
               <span className="flex items-center justify-center w-7 h-7 rounded-full bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400 text-xs font-bold shrink-0">3</span>
               <div className="flex items-center gap-2">
@@ -386,15 +359,15 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("cod")}
-                  className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border-2 transition-all ${paymentMethod === "cod" ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40" : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600"}`}
+                  className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-btn border-2 transition-all ${paymentMethod === "cod" ? "border-brand-primary bg-brand-primary/5 dark:bg-brand-primary/10" : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600"}`}
                 >
-                  <div className={`h-4 w-4 rounded-full border-2 shrink-0 flex items-center justify-center ${paymentMethod === "cod" ? "border-indigo-500" : "border-zinc-300 dark:border-zinc-600"}`}>
-                    {paymentMethod === "cod" && <div className="h-2 w-2 rounded-full bg-indigo-500" />}
+                  <div className={`h-4 w-4 rounded-full border-2 shrink-0 flex items-center justify-center ${paymentMethod === "cod" ? "border-brand-primary" : "border-zinc-300 dark:border-zinc-600"}`}>
+                    {paymentMethod === "cod" && <div className="h-2 w-2 rounded-full bg-brand-primary" />}
                   </div>
-                  <Banknote className={`h-5 w-5 shrink-0 ${paymentMethod === "cod" ? "text-indigo-600 dark:text-indigo-400" : "text-zinc-400"}`} />
+                  <Banknote className={`h-5 w-5 shrink-0 ${paymentMethod === "cod" ? "text-brand-primary dark:text-brand-primary-vibrant" : "text-zinc-400"}`} />
                   <div className="text-left">
-                    <p className={`text-sm font-semibold ${paymentMethod === "cod" ? "text-indigo-700 dark:text-indigo-300" : "text-zinc-700 dark:text-zinc-300"}`}>Kapıda Ödeme</p>
-                    <p className="text-xs text-zinc-400 mt-0.5">Nakit veya kart ile kapıda öde</p>
+                    <p className={`text-sm font-semibold ${paymentMethod === "cod" ? "text-brand-primary dark:text-brand-primary-vibrant" : "text-zinc-700 dark:text-zinc-300"}`}>Kapıda Ödeme</p>
+                    <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">Nakit veya kart ile kapıda öde</p>
                   </div>
                 </button>
               )}
@@ -403,15 +376,15 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("card")}
-                  className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border-2 transition-all ${paymentMethod === "card" ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40" : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600"}`}
+                  className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-btn border-2 transition-all ${paymentMethod === "card" ? "border-brand-primary bg-brand-primary/5 dark:bg-brand-primary/10" : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600"}`}
                 >
-                  <div className={`h-4 w-4 rounded-full border-2 shrink-0 flex items-center justify-center ${paymentMethod === "card" ? "border-indigo-500" : "border-zinc-300 dark:border-zinc-600"}`}>
-                    {paymentMethod === "card" && <div className="h-2 w-2 rounded-full bg-indigo-500" />}
+                  <div className={`h-4 w-4 rounded-full border-2 shrink-0 flex items-center justify-center ${paymentMethod === "card" ? "border-brand-primary" : "border-zinc-300 dark:border-zinc-600"}`}>
+                    {paymentMethod === "card" && <div className="h-2 w-2 rounded-full bg-brand-primary" />}
                   </div>
-                  <CreditCard className={`h-5 w-5 shrink-0 ${paymentMethod === "card" ? "text-indigo-600 dark:text-indigo-400" : "text-zinc-400"}`} />
+                  <CreditCard className={`h-5 w-5 shrink-0 ${paymentMethod === "card" ? "text-brand-primary dark:text-brand-primary-vibrant" : "text-zinc-400"}`} />
                   <div className="text-left">
-                    <p className={`text-sm font-semibold ${paymentMethod === "card" ? "text-indigo-700 dark:text-indigo-300" : "text-zinc-700 dark:text-zinc-300"}`}>Kredi / Banka Kartı</p>
-                    <p className="text-xs text-zinc-400 mt-0.5">iyzico güvencesiyle güvenli ödeme</p>
+                    <p className={`text-sm font-semibold ${paymentMethod === "card" ? "text-brand-primary dark:text-brand-primary-vibrant" : "text-zinc-700 dark:text-zinc-300"}`}>Kredi / Banka Kartı</p>
+                    <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">iyzico güvencesiyle güvenli ödeme</p>
                   </div>
                 </button>
               )}
@@ -422,13 +395,13 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
           <button
             type="submit"
             disabled={loading}
-            className="hidden lg:flex w-full items-center justify-between gap-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white font-semibold py-4 px-6 rounded-2xl transition-colors"
+            className="hidden lg:flex w-full items-center justify-between gap-3 bg-brand-primary hover:bg-brand-primary/90 disabled:opacity-60 text-white font-semibold py-4 px-6 rounded-btn transition-all shadow-lg shadow-brand-primary/20 active:scale-[0.99]"
           >
             <span className="flex items-center gap-2">
-              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+              {loading && <Loader2 className="h-4 w-4 animate-spin text-white" />}
               {paymentMethod === "cod" ? "Siparişi Onayla" : "Ödemeye Geç"}
             </span>
-            <span className="text-indigo-200 text-sm font-normal">
+            <span className="text-white/80 text-sm font-bold tabular-nums">
               {formatPrice(finalTotal)}
             </span>
           </button>
@@ -438,10 +411,10 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
         <div className="lg:col-span-2 lg:sticky lg:top-20 space-y-4">
 
 
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 sm:rounded-[2rem] rounded-2xl p-5 sm:p-6 shadow-xl shadow-zinc-200/30 dark:shadow-none">
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-card p-5 sm:p-6 shadow-[var(--card-shadow)] shadow-xl dark:shadow-none">
 
             <h2 className="text-lg font-black mb-5 sm:mb-6 flex items-center gap-2 text-zinc-900 dark:text-zinc-50">
-              <ShoppingBag className="h-5 w-5 text-indigo-500" /> Sipariş Özeti
+              <ShoppingBag className="h-5 w-5 text-brand-primary" /> Sipariş Özeti
             </h2>
 
             <div className="divide-y divide-zinc-100 dark:divide-zinc-800/50 border-b border-zinc-100 dark:border-zinc-800 mb-6">
@@ -461,12 +434,15 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
 
                 return (
                   <div key={item.id} className="flex gap-4 py-4">
-                    <div className="relative h-16 w-16 shrink-0 rounded-2xl overflow-hidden bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 flex items-center justify-center">
+                    <div className="relative h-16 w-16 shrink-0 rounded-btn overflow-hidden bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 flex items-center justify-center">
                       {item.image ? (
                         <Image src={item.image} alt={item.name} fill className="object-contain p-2" sizes="64px" />
                       ) : (
-                        <Package className="h-6 w-6 text-zinc-300" />
+                        <Package className="h-6 w-6 text-zinc-300 dark:text-zinc-600" />
                       )}
+                      <div className="absolute bottom-0 left-0 bg-zinc-900/90 dark:bg-black/90 text-white text-[10px] font-black px-1.5 py-0.5 rounded-tr-lg border-t border-r border-white/10 shadow-sm tabular-nums">
+                        {item.quantity}
+                      </div>
                     </div>
 
                     <div className="flex-1 min-w-0 flex flex-col py-0.5 justify-between">
@@ -475,13 +451,10 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
                           {item.name}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded-md">
-                            {item.quantity} Adet
-                          </span>
                           {itemApplied.length > 0 && (
                             <div className="flex flex-wrap gap-1">
                               {itemApplied.map((ac, idx) => (
-                                <span key={idx} className="text-[9px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/40 px-1.5 py-0.5 rounded-md">
+                                <span key={idx} className="text-[9px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/40 px-1.5 py-0.5 rounded-btn">
                                   {ac.badge}
                                 </span>
                               ))}
@@ -496,7 +469,7 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
                            {itemDiscountShare > 0 ? (
                              <>
                                <p className="text-[10px] text-zinc-400 font-bold line-through tabular-nums decoration-zinc-300">{formatPrice(itemTotal)}</p>
-                               <p className="text-sm font-black text-indigo-600 dark:text-indigo-400 tabular-nums leading-none mt-0.5">{formatPrice(itemFinalTotal)}</p>
+                               <p className="text-sm font-black text-brand-primary dark:text-brand-primary-vibrant tabular-nums leading-none mt-0.5">{formatPrice(itemFinalTotal)}</p>
                              </>
                            ) : (
                              <p className="text-sm font-black text-zinc-900 dark:text-zinc-50 tabular-nums leading-none">{formatPrice(itemTotal)}</p>
@@ -533,7 +506,7 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
             <div className="pt-2 pb-6 border-t border-zinc-100 dark:border-zinc-800">
               <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2.5">İndirim Kodu</p>
               {coupon ? (
-                <div className="flex items-center justify-between bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/40 rounded-xl px-4 py-3">
+                <div className="flex items-center justify-between bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/40 rounded-btn px-4 py-3">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
                     <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400">{coupon}</span>
@@ -543,7 +516,7 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
                 <>
                   <div className="flex gap-2">
                     <input
-                      className="flex-1 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-3 text-sm font-mono text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-zinc-900 transition uppercase tracking-widest placeholder:tracking-normal placeholder:font-sans"
+                      className="flex-1 rounded-input border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-3 text-sm font-mono text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:bg-white dark:focus:bg-zinc-900 transition uppercase tracking-widest placeholder:tracking-normal placeholder:font-sans"
                       placeholder="Kupon kodu girin"
                       value={couponInput}
                       onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
@@ -553,7 +526,7 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
                       type="button"
                       onClick={applyCoupon}
                       disabled={!couponInput}
-                      className="flex items-center gap-1.5 text-sm bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold px-4 py-3 rounded-xl disabled:opacity-40 transition-colors"
+                      className="flex items-center gap-1.5 text-sm bg-brand-primary hover:bg-brand-primary/90 text-white font-bold px-4 py-3 rounded-btn disabled:opacity-40 transition-all shadow-lg shadow-brand-primary/10 active:scale-95 uppercase tracking-wide border border-white/5"
                     >
                       Uygula
                     </button>
@@ -565,15 +538,15 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
               )}
             </div>
 
-            <div className="hidden lg:block h-px bg-zinc-100 dark:bg-zinc-800 my-2" />
+            <div className="hidden lg:block h-px bg-zinc-100 dark:border-zinc-800 my-2" />
             <div className="hidden lg:flex justify-between items-end mt-4">
                  <div>
                     <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1.5">ÖDENECEK TUTAR</p>
-                    <p className="text-3xl sm:text-4xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight tabular-nums">{formatPrice(finalTotal)}</p>
+                    <p className="text-3xl sm:text-4xl font-black text-brand-primary dark:text-brand-primary-vibrant tracking-tight tabular-nums">{formatPrice(finalTotal)}</p>
                  </div>
                  {totalDiscount > 0 && (
                     <div className="text-right flex flex-col items-end">
-                        <p className="text-[9px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/40 px-1.5 py-0.5 rounded-md mb-1 uppercase tracking-wider">Toplam Kazanç</p>
+                        <p className="text-[9px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/40 px-1.5 py-0.5 rounded-btn mb-1 uppercase tracking-wider">Toplam Kazanç</p>
                         <p className="text-sm font-black text-emerald-600 tabular-nums">{formatPrice(totalDiscount)}</p>
                     </div>
                  )}
@@ -597,7 +570,7 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
 
       {/* Mobile Sticky Bottom Bar & Drawer */}
       <div className="lg:hidden fixed bottom-0 left-0 w-full z-50 flex flex-col justify-end pointer-events-none">
-        <div className={`bg-white dark:bg-zinc-900 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.12)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.5)] pointer-events-auto flex flex-col w-full transition-transform duration-300 ease-out translate-y-0`}>
+        <div className={`bg-white dark:bg-zinc-900 rounded-t-card shadow-[0_-10px_40px_rgba(0,0,0,0.12)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.5)] pointer-events-auto flex flex-col w-full transition-transform duration-300 ease-out translate-y-0`}>
           {/* Expandable Drawer */}
           <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isMobileSummaryOpen ? 'max-h-[60vh] opacity-100' : 'max-h-0 opacity-0'}`}>
             <div className="p-5 relative max-h-[60vh] overflow-y-auto">
@@ -639,19 +612,19 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
                     Toplam {isMobileSummaryOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}
                 </div>
                 <div className="flex flex-col">
-                    <div className="text-xl xs:text-2xl font-black text-indigo-600 dark:text-indigo-400 tabular-nums tracking-tight leading-none">
+                    <div className="text-xl xs:text-2xl font-black text-brand-primary tabular-nums tracking-tight leading-none">
                         {formatPrice(finalTotal)}
                     </div>
                     {totalDiscount > 0 && (
                        <div className="flex items-center gap-1 mt-1">
-                          <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/40 px-1 py-0.5 rounded uppercase leading-none">Kazanç:</span>
+                          <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/40 px-1 py-0.5 rounded-btn uppercase leading-none">Kazanç:</span>
                           <span className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 tabular-nums leading-none tracking-tight">{formatPrice(totalDiscount)}</span>
                        </div>
                     )}
                 </div>
              </div>
              
-             <button form="checkout-form" type="submit" disabled={loading} className="flex items-center justify-center gap-2 bg-indigo-900 hover:bg-indigo-800 active:bg-indigo-950 text-white font-bold py-2.5 xs:py-3 sm:py-3.5 px-4 xs:px-6 sm:px-8 rounded-full shrink transition-colors shadow-lg shadow-indigo-900/20 text-[11px] xs:text-xs sm:text-sm tracking-wide uppercase whitespace-nowrap min-w-0 flex-1 sm:flex-none">
+             <button form="checkout-form" type="submit" disabled={loading} className="flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary/90 active:bg-brand-primary/95 text-white font-bold py-2.5 xs:py-3 sm:py-3.5 px-4 xs:px-6 sm:px-8 rounded-btn shrink transition-all shadow-lg shadow-brand-primary/20 text-[11px] xs:text-xs sm:text-sm tracking-wide uppercase whitespace-nowrap min-w-0 flex-1 sm:flex-none">
                 {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                 {paymentMethod === "cod" ? "ONAYLA" : "ÖDEMEYE GEÇ"}
              </button>

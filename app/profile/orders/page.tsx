@@ -32,7 +32,7 @@ export default async function OrdersPage() {
         <div className="flex flex-col items-center justify-center h-48 text-zinc-400 gap-3 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800">
           <ShoppingBag className="h-10 w-10" />
           <p className="text-sm">Henüz sipariş yok</p>
-          <Link href="/products" className="text-sm text-indigo-500 hover:underline">Alışverişe başla</Link>
+          <Link href="/products" className="text-sm text-brand-primary hover:underline">Alışverişe başla</Link>
         </div>
       ) : (
         <div className="space-y-3">
@@ -43,7 +43,7 @@ export default async function OrdersPage() {
               <Link
                 key={o.id}
                 href={`/profile/orders/${o.id}`}
-                className="flex items-center justify-between bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 hover:border-zinc-300 dark:hover:border-zinc-600 transition-colors group"
+                className="flex items-center justify-between bg-white dark:bg-zinc-900 rounded-card border border-zinc-200 dark:border-zinc-800 p-4 hover:border-zinc-300 dark:hover:border-zinc-600 transition-colors group"
               >
                 <div className="space-y-1">
                   <div className="flex items-center gap-3">

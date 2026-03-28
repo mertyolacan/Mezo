@@ -41,7 +41,7 @@ export default function ProductSearch({ defaultValue }: { defaultValue?: string 
         value={value}
         onChange={(e) => handleChange(e.target.value)}
         placeholder="Ürün ara..."
-        className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 pl-8 pr-7 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+        className="w-full rounded-input border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 pl-8 pr-7 py-2 text-sm focus:outline-none focus:border-brand-primary transition shadow-sm focus:shadow-md"
       />
       {value && (
         <button

@@ -12,7 +12,7 @@ export default function SortSelect({ value }: { value?: string }) {
     <select
       defaultValue={value ?? ""}
       onChange={handleChange}
-      className="text-sm border border-zinc-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 px-3 py-1.5 text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      className="text-sm border border-zinc-200 dark:border-zinc-700 rounded-input bg-white dark:bg-zinc-900 px-3 py-1.5 text-zinc-700 dark:text-zinc-300 focus:outline-none focus:border-brand-primary transition-all shadow-sm"
     >
       <option value="">En yeni</option>
       <option value="price-asc">Fiyat: Düşükten yükseğe</option>

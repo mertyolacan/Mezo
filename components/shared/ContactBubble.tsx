@@ -47,14 +47,14 @@ const actions = (phone?: string | null, email?: string | null, whatsapp?: string
     label: "Destek",
     icon: Headphones,
     href: "/profile/support",
-    color: "bg-violet-500 hover:bg-violet-600",
+    color: "bg-brand-secondary hover:bg-brand-secondary/90",
     external: false,
   },
   {
     label: "Mesaj",
     icon: MessageSquare,
     href: "/contact",
-    color: "bg-indigo-500 hover:bg-indigo-600",
+    color: "bg-brand-primary hover:bg-brand-primary/90",
     external: false,
   },
 ];
@@ -118,7 +118,7 @@ export default function ContactBubble({ phone, email, whatsapp }: Props) {
         className={`flex items-center justify-center w-14 h-14 rounded-full shadow-xl transition-all duration-300 ${
           open
             ? "bg-zinc-700 hover:bg-zinc-800 rotate-0"
-            : "bg-indigo-600 hover:bg-indigo-700"
+            : "bg-brand-primary hover:bg-brand-primary/90"
         } text-white`}
       >
         <span className={`absolute transition-all duration-200 ${open ? "opacity-100 scale-100" : "opacity-0 scale-75"}`}>

@@ -96,17 +96,17 @@ export default function MobileFilterBar({
           onClick={() => setSortOpen(true)}
           className="flex-1 py-4 flex items-center justify-center gap-2.5 text-[11px] font-bold uppercase text-zinc-600 dark:text-zinc-400 active:scale-95 transition-all hover:bg-zinc-50 dark:hover:bg-zinc-900/50"
         >
-          <ArrowDownUp className="w-3.5 h-3.5 text-indigo-600" />
+          <ArrowDownUp className="w-3.5 h-3.5 text-brand-primary" />
           Sırala
         </button>
         <button
           onClick={() => setFilterOpen(true)}
           className="flex-1 py-4 flex items-center justify-center gap-2.5 text-[11px] font-bold uppercase text-zinc-600 dark:text-zinc-400 active:scale-95 transition-all hover:bg-zinc-50 dark:hover:bg-zinc-900/50 relative"
         >
-          <Filter className="w-3.5 h-3.5 text-indigo-600" />
+          <Filter className="w-3.5 h-3.5 text-brand-primary" />
           Filtrele
           {activeFiltersCount > 0 && (
-            <span className="absolute top-3 right-[22%] flex items-center justify-center min-w-[16px] h-[16px] px-1 rounded-full bg-indigo-600 text-white text-[9px] font-bold border-2 border-white dark:border-zinc-950 shadow-sm animate-in zoom-in">
+            <span className="absolute top-3 right-[22%] flex items-center justify-center min-w-[16px] h-[16px] px-1 rounded-full bg-brand-primary text-white text-[9px] font-bold border-2 border-white dark:border-zinc-950 shadow-sm animate-in zoom-in">
               {activeFiltersCount}
             </span>
           )}
@@ -142,7 +142,7 @@ export default function MobileFilterBar({
               <div className="space-y-2">
                 <Link
                   href="/products"
-                  className={`block p-3 rounded-lg border ${!currentCategory ? "border-indigo-500 bg-indigo-50 text-indigo-700" : "border-zinc-200 text-zinc-700 dark:border-zinc-800 dark:text-zinc-300"}`}
+                  className={`block p-3 rounded-brand border-2 transition-all ${!currentCategory ? "border-brand-primary bg-brand-surface text-brand-primary font-bold" : "border-zinc-100 text-zinc-700 dark:border-zinc-800 dark:text-zinc-300"}`}
                   onClick={() => setFilterOpen(false)}
                 >
                   Tümü
@@ -151,7 +151,7 @@ export default function MobileFilterBar({
                   <Link
                     key={c.id}
                     href={`/products?category=${c.slug}`}
-                    className={`block p-3 rounded-lg border ${currentCategory === c.slug ? "border-indigo-500 bg-indigo-50 text-indigo-700" : "border-zinc-200 text-zinc-700 dark:border-zinc-800 dark:text-zinc-300"}`}
+                    className={`block p-3 rounded-brand border-2 transition-all ${currentCategory === c.slug ? "border-brand-primary bg-brand-surface text-brand-primary font-bold" : "border-zinc-100 text-zinc-700 dark:border-zinc-800 dark:text-zinc-300"}`}
                     onClick={() => setFilterOpen(false)}
                   >
                     {c.name}
@@ -167,7 +167,7 @@ export default function MobileFilterBar({
                 <div className="space-y-2">
                   <Link
                     href="/products"
-                    className={`block p-3 rounded-lg border ${!currentBrand ? "border-indigo-500 bg-indigo-50 text-indigo-700" : "border-zinc-200 text-zinc-700 dark:border-zinc-800 dark:text-zinc-300"}`}
+                    className={`block p-3 rounded-brand border-2 transition-all ${!currentBrand ? "border-brand-primary bg-brand-surface text-brand-primary font-bold" : "border-zinc-100 text-zinc-700 dark:border-zinc-800 dark:text-zinc-300"}`}
                     onClick={() => setFilterOpen(false)}
                   >
                     Tüm Markalar
@@ -176,7 +176,7 @@ export default function MobileFilterBar({
                     <Link
                       key={b.id}
                       href={`/products?brand=${b.slug}`}
-                      className={`block p-3 rounded-lg border ${currentBrand === b.slug ? "border-indigo-500 bg-indigo-50 text-indigo-700" : "border-zinc-200 text-zinc-700 dark:border-zinc-800 dark:text-zinc-300"}`}
+                      className={`block p-3 rounded-brand border-2 transition-all ${currentBrand === b.slug ? "border-brand-primary bg-brand-surface text-brand-primary font-bold" : "border-zinc-100 text-zinc-700 dark:border-zinc-800 dark:text-zinc-300"}`}
                       onClick={() => setFilterOpen(false)}
                     >
                       {b.name}
@@ -196,7 +196,7 @@ export default function MobileFilterBar({
           <div className="p-4 border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-950 shrink-0">
             <button
               onClick={() => setFilterOpen(false)}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl flex items-center justify-center transition-colors active:scale-95"
+              className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white font-bold py-4 rounded-brand flex items-center justify-center transition-all active:scale-95 shadow-lg shadow-brand-primary/20"
             >
               Ürünleri Listele ({totalCount})
             </button>
@@ -235,11 +235,11 @@ export default function MobileFilterBar({
                 >
                   <div className="flex items-center gap-4">
                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                      currentSort === opt.value ? "border-indigo-600 dark:border-indigo-400" : "border-zinc-300 dark:border-zinc-700"
+                      currentSort === opt.value ? "border-brand-primary" : "border-zinc-300 dark:border-zinc-700"
                     }`}>
-                      {currentSort === opt.value && <div className="w-2.5 h-2.5 rounded-full bg-indigo-600 dark:bg-indigo-400" />}
+                      {currentSort === opt.value && <div className="w-2.5 h-2.5 rounded-full bg-brand-primary" />}
                     </div>
-                    <span className={currentSort === opt.value ? "text-indigo-600 dark:text-indigo-400 font-bold" : "text-zinc-700 dark:text-zinc-300 text-lg"}>
+                    <span className={currentSort === opt.value ? "text-brand-primary font-bold" : "text-zinc-700 dark:text-zinc-300 text-lg"}>
                       {opt.label}
                     </span>
                   </div>

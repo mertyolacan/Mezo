@@ -32,6 +32,19 @@ export default async function AdminSettingsPage() {
     socialWhatsapp:     row?.socialWhatsapp     ?? "",
     paymentCodEnabled:  row?.paymentCodEnabled  ?? true,
     paymentCardEnabled: row?.paymentCardEnabled ?? false,
+    primaryColor:       row?.primaryColor       ?? "#4f46e5",
+    secondaryColor:     row?.secondaryColor     ?? "#6366f1",
+    tertiaryColor:      row?.tertiaryColor      ?? "#818cf8",
+    accentColor:        row?.accentColor        ?? "#f43f5e",
+    surfaceColor:       row?.surfaceColor       ?? "#f8fafc",
+    borderRadius:       row?.borderRadius       ?? "0.75rem",
+    buttonRadius:       row?.buttonRadius       ?? "0.5rem",
+    cardRadius:         row?.cardRadius         ?? "1rem",
+    inputRadius:        row?.inputRadius        ?? "0.75rem",
+    navbarStyle:        row?.navbarStyle        ?? "glass",
+    cardShadow:         row?.cardShadow         ?? "md",
+    animationIntensity: row?.animationIntensity ?? "smooth",
+    fontFamily:         row?.fontFamily         ?? "Inter",
   };
 
   return (

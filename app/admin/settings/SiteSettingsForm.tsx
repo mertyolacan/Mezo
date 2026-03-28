@@ -3,22 +3,60 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
-  Loader2, Check, Phone, Mail, MapPin, Clock,
-  Instagram, Youtube, Linkedin, CreditCard, Truck,
-  Building2, AtSign, MessageCircle,
-  Twitter, Facebook, Music2,
+  AtSign, Building2, Check, Clock, CreditCard, Facebook, Instagram, Linkedin,
+  Loader2, Mail, MapPin, MessageCircle, Music2, Palette, Phone, Truck, Twitter, Youtube,
 } from "lucide-react";
 import { updateSiteSettings, type SiteSettingsInput } from "@/lib/actions/settings";
 import ImageInput from "@/components/admin/ImageInput";
 
 type Props = { initialSettings: SiteSettingsInput };
 
-type Tab = "general" | "contact" | "payment";
+type Tab = "general" | "contact" | "payment" | "theme";
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "general", label: "Genel",            icon: Building2 },
   { id: "contact", label: "İletişim & Sosyal", icon: Phone },
   { id: "payment", label: "Ödeme",             icon: CreditCard },
+  { id: "theme",   label: "Tema",              icon: Palette },
+];
+
+const PRESET_THEMES = [
+  {
+    id: "premium",
+    label: "Meso Premium",
+    desc: "Indigo & Rose (Kurumsal)",
+    colors: {
+      primaryColor: "#4f46e5",
+      secondaryColor: "#6366f1",
+      tertiaryColor: "#818cf8",
+      accentColor: "#f43f5e",
+      surfaceColor: "#f8fafc",
+    }
+  },
+  {
+    id: "emerald",
+    label: "Nature Emerald",
+    desc: "Green & Amber (Doğa)",
+    colors: {
+      primaryColor: "#059669",
+      secondaryColor: "#10b981",
+      tertiaryColor: "#34d399",
+      accentColor: "#f59e0b",
+      surfaceColor: "#f0fdf4",
+    }
+  },
+  {
+    id: "sunset",
+    label: "Sunset Glow",
+    desc: "Rose & Orange (Canlı)",
+    colors: {
+      primaryColor: "#e11d48",
+      secondaryColor: "#fb7185",
+      tertiaryColor: "#fda4af",
+      accentColor: "#f97316",
+      surfaceColor: "#fff1f2",
+    }
+  }
 ];
 
 export default function SiteSettingsForm({ initialSettings }: Props) {
@@ -45,7 +83,7 @@ export default function SiteSettingsForm({ initialSettings }: Props) {
     }
   }
 
-  const inp = "w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all";
+  const inp = "w-full rounded-brand border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-2.5 text-sm focus:outline-none focus:border-brand-primary transition-all text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 shadow-sm";
   const lbl = "block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5";
 
   const SectionHeader = ({
@@ -217,6 +255,229 @@ export default function SiteSettingsForm({ initialSettings }: Props) {
                   </div>
                 );
               })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tab: Tema */}
+      {activeTab === "theme" && (
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          
+          {/* Hazır Temalar */}
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
+            <SectionHeader icon={Palette} title="Hazır Temalar" desc="Hızlı başlangıç için küratörlü renk paletleri" color="text-brand-primary" />
+            <div className="p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {PRESET_THEMES.map((theme) => {
+                  const isActive = watch("primaryColor") === theme.colors.primaryColor;
+                  return (
+                    <button
+                      key={theme.id}
+                      type="button"
+                      onClick={() => {
+                        Object.entries(theme.colors).forEach(([key, val]) => {
+                          setValue(key as any, val, { shouldDirty: true });
+                        });
+                      }}
+                      className={`group relative text-left p-4 rounded-xl border transition-all ${
+                        isActive 
+                        ? "bg-brand-primary/5 border-brand-primary ring-2 ring-brand-primary/20 shadow-md" 
+                        : "bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 hover:border-zinc-300"
+                      }`}
+                    >
+                      <div className="flex flex-col gap-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-zinc-900 dark:text-zinc-50 uppercase tracking-tight">{theme.label}</span>
+                          {isActive && <Check className="h-4 w-4 text-brand-primary" />}
+                        </div>
+                        <div className="flex gap-1.5">
+                          <div className="h-6 w-6 rounded-full border border-white/20 shadow-sm" style={{ backgroundColor: theme.colors.primaryColor }} />
+                          <div className="h-4 w-4 rounded-full border border-white/20 shadow-sm mt-1" style={{ backgroundColor: theme.colors.accentColor }} />
+                          <div className="h-4 w-4 rounded-full border border-white/20 shadow-sm mt-1" style={{ backgroundColor: theme.colors.secondaryColor }} />
+                        </div>
+                        <p className="text-[10px] text-zinc-500 font-medium leading-none">{theme.desc}</p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Renk Paleti */}
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
+            <SectionHeader icon={Palette} title="Renk Paleti" desc="Sitenin kurumsal renk kimliğini belirleyin" color="text-violet-500" />
+            <div className="p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+                {[
+                  { id: "primaryColor",   label: "Ana (Primary)" },
+                  { id: "secondaryColor", label: "İkincil (Secondary)" },
+                  { id: "tertiaryColor",  label: "Üçüncül (Tertiary)" },
+                  { id: "accentColor",    label: "Vurgu (Accent)" },
+                  { id: "surfaceColor",   label: "Yüzey (Surface)" },
+                ].map((c) => (
+                  <div key={c.id}>
+                    <label className={lbl}>{c.label}</label>
+                    <div className="flex gap-2">
+                      <input 
+                        type="color" 
+                        value={watch(c.id as any) || "#000000"} 
+                        onChange={(e) => setValue(c.id as any, e.target.value, { shouldDirty: true })}
+                        className="h-10 w-12 rounded-brand border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 cursor-pointer focus:border-brand-primary outline-none transition-all" 
+                      />
+                      <input 
+                        type="text" 
+                        {...register(c.id as any)} 
+                        className="w-full h-10 px-3 text-xs bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-brand outline-none focus:border-brand-primary" 
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Köşe Kesimleri (Radius) */}
+            <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
+              <SectionHeader icon={Palette} title="Köşe Kesimleri (Radius)" desc="Bileşenlerin yumuşaklık seviyeleri" color="text-amber-500" />
+              <div className="p-6 space-y-5">
+                {[
+                  { id: "buttonRadius", label: "Buton Kavisleri", options: [
+                    { v: "0px", l: "Keskin (0px)" },
+                    { v: "0.375rem", l: "Hafif (6px)" },
+                    { v: "0.5rem", l: "Orta (8px)" },
+                    { v: "9999px", l: "Oval (Pill)" },
+                  ]},
+                  { id: "cardRadius", label: "Kart Kavisleri", options: [
+                    { v: "0px", l: "Keskin (0px)" },
+                    { v: "0.75rem", l: "Yumuşak (12px)" },
+                    { v: "1rem", l: "Geniş (16px)" },
+                    { v: "1.5rem", l: "Tam Kavis (24px)" },
+                  ]},
+                  { id: "inputRadius", label: "Giriş Alanı (Input) Kavisleri", options: [
+                    { v: "0px", l: "Keskin (0px)" },
+                    { v: "0.5rem", l: "Standart (8px)" },
+                    { v: "0.75rem", l: "Modern (12px)" },
+                  ]},
+                ].map((r) => (
+                  <div key={r.id}>
+                    <label className={lbl}>{r.label}</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {r.options.map((opt) => (
+                        <button
+                          key={opt.v}
+                          type="button"
+                          onClick={() => setValue(r.id as any, opt.v, { shouldDirty: true })}
+                          className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all ${
+                            watch(r.id as any) === opt.v
+                              ? "bg-brand-primary border-brand-primary text-white shadow-md shadow-brand-primary/20"
+                              : "bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300"
+                          }`}
+                        >
+                          {opt.l}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Görsel Efektler & Stil */}
+            <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
+              <SectionHeader icon={Palette} title="Görsel Efektler & Stil" desc="Sitenin derinlik ve hareket ayarları" color="text-indigo-500" />
+              <div className="p-6 space-y-6">
+                <div>
+                  <label className={lbl}>Navbar (Üst Menü) Stili</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { v: "glass", l: "Buzlu Cam" },
+                      { v: "solid", l: "Mat Renk" },
+                      { v: "minimal", l: "Minimal" },
+                    ].map((opt) => (
+                      <button
+                        key={opt.v}
+                        type="button"
+                        onClick={() => setValue("navbarStyle", opt.v, { shouldDirty: true })}
+                        className={`py-3 rounded-xl text-xs font-bold border transition-all ${
+                          watch("navbarStyle") === opt.v
+                            ? "bg-brand-primary border-brand-primary text-white"
+                            : "bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-500"
+                        }`}
+                      >
+                        {opt.l}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className={lbl}>Kart Gölgeleri (Shadow)</label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { v: "none", l: "Yok" },
+                      { v: "sm", l: "Hafif" },
+                      { v: "md", l: "Orta" },
+                      { v: "lg", l: "Yoğun" },
+                    ].map((opt) => (
+                      <button
+                        key={opt.v}
+                        type="button"
+                        onClick={() => setValue("cardShadow", opt.v, { shouldDirty: true })}
+                        className={`py-2 rounded-lg text-xs font-bold border transition-all ${
+                          watch("cardShadow") === opt.v
+                            ? "border-brand-primary text-brand-primary bg-brand-primary/5"
+                            : "border-zinc-200 dark:border-zinc-700 text-zinc-500"
+                        }`}
+                      >
+                        {opt.l}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className={lbl}>Hareket & Animasyon (Motion)</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { v: "none", l: "Durağan" },
+                      { v: "subtle", l: "Hafif" },
+                      { v: "smooth", l: "Yumuşak" },
+                    ].map((opt) => (
+                      <button
+                        key={opt.v}
+                        type="button"
+                        onClick={() => setValue("animationIntensity", opt.v, { shouldDirty: true })}
+                        className={`py-2 rounded-lg text-xs font-bold border transition-all ${
+                          watch("animationIntensity") === opt.v
+                            ? "border-brand-primary text-brand-primary bg-brand-primary/5"
+                            : "border-zinc-200 dark:border-zinc-700 text-zinc-500"
+                        }`}
+                      >
+                        {opt.l}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Tipografi */}
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
+            <SectionHeader icon={Palette} title="Tipografi" desc="Yazı tipi ve font ayarları" color="text-blue-500" />
+            <div className="p-6">
+              <label className={lbl}>Font Ailesi</label>
+              <select {...register("fontFamily")} className={inp}>
+                <option value="Inter">Inter (Sistem - Modern)</option>
+                <option value="Roboto">Roboto (Google - Klasik)</option>
+                <option value="Outfit">Outfit (Geometrik - Premium)</option>
+                <option value="Plus Jakarta Sans">Plus Jakarta Sans (Canlı)</option>
+                <option value="Montserrat">Montserrat (Kalın & Güçlü)</option>
+                <option value="system-ui">Cihaz Varsayılanı</option>
+              </select>
             </div>
           </div>
         </div>

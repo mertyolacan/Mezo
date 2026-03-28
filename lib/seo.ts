@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { seoPages } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
+import { getSiteSettings } from "@/lib/cache";
 
 /**
  * Veritabanındaki seo_pages tablosundan ilgili sayfa kaydını çeker
@@ -31,8 +32,15 @@ export async function getSeoMetadata(
     // DB hatası olursa sessizce fallback kullan
   }
 
-  const title = row?.title?.trim() || defaults.title;
-  const description = row?.description?.trim() || defaults.description;
+  const siteSettings = await getSiteSettings();
+  const siteName = siteSettings?.siteName || "MesoPro";
+
+  // Replace any hardcoded "MesoPro" in defaults with the dynamic siteName
+  const baseTitle = defaults.title.replace(/MesoPro/gi, siteName);
+  const baseDesc = defaults.description?.replace(/MesoPro/gi, siteName);
+
+  const title = row?.title?.trim() || baseTitle;
+  const description = row?.description?.trim() || baseDesc;
   const keywords = row?.keywords?.trim() || defaults.keywords;
   const ogTitle = row?.ogTitle?.trim() || title;
   const ogDescription = row?.ogDescription?.trim() || description;
@@ -46,6 +54,7 @@ export async function getSeoMetadata(
     keywords: keywords ? keywords.split(",").map((k) => k.trim()) : undefined,
     robots,
     openGraph: {
+      siteName,
       title: ogTitle,
       description: ogDescription,
       images: ogImage ? [{ url: ogImage }] : undefined,

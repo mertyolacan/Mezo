@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Check, X, Star } from "lucide-react";
 import TurkiyeAddressSelect from "@/components/shared/TurkiyeAddressSelect";
+import { parseTurkeyAddress, formatTurkeyPhone, cleanPhone } from "@/lib/utils";
 
 type Address = {
   id: number;
@@ -36,16 +37,10 @@ export default function AddressBook({ initialAddresses }: { initialAddresses: Ad
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  function parseAddress(fullStreet: string) {
-    const match = fullStreet.match(/^(.*?)\s+Mah\.?\s*,?\s*(.*)$/i) || 
-                  fullStreet.match(/^(.*?)\s+Mahallesi\s*,?\s*(.*)$/i);
-    
-    if (match) return { neighbourhood: match[1], street: match[2] };
-    return { neighbourhood: "", street: fullStreet };
-  }
+
 
   function startEdit(a: Address) {
-    const parsed = parseAddress(a.street);
+    const parsed = parseTurkeyAddress(a.street);
     setForm({
       title: a.title,
       fullName: a.fullName,
@@ -63,27 +58,7 @@ export default function AddressBook({ initialAddresses }: { initialAddresses: Ad
   }
 
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
-    let input = e.target.value.replace(/\D/g, "");
-    
-    if (input.length < 2) {
-      input = "05";
-    } else if (!input.startsWith("05")) {
-      if (input.startsWith("5")) {
-        input = "0" + input;
-      } else {
-        input = "05";
-      }
-    }
-    
-    if (input.length > 11) input = input.slice(0, 11);
-
-    let formatted = input;
-    if (input.length > 1) formatted = input.slice(0, 1) + " (" + input.slice(1, 4);
-    if (input.length > 4) formatted = formatted + ") " + input.slice(4, 7);
-    if (input.length > 7) formatted = formatted + " " + input.slice(7, 9);
-    if (input.length > 9) formatted = formatted + " " + input.slice(9, 11);
-    
-    setForm(f => ({ ...f, phone: formatted }));
+    setForm(f => ({ ...f, phone: formatTurkeyPhone(e.target.value) }));
   }
 
   function cancel() { setForm(empty); setEditId(null); setShowForm(false); }
@@ -102,7 +77,7 @@ export default function AddressBook({ initialAddresses }: { initialAddresses: Ad
     const body = {
       ...form,
       street: streetFull,
-      phone: form.phone || undefined,
+      phone: form.phone ? cleanPhone(form.phone) : undefined,
       district: form.district || undefined,
       postalCode: form.postalCode || undefined,
     };
@@ -154,7 +129,7 @@ export default function AddressBook({ initialAddresses }: { initialAddresses: Ad
   }
 
   const inputCls =
-    "w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 dark:focus:border-indigo-500 transition-all text-zinc-900 dark:text-zinc-50";
+    "w-full rounded-input border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all text-zinc-900 dark:text-zinc-50";
 
   const labelCls = "block text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-1.5";
 
@@ -163,14 +138,14 @@ export default function AddressBook({ initialAddresses }: { initialAddresses: Ad
       {!showForm && (
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors"
+          className="flex items-center gap-2 bg-brand-primary hover:bg-brand-primary/90 text-white text-sm font-medium px-4 py-2 rounded-btn transition-colors shadow-lg shadow-brand-primary/20"
         >
           <Plus className="h-4 w-4" /> Yeni Adres Ekle
         </button>
       )}
 
       {showForm && (
-        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 space-y-4">
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-card p-5 space-y-4 shadow-[var(--card-shadow)] shadow-lg">
           <h2 className="font-bold text-sm text-zinc-900 dark:text-zinc-50 border-b border-zinc-100 dark:border-zinc-800 pb-3">
             {editId ? "Adresi Düzenle" : "Yeni Adres Ekle"}
           </h2>
@@ -253,13 +228,13 @@ export default function AddressBook({ initialAddresses }: { initialAddresses: Ad
             <button
               onClick={submit}
               disabled={loading || !form.title || !form.fullName || !form.street || !form.city || !form.district}
-              className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
+              className="flex items-center gap-1.5 bg-brand-primary hover:bg-brand-primary/90 active:bg-brand-primary/95 disabled:opacity-50 text-white text-sm font-semibold px-5 py-2.5 rounded-btn transition-colors shadow-lg shadow-brand-primary/20"
             >
               <Check className="h-3.5 w-3.5" /> {editId ? "Güncelle" : "Adresi Kaydet"}
             </button>
             <button
               onClick={cancel}
-              className="flex items-center gap-1.5 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-sm px-4 py-2.5 rounded-xl transition-colors"
+              className="flex items-center gap-1.5 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-sm px-4 py-2.5 rounded-btn transition-colors"
             >
               <X className="h-3.5 w-3.5" /> İptal
             </button>
@@ -274,13 +249,13 @@ export default function AddressBook({ initialAddresses }: { initialAddresses: Ad
         {addresses.map((a) => (
           <div
             key={a.id}
-            className={`bg-white dark:bg-zinc-900 border rounded-2xl p-4 relative ${
-              a.isDefault ? "border-indigo-300 dark:border-indigo-700" : "border-zinc-200 dark:border-zinc-800"
+            className={`bg-white dark:bg-zinc-900 border rounded-card p-4 relative transition-all ${
+              a.isDefault ? "border-brand-primary shadow-lg shadow-brand-primary/5" : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
             }`}
           >
             {a.isDefault && (
-              <span className="absolute top-3 right-3 flex items-center gap-1 text-xs bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full">
-                <Star className="h-3 w-3 fill-current" /> Varsayılan
+              <span className="absolute top-3 right-3 flex items-center gap-1 text-[10px] font-bold bg-brand-primary/5 dark:bg-brand-primary/10 text-brand-primary dark:text-brand-primary-light px-2 py-0.5 rounded-full uppercase tracking-wider border border-brand-primary/10">
+                <Star className="h-2.5 w-2.5 fill-current" /> Varsayılan
               </span>
             )}
             <p className="font-semibold text-sm text-zinc-900 dark:text-zinc-50 mb-0.5">{a.title}</p>
@@ -304,7 +279,7 @@ export default function AddressBook({ initialAddresses }: { initialAddresses: Ad
               {!a.isDefault && (
                 <button
                   onClick={() => setDefault(a.id)}
-                  className="ml-auto text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
+                  className="ml-auto text-xs font-bold text-brand-primary dark:text-brand-primary-light hover:underline"
                 >
                   Varsayılan yap
                 </button>

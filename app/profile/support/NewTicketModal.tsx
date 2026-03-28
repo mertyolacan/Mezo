@@ -30,14 +30,14 @@ export default function NewTicketModal() {
     }
   }
 
-  const inputClass = "w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition";
+  const inputClass = "w-full rounded-input border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition";
   const labelClass = "block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1";
 
   return (
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+        className="flex items-center gap-2 bg-brand-primary hover:bg-brand-primary/90 active:bg-brand-primary/95 text-white text-sm font-medium px-4 py-2 rounded-btn transition-colors shadow-lg shadow-brand-primary/20"
       >
         <Plus className="h-4 w-4" />
         Yeni Talep
@@ -45,11 +45,11 @@ export default function NewTicketModal() {
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setOpen(false)} />
-          <div className="relative bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xl w-full max-w-md p-6">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setOpen(false)} />
+          <div className="relative bg-white dark:bg-zinc-900 rounded-card border border-zinc-200 dark:border-zinc-800 shadow-[var(--card-shadow)] shadow-xl w-full max-w-md p-6">
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">Yeni Destek Talebi</h2>
-              <button onClick={() => setOpen(false)} className="p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
+              <button onClick={() => setOpen(false)} className="p-1.5 rounded-btn text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -85,7 +85,7 @@ export default function NewTicketModal() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors"
+                className="w-full h-11 flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary/90 active:bg-brand-primary/95 shadow-lg shadow-brand-primary/20 disabled:opacity-60 text-white text-sm font-semibold rounded-btn transition-colors"
               >
                 {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                 Gönder

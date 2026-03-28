@@ -31,7 +31,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
       </div>
 
       {/* İlk mesaj */}
-      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5">
+      <div className="bg-white dark:bg-zinc-900 rounded-card border border-zinc-200 dark:border-zinc-800 p-5 shadow-sm">
         <div className="flex items-center justify-between mb-3">
           <span className="text-xs font-medium text-zinc-500">{ticket.name}</span>
           <span className="text-xs text-zinc-400">{new Date(ticket.createdAt).toLocaleString("tr-TR")}</span>
@@ -43,14 +43,14 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
       {replies.map((r) => (
         <div
           key={r.id}
-          className={`rounded-xl border p-5 ${
+          className={`rounded-card border p-5 ${
             r.isAdmin
-              ? "bg-indigo-50 dark:bg-indigo-950 border-indigo-100 dark:border-indigo-900"
-              : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800"
+              ? "bg-brand-primary/5 dark:bg-brand-primary/10 border-brand-primary/10 dark:border-brand-primary/20 shadow-sm"
+              : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-sm"
           }`}
         >
           <div className="flex items-center justify-between mb-3">
-            <span className={`text-xs font-medium ${r.isAdmin ? "text-indigo-600 dark:text-indigo-400" : "text-zinc-500"}`}>
+            <span className={`text-xs font-medium ${r.isAdmin ? "text-brand-primary dark:text-brand-primary-light" : "text-zinc-500"}`}>
               {r.authorName}
             </span>
             <span className="text-xs text-zinc-400">{new Date(r.createdAt).toLocaleString("tr-TR")}</span>

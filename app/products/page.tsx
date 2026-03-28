@@ -126,13 +126,13 @@ export default async function ProductsPage({ searchParams }: Props) {
             <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-3">Kategoriler</h3>
             <ul className="space-y-1">
               <li>
-                <Link href="/products" className={`block text-sm px-3 py-1.5 rounded-lg transition-colors ${!category ? "bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-medium" : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}>
+                <Link href="/products" className={`block text-sm px-3 py-1.5 rounded-btn transition-colors ${!category ? "bg-brand-surface dark:bg-brand-primary/20 text-brand-primary font-medium" : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}>
                   Tümü
                 </Link>
               </li>
               {cats.map((c) => (
                 <li key={c.id}>
-                  <Link href={`/products?category=${c.slug}`} className={`block text-sm px-3 py-1.5 rounded-lg transition-colors ${category === c.slug ? "bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-medium" : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}>
+                  <Link href={`/products?category=${c.slug}`} className={`block text-sm px-3 py-1.5 rounded-lg transition-colors ${category === c.slug ? "bg-brand-surface dark:bg-brand-primary/20 text-brand-primary font-medium" : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}>
                     {c.name}
                   </Link>
                 </li>
@@ -147,7 +147,7 @@ export default async function ProductsPage({ searchParams }: Props) {
               <ul className="space-y-1">
                 {brnds.map((b) => (
                   <li key={b.id}>
-                    <Link href={`/products?brand=${b.slug}`} className={`block text-sm px-3 py-1.5 rounded-lg transition-colors ${brand === b.slug ? "bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-medium" : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}>
+                    <Link href={`/products?brand=${b.slug}`} className={`block text-sm px-3 py-1.5 rounded-btn transition-colors ${brand === b.slug ? "bg-brand-surface dark:bg-brand-primary/20 text-brand-primary font-medium" : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}>
                       {b.name}
                     </Link>
                   </li>
@@ -181,7 +181,7 @@ export default async function ProductsPage({ searchParams }: Props) {
                   : null;
 
                 return (
-                  <div key={p.id} className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800 overflow-hidden hover:border-zinc-300 dark:hover:border-zinc-600 transition-all flex flex-col">
+                  <div key={p.id} className="group bg-white dark:bg-zinc-900 rounded-card border border-zinc-100 dark:border-zinc-800 overflow-hidden hover:border-brand-primary/50 transition-all flex flex-col shadow-[var(--card-shadow)] hover:shadow-lg focus-within:border-brand-primary">
                     <Link href={`/products/${p.slug}`} className="relative aspect-square bg-zinc-50 dark:bg-zinc-800 block">
                       {p.images[0] ? (
                         <Image
@@ -203,7 +203,7 @@ export default async function ProductsPage({ searchParams }: Props) {
                         </div>
                       )}
                       {discount && !outOfStock && (
-                        <span className="absolute top-2 left-2 z-10 bg-indigo-600 text-white text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded">
+                        <span className="absolute top-2 left-2 z-10 bg-brand-primary text-white text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded shadow-sm">
                           -{discount}%
                         </span>
                       )}
@@ -220,7 +220,7 @@ export default async function ProductsPage({ searchParams }: Props) {
                     <div className="p-3 flex-1 flex flex-col">
                       <Link href={`/products/${p.slug}`} className="flex-1">
                         {p.brand && <p className="text-[11px] font-bold text-zinc-500 mb-0.5 uppercase tracking-wide">{p.brand.name}</p>}
-                        <p className="text-xs sm:text-sm font-medium text-zinc-900 dark:text-zinc-50 line-clamp-2 leading-snug hover:text-indigo-600 transition-colors">{p.name}</p>
+                        <p className="text-xs sm:text-sm font-medium text-zinc-900 dark:text-zinc-50 line-clamp-2 leading-snug hover:text-brand-primary transition-colors">{p.name}</p>
                         
                         {/* Fake Star Rating (Visual only placeholder for Trendyol style layout) */}
                         <div className="flex items-center gap-1 mt-1.5 opacity-60">
@@ -231,7 +231,7 @@ export default async function ProductsPage({ searchParams }: Props) {
                         </div>
 
                         <div className="mt-2.5 flex flex-col justify-end">
-                          <span className="text-sm sm:text-base font-bold text-indigo-600 dark:text-indigo-400">
+                          <span className="text-sm sm:text-base font-bold text-brand-primary">
                             {formatPrice(p.price)}
                           </span>
                           {p.comparePrice && (
@@ -305,9 +305,9 @@ function PaginationLink({ href, active, children }: { href: string; active?: boo
   return (
     <Link
       href={href}
-      className={`min-w-[2.25rem] h-9 flex items-center justify-center rounded-lg text-sm font-medium transition-colors px-2 ${
+      className={`min-w-[2.25rem] h-9 flex items-center justify-center rounded-btn text-sm font-medium transition-colors px-2 ${
         active
-          ? "bg-indigo-600 text-white"
+          ? "bg-brand-primary text-white shadow-lg shadow-brand-primary/20"
           : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800"
       }`}
     >

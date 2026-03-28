@@ -65,8 +65,34 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   };
 
   return (
-    <html lang="tr" suppressHydrationWarning className={inter.variable}>
+    <html lang="tr" suppressHydrationWarning className={inter.variable} data-nav-style={settings?.navbarStyle || 'glass'}>
       <head>
+        {/* Dynamic Theme Variables */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              :root {
+                --primary-color: ${settings?.primaryColor || '#4f46e5'};
+                --secondary-color: ${settings?.secondaryColor || '#6366f1'};
+                --tertiary-color: ${settings?.tertiaryColor || '#818cf8'};
+                --accent-color: ${settings?.accentColor || '#f43f5e'};
+                --surface-color: ${settings?.surfaceColor || '#f8fafc'};
+                --border-radius: ${settings?.borderRadius || '0.75rem'};
+                --btn-radius: ${settings?.buttonRadius || '0.5rem'};
+                --card-radius: ${settings?.cardRadius || '1rem'};
+                --input-radius: ${settings?.inputRadius || '0.75rem'};
+                --card-shadow: ${settings?.cardShadow === 'none' ? 'none' : settings?.cardShadow === 'sm' ? '0 1px 2px 0 rgb(0 0 0 / 0.05)' : settings?.cardShadow === 'lg' ? '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)' : '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)'};
+                --nav-style: ${settings?.navbarStyle || 'glass'};
+                --anim-intensity: ${settings?.animationIntensity || 'smooth'};
+                ${settings?.fontFamily && settings.fontFamily !== 'Inter' ? `--font-family: ${settings.fontFamily}, sans-serif;` : '--font-family: var(--font-inter), sans-serif;'}
+              }
+              
+              body { font-family: var(--font-family); }
+              ${settings?.animationIntensity === 'none' ? '* { transition: none !important; animation: none !important; }' : ''}
+            `,
+          }}
+        />
+
         {/* Theme Support */}
         <script
           dangerouslySetInnerHTML={{
@@ -100,7 +126,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </>
         )}
 
-        <Providers isLoggedIn={!!user} userIsAdmin={user?.role === "admin"} contact={contact}>
+        <Providers 
+          isLoggedIn={!!user} 
+          userIsAdmin={user?.role === "admin"} 
+          contact={contact}
+          siteName={settings?.siteName}
+          logoUrl={settings?.logoUrl}
+        >
           {children}
           <CookieConsent />
         </Providers>

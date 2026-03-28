@@ -83,17 +83,17 @@ export default function CartDrawer() {
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-zinc-800">
           <div className="flex items-center gap-2.5">
-            <ShoppingBag className="h-5 w-5 text-indigo-500" />
+            <ShoppingBag className="h-5 w-5 text-brand-primary" />
             <span className="font-bold text-zinc-900 dark:text-zinc-50">Sepet</span>
             {count > 0 && (
-              <span className="text-xs bg-indigo-600 text-white font-semibold px-2 py-0.5 rounded-full">
+              <span className="text-xs bg-brand-primary text-white font-semibold px-2 py-0.5 rounded-full shadow-sm">
                 {count}
               </span>
             )}
           </div>
           <button
             onClick={closeCart}
-            className="p-1.5 rounded-xl text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            className="p-1.5 rounded-brand text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -112,7 +112,7 @@ export default function CartDrawer() {
               </div>
               <button
                 onClick={closeCart}
-                className="text-sm text-indigo-600 dark:text-indigo-400 font-medium hover:underline"
+                className="text-sm text-brand-primary font-medium hover:underline"
               >
                 Alışverişe devam et
               </button>
@@ -121,7 +121,7 @@ export default function CartDrawer() {
             <div className="divide-y divide-zinc-100 dark:divide-zinc-800/60">
               {items.map((item) => (
                 <div key={item.id} className="flex gap-3 px-5 py-4">
-                  <div className="relative shrink-0 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 w-[72px] h-[72px]">
+                  <div className="relative shrink-0 rounded-brand overflow-hidden bg-zinc-100 dark:bg-zinc-800 w-[72px] h-[72px]">
                     {item.image ? (
                       <Image src={item.image} alt={item.name} fill className="object-contain" sizes="72px" />
                     ) : (
@@ -239,7 +239,7 @@ export default function CartDrawer() {
             <Link
               href="/checkout"
               onClick={closeCart}
-              className="flex items-center justify-between w-full bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-semibold py-3.5 px-5 rounded-2xl transition-colors"
+              className="flex items-center justify-between w-full bg-brand-primary hover:bg-brand-primary/90 active:scale-[0.98] text-white text-sm font-semibold py-3.5 px-5 rounded-brand transition-all shadow-lg shadow-brand-primary/20"
             >
               <span>Siparişi Tamamla</span>
               <ArrowRight className="h-4 w-4" />

@@ -41,7 +41,7 @@ export default function PriceFilter({ minPrice, maxPrice }: { minPrice?: string;
           placeholder="Min ₺"
           value={min}
           onChange={(e) => setMin(e.target.value)}
-          className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full rounded-brand border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-2 py-1.5 text-sm focus:outline-none focus:border-brand-primary transition-all shadow-sm"
         />
         <span className="text-zinc-400 text-xs shrink-0">—</span>
         <input
@@ -50,20 +50,20 @@ export default function PriceFilter({ minPrice, maxPrice }: { minPrice?: string;
           placeholder="Max ₺"
           value={max}
           onChange={(e) => setMax(e.target.value)}
-          className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full rounded-input border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-2 py-1.5 text-sm focus:outline-none focus:border-brand-primary transition-all shadow-sm"
         />
       </div>
       <div className="flex gap-2">
         <button
           onClick={apply}
-          className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-lg py-1.5 transition-colors"
+          className="flex-1 bg-brand-primary hover:bg-brand-primary/90 text-white text-xs font-bold rounded-btn py-1.5 shadow-sm active:scale-95 transition-all"
         >
           Uygula
         </button>
         {hasFilter && (
           <button
             onClick={reset}
-            className="flex-1 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-xs font-medium rounded-lg py-1.5 transition-colors"
+            className="flex-1 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-xs font-bold rounded-brand py-1.5 transition-all"
           >
             Temizle
           </button>

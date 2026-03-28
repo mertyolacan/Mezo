@@ -58,12 +58,37 @@ export default function AddressModal({
     return { neighbourhood: "", street: fullStreet };
   }
 
+  function formatPhone(val: string | null | undefined): string {
+    if (!val) return "0 (5";
+    let input = val.replace(/\D/g, "");
+    
+    if (input.length < 2) {
+      input = "05";
+    } else if (!input.startsWith("05")) {
+      if (input.startsWith("5")) {
+        input = "0" + input;
+      } else {
+        input = "05";
+      }
+    }
+    
+    if (input.length > 11) input = input.slice(0, 11);
+
+    let formatted = input;
+    if (input.length > 1) formatted = input.slice(0, 1) + " (" + input.slice(1, 4);
+    if (input.length > 4) formatted = formatted + ") " + input.slice(4, 7);
+    if (input.length > 7) formatted = formatted + " " + input.slice(7, 9);
+    if (input.length > 9) formatted = formatted + " " + input.slice(9, 11);
+    
+    return formatted;
+  }
+
   function startEdit(a: Address) {
     const parsed = parseAddress(a.street);
     setForm({
       title: a.title,
       fullName: a.fullName,
-      phone: a.phone ? a.phone : "0 (5",
+      phone: formatPhone(a.phone),
       street: parsed.street,
       district: a.district ?? "",
       city: a.city,
@@ -83,26 +108,7 @@ export default function AddressModal({
   }
 
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
-    let input = e.target.value.replace(/\D/g, "");
-    if (input.length < 2) {
-      input = "05";
-    } else if (!input.startsWith("05")) {
-      if (input.startsWith("5")) {
-        input = "0" + input;
-      } else {
-        input = "05";
-      }
-    }
-    
-    if (input.length > 11) input = input.slice(0, 11);
-
-    let formatted = input;
-    if (input.length > 1) formatted = input.slice(0, 1) + " (" + input.slice(1, 4);
-    if (input.length > 4) formatted = formatted + ") " + input.slice(4, 7);
-    if (input.length > 7) formatted = formatted + " " + input.slice(7, 9);
-    if (input.length > 9) formatted = formatted + " " + input.slice(9, 11);
-    
-    setForm(f => ({ ...f, phone: formatted }));
+    setForm(f => ({ ...f, phone: formatPhone(e.target.value) }));
   }
 
   async function handleSubmit() {
@@ -163,7 +169,7 @@ export default function AddressModal({
     }
   }
 
-  const inputCls = "w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 dark:focus:border-indigo-500 transition-all text-zinc-900 dark:text-zinc-50 placeholder-zinc-400";
+  const inputCls = "w-full rounded-brand border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-3 text-sm focus:outline-none focus:border-brand-primary transition-all text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 shadow-sm";
   const labelCls = "block text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-1.5";
 
   return (
@@ -202,19 +208,19 @@ export default function AddressModal({
               {addresses.map((a) => (
                 <div 
                   key={a.id}
-                  className="group relative bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-all cursor-pointer"
+                  className="group relative bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 rounded-brand p-5 hover:border-brand-primary/50 dark:hover:border-brand-primary/50 transition-all cursor-pointer shadow-sm hover:shadow-md"
                   onClick={() => { onSelect(a); onClose(); }}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-2xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-400 group-hover:text-indigo-500 transition-colors shrink-0">
+                      <div className="w-10 h-10 rounded-brand bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-400 group-hover:text-brand-primary transition-colors shrink-0">
                         {a.title.toLowerCase().includes("ev") ? <Home className="h-5 w-5" /> : (a.title.toLowerCase().includes("iş") ? <Briefcase className="h-5 w-5" /> : <MapPin className="h-5 w-5" />)}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
                           <h4 className="font-bold text-zinc-900 dark:text-zinc-50">{a.title}</h4>
                           {a.isDefault && (
-                            <span className="flex items-center gap-1 text-[10px] bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                            <span className="flex items-center gap-1 text-[10px] bg-brand-surface dark:bg-brand-primary/20 text-brand-primary px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
                               <Star className="h-2.5 w-2.5 fill-current" /> Varsayılan
                             </span>
                           )}
@@ -227,7 +233,7 @@ export default function AddressModal({
                     <button 
                       type="button"
                       onClick={(e) => { e.stopPropagation(); startEdit(a); }}
-                      className="p-2 rounded-xl text-zinc-400 hover:bg-white dark:hover:bg-zinc-800 border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700 transition-all"
+                      className="p-2 rounded-brand text-zinc-400 hover:bg-white dark:hover:bg-zinc-800 border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700 transition-all"
                     >
                       <Pencil className="h-4 w-4" />
                     </button>
@@ -238,7 +244,7 @@ export default function AddressModal({
               <button 
                 type="button"
                 onClick={startNew}
-                className="w-full h-16 rounded-3xl border-2 border-dashed border-zinc-200 dark:border-zinc-800 flex items-center justify-center gap-2 text-zinc-500 hover:border-indigo-500 hover:text-indigo-500 transition-all"
+                className="w-full h-16 rounded-brand border-2 border-dashed border-zinc-200 dark:border-zinc-800 flex items-center justify-center gap-2 text-zinc-500 hover:border-brand-primary hover:text-brand-primary transition-all"
               >
                 <Plus className="h-5 w-5" />
                 <span className="text-sm font-semibold">Yeni Adres Ekle</span>
@@ -308,7 +314,7 @@ export default function AddressModal({
 
               <label className="flex items-center gap-3 cursor-pointer group">
                 <div 
-                  className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${form.isDefault ? "bg-indigo-600 border-indigo-600" : "border-zinc-200 dark:border-zinc-700 group-hover:border-zinc-400"}`}
+                  className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${form.isDefault ? "bg-brand-primary border-brand-primary" : "border-zinc-200 dark:border-zinc-700 group-hover:border-zinc-400"}`}
                   onClick={() => setForm(f => ({ ...f, isDefault: !f.isDefault }))}
                 >
                   <input 
@@ -327,7 +333,7 @@ export default function AddressModal({
                   type="button"
                   onClick={handleSubmit}
                   disabled={loading || !form.title || !form.fullName || !form.street || !form.city || !form.district || !form.phone}
-                  className="flex-1 h-14 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 transition-all"
+                  className="flex-1 h-14 bg-brand-primary hover:bg-brand-primary/90 disabled:opacity-50 text-white rounded-brand font-bold flex items-center justify-center gap-2 shadow-lg shadow-brand-primary/20 transition-all"
                 >
                   {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Check className="h-5 w-5" />}
                   {editId ? "Güncelle" : "Adresi Kaydet"}
@@ -335,7 +341,7 @@ export default function AddressModal({
                 <button 
                   type="button"
                   onClick={() => setView("list")}
-                  className="px-6 h-14 border border-zinc-200 dark:border-zinc-800 text-zinc-500 rounded-2xl font-bold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all"
+                  className="px-6 h-14 border border-zinc-200 dark:border-zinc-800 text-zinc-500 rounded-brand font-bold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all"
                 >
                   İptal
                 </button>

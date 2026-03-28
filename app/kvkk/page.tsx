@@ -18,7 +18,7 @@ export default function KvkkPage() {
         <section>
           <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-3">1. Veri Sorumlusu</h2>
           <p className="text-zinc-600 dark:text-zinc-400">
-            MesoPro olarak, 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") kapsamında veri sorumlusu sıfatıyla
+            Firmamız olarak, 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") kapsamında veri sorumlusu sıfatıyla
             kişisel verilerinizi işlemekteyiz. Bu politika, hangi verileri topladığımızı, nasıl kullandığımızı ve
             haklarınızı açıklamaktadır.
           </p>

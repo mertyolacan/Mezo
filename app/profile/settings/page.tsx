@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2, Check } from "lucide-react";
+import { formatTurkeyPhone, cleanPhone } from "@/lib/utils";
 
 export default function ProfileSettingsPage() {
   const [loading, setLoading] = useState(false);
@@ -14,27 +15,7 @@ export default function ProfileSettingsPage() {
   }
 
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
-    let input = e.target.value.replace(/\D/g, "");
-    
-    if (input.length < 2) {
-      input = "05";
-    } else if (!input.startsWith("05")) {
-      if (input.startsWith("5")) {
-        input = "0" + input;
-      } else {
-        input = "05";
-      }
-    }
-    
-    if (input.length > 11) input = input.slice(0, 11);
-
-    let formatted = input;
-    if (input.length > 1) formatted = input.slice(0, 1) + " (" + input.slice(1, 4);
-    if (input.length > 4) formatted = formatted + ") " + input.slice(4, 7);
-    if (input.length > 7) formatted = formatted + " " + input.slice(7, 9);
-    if (input.length > 9) formatted = formatted + " " + input.slice(9, 11);
-    
-    setForm((p) => ({ ...p, phone: formatted }));
+    setForm((p) => ({ ...p, phone: formatTurkeyPhone(e.target.value) }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -45,7 +26,10 @@ export default function ProfileSettingsPage() {
     const res = await fetch("/api/user", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({
+        ...form,
+        phone: cleanPhone(form.phone)
+      }),
     });
 
     const data = await res.json();
@@ -61,7 +45,7 @@ export default function ProfileSettingsPage() {
     setForm((prev) => ({ ...prev, currentPassword: "", newPassword: "" }));
   }
 
-  const inputClass = "w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2.5 text-sm text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition";
+  const inputClass = "w-full rounded-input border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2.5 text-sm text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition";
   const labelClass = "block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1";
 
   return (
@@ -70,10 +54,10 @@ export default function ProfileSettingsPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {error && (
-          <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm px-4 py-3 rounded-lg">{error}</div>
+          <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm px-4 py-3 rounded-btn">{error}</div>
         )}
 
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
+        <div className="bg-white dark:bg-zinc-900 rounded-card border border-zinc-200 dark:border-zinc-800 p-6 space-y-4 shadow-sm">
           <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">Kişisel Bilgiler</h2>
           <div>
             <label className={labelClass}>Ad Soyad</label>
@@ -90,7 +74,7 @@ export default function ProfileSettingsPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
+        <div className="bg-white dark:bg-zinc-900 rounded-card border border-zinc-200 dark:border-zinc-800 p-6 space-y-4 shadow-sm">
           <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">Şifre Değiştir</h2>
           <div>
             <label className={labelClass}>Mevcut Şifre</label>
@@ -105,7 +89,7 @@ export default function ProfileSettingsPage() {
         <button
           type="submit"
           disabled={loading}
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition-colors"
+          className="flex items-center gap-2 bg-brand-primary hover:bg-brand-primary/90 active:bg-brand-primary/95 disabled:opacity-60 text-white text-sm font-semibold px-6 py-2.5 rounded-btn transition-colors shadow-lg shadow-brand-primary/20"
         >
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
           {saved && <Check className="h-4 w-4" />}

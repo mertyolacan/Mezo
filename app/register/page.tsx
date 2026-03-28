@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2, Eye, EyeOff, ChevronDown, ChevronUp, Check, AlertCircle, Package } from "lucide-react";
 import TurkiyeAddressSelect from "@/components/shared/TurkiyeAddressSelect";
+import { formatTurkeyPhone, cleanPhone } from "@/lib/utils";
 
 function FloatingInput({
   id,
@@ -33,10 +34,10 @@ function FloatingInput({
         onFocus={onFocus}
         onBlur={onBlur}
         placeholder=" "
-        className={`block w-full px-4 pt-6 pb-2 text-sm text-zinc-900 dark:text-zinc-50 bg-white dark:bg-zinc-900 border ${
+        className={`block w-full px-4 pt-6 pb-2 text-sm text-zinc-900 dark:text-zinc-50 bg-white dark:bg-zinc-900 border rounded-input ${
           hasError
             ? "border-red-500 focus:border-red-500"
-            : "border-zinc-300 dark:border-zinc-700 focus:border-zinc-600 dark:focus:border-zinc-400"
+            : "border-zinc-300 dark:border-zinc-700 focus:border-brand-primary dark:focus:border-brand-primary-light"
         } appearance-none focus:outline-none focus:ring-0 peer transition-all`}
       />
       <label
@@ -92,35 +93,7 @@ export default function RegisterPage() {
   }
 
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
-    let input = e.target.value.replace(/\D/g, "");
-    
-    // En az 05 olmasını ve 05 ile başlamasını sağla
-    if (input.length < 2) {
-      input = "05";
-    } else if (!input.startsWith("05")) {
-      if (input.startsWith("5")) {
-        input = "0" + input;
-      } else {
-        input = "05";
-      }
-    }
-    
-    // Maksimum 11 hane (05XX XXX XX XX)
-    if (input.length > 11) input = input.slice(0, 11);
-
-    let formatted = input;
-    if (input.length > 1) formatted = input.slice(0, 1) + " (" + input.slice(1, 4);
-    if (input.length > 4) {
-      formatted = formatted + ") " + input.slice(4, 7);
-    }
-    if (input.length > 7) {
-      formatted = formatted + " " + input.slice(7, 9);
-    }
-    if (input.length > 9) {
-      formatted = formatted + " " + input.slice(9, 11);
-    }
-    
-    setForm((p) => ({ ...p, phone: formatted }));
+    setForm((p) => ({ ...p, phone: formatTurkeyPhone(e.target.value) }));
   }
 
   const isLengthValid = form.password.length >= 6;
@@ -128,7 +101,7 @@ export default function RegisterPage() {
     /[a-zA-ZıİğĞüÜşŞöÖçÇ]/.test(form.password) &&
     /[^a-zA-ZıİğĞüÜşŞöÖçÇ\s]/.test(form.password);
 
-  const rawPhone = form.phone.replace(/\D/g, "");
+  const rawPhone = cleanPhone(form.phone);
   const isPhoneValid = rawPhone.length === 11 && rawPhone.startsWith("05");
   const showPhoneError = rawPhone.length > 0 && !isPhoneValid;
 
@@ -149,7 +122,7 @@ export default function RegisterPage() {
     const body: Record<string, unknown> = {
       name: form.name,
       email: form.email,
-      phone: form.phone.replace(/\D/g, ""), // Temiz numara gönder (parantez/boşluksuz)
+      phone: cleanPhone(form.phone), // Temiz numara gönder (parantez/boşluksuz)
       password: form.password,
     };
 
@@ -227,24 +200,24 @@ export default function RegisterPage() {
             <img
               src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&h=600&fit=crop"
               alt="Fashion 1"
-              className="w-full h-auto rounded-2xl object-cover opacity-90 hover:opacity-100 transition-opacity shadow-lg"
+              className="w-full h-auto rounded-card object-cover opacity-90 hover:opacity-100 transition-opacity shadow-lg"
             />
             <img
               src="https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?w=400&h=400&fit=crop"
               alt="Fashion 2"
-              className="w-full h-auto rounded-2xl object-cover opacity-90 hover:opacity-100 transition-opacity shadow-lg"
+              className="w-full h-auto rounded-card object-cover opacity-90 hover:opacity-100 transition-opacity shadow-lg"
             />
           </div>
           <div className="flex flex-col gap-4 pt-8">
             <img
               src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400&h=400&fit=crop"
               alt="Fashion 3"
-              className="w-full h-auto rounded-2xl object-cover opacity-90 hover:opacity-100 transition-opacity shadow-lg"
+              className="w-full h-auto rounded-card object-cover opacity-90 hover:opacity-100 transition-opacity shadow-lg"
             />
             <img
               src="https://images.unsplash.com/photo-1550614000-4b95dd267dbb?w=400&h=600&fit=crop"
               alt="Fashion 4"
-              className="w-full h-auto rounded-2xl object-cover opacity-90 hover:opacity-100 transition-opacity shadow-lg"
+              className="w-full h-auto rounded-card object-cover opacity-90 hover:opacity-100 transition-opacity shadow-lg"
             />
           </div>
         </div>
@@ -263,7 +236,7 @@ export default function RegisterPage() {
             </Link>
             <Link
               href="/register"
-              className="pb-3 text-sm font-bold border-b-2 border-zinc-900 dark:border-zinc-100 text-zinc-900 dark:text-zinc-50"
+              className="pb-3 text-sm font-bold border-b-2 border-brand-primary text-brand-primary dark:text-brand-primary-light"
             >
               Üye Ol
             </Link>
@@ -367,7 +340,7 @@ export default function RegisterPage() {
           </div>
 
           {/* Adres (opsiyonel) */}
-          <div className="border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 transition-colors">
+          <div className="border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 transition-colors rounded-input overflow-hidden">
             <button
               type="button"
               onClick={() => setShowAddress((v) => !v)}
@@ -387,7 +360,7 @@ export default function RegisterPage() {
                 <TurkiyeAddressSelect
                   value={{ city: form.city, district: form.district, neighbourhood: form.neighbourhood }}
                   onChange={(v) => setForm(f => ({ ...f, city: v.city, district: v.district, neighbourhood: v.neighbourhood }))}
-                  inputClassName="block w-full px-4 py-3 text-sm text-zinc-900 dark:text-zinc-50 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-zinc-600 dark:focus:border-zinc-400 appearance-none transition-all"
+                  inputClassName="block w-full px-4 py-3 text-sm text-zinc-900 dark:text-zinc-50 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-brand-primary dark:focus:border-brand-primary-light appearance-none transition-all rounded-input mb-3"
                   labelClassName="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-1.5"
                 />
 
@@ -419,14 +392,14 @@ export default function RegisterPage() {
               {[
                 { id: "membership", label: <><Link href="/uyelik-sozlesmesi" className="underline hover:text-zinc-800 dark:hover:text-zinc-200">Üyelik Sözleşmesi</Link>'ni okudum, onaylıyorum.</> },
                 { id: "consent", label: <><Link href="/acik-riza-metni" className="underline hover:text-zinc-800 dark:hover:text-zinc-200">Açık Rıza Metni</Link>'ni okudum, onaylıyorum.</> },
-                { id: "commercial", label: <>Tarafıma MesoPro Grubu Şirketleri ticari elektronik ileti gönderilmesi için <Link href="/iletisim-izni" className="underline hover:text-zinc-800 dark:hover:text-zinc-200">burada da belirtilen</Link> iznim vardır.</> }
+                { id: "commercial", label: <>Tarafıma onaylı firmalarca ticari elektronik ileti gönderilmesi için <Link href="/iletisim-izni" className="underline hover:text-zinc-800 dark:hover:text-zinc-200">burada da belirtilen</Link> iznim vardır.</> }
               ].map((agreement) => (
                 <label key={agreement.id} className="flex items-start gap-3.5 cursor-pointer group">
                   <div 
                     onClick={() => toggleAgreement(agreement.id as keyof typeof agreements)}
                     className={`shrink-0 w-5 h-5 mt-0.5 rounded-md border-2 flex items-center justify-center transition-all ${
                       agreements[agreement.id as keyof typeof agreements] 
-                        ? "bg-[#2E2E36] border-[#2E2E36] dark:bg-zinc-100 dark:border-zinc-100" 
+                        ? "bg-brand-primary border-brand-primary dark:bg-brand-primary-light dark:border-brand-primary-light" 
                         : "border-zinc-200 dark:border-zinc-800 group-hover:border-zinc-400"
                     }`}
                   >
@@ -444,7 +417,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-[#2E2E36] hover:bg-[#1f1f25] disabled:opacity-70 text-white font-bold tracking-widest text-sm py-4 uppercase transition-all shadow-xl shadow-zinc-900/10 dark:shadow-none mt-4"
+              className="w-full flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary/90 active:scale-[0.98] disabled:opacity-70 text-white font-bold tracking-widest text-sm py-4 rounded-btn uppercase transition-all shadow-lg shadow-brand-primary/20 mt-4"
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               ÜYE OL

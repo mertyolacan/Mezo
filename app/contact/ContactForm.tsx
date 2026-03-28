@@ -61,7 +61,7 @@ export default function ContactForm() {
   }
 
   const inputClass =
-    "w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2.5 text-sm text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition";
+    "w-full rounded-input border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2.5 text-sm text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-brand-primary transition";
   const labelClass = "block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1";
 
   return (
@@ -73,28 +73,28 @@ export default function ContactForm() {
         {/* Info */}
         <div className="space-y-6">
           <div className="flex gap-3">
-            <MapPin className="h-5 w-5 text-indigo-500 shrink-0 mt-0.5" />
+            <MapPin className="h-5 w-5 text-brand-primary shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Adres</p>
               <p className="text-sm text-zinc-500 mt-0.5">İstanbul, Türkiye</p>
             </div>
           </div>
           <div className="flex gap-3">
-            <Phone className="h-5 w-5 text-indigo-500 shrink-0 mt-0.5" />
+            <Phone className="h-5 w-5 text-brand-primary shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Telefon</p>
               <p className="text-sm text-zinc-500 mt-0.5">+90 (212) 000 00 00</p>
             </div>
           </div>
           <div className="flex gap-3">
-            <Mail className="h-5 w-5 text-indigo-500 shrink-0 mt-0.5" />
+            <Mail className="h-5 w-5 text-brand-primary shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">E-posta</p>
               <p className="text-sm text-zinc-500 mt-0.5">info@mesopro.com.tr</p>
             </div>
           </div>
           <div className="flex gap-3">
-            <Clock className="h-5 w-5 text-indigo-500 shrink-0 mt-0.5" />
+            <Clock className="h-5 w-5 text-brand-primary shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Çalışma Saatleri</p>
               <p className="text-sm text-zinc-500 mt-0.5">Pzt–Cum: 09:00–18:00</p>
@@ -113,7 +113,7 @@ export default function ContactForm() {
               <p className="text-sm text-zinc-500">En kısa sürede size geri döneceğiz.</p>
               <button
                 onClick={() => setSent(false)}
-                className="mt-2 text-sm text-indigo-600 dark:text-indigo-400 underline"
+                className="mt-2 text-sm text-brand-primary dark:text-brand-primary-light underline"
               >
                 Yeni mesaj gönder
               </button>
@@ -121,7 +121,7 @@ export default function ContactForm() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm px-4 py-3 rounded-lg">
+                <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm px-4 py-3 rounded-btn">
                   {error}
                 </div>
               )}
@@ -187,7 +187,7 @@ export default function ContactForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition-colors"
+                className="flex items-center gap-2 bg-brand-primary hover:bg-brand-primary/90 active:scale-[0.98] disabled:opacity-60 text-white text-sm font-semibold px-6 py-2.5 rounded-btn transition-all shadow-lg shadow-brand-primary/20"
               >
                 {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                 Gönder

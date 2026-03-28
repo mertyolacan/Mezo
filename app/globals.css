@@ -1,6 +1,29 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* ─── Brand Theme Variables ───────────────────────────────────────── */
+:root {
+  --primary-color: #4f46e5;
+  --secondary-color: #6366f1;
+  --tertiary-color: #818cf8;
+  --accent-color: #f43f5e;
+  --surface-color: #f8fafc;
+  --border-radius: 0.75rem;
+}
+
+@theme {
+  --color-brand-primary: var(--primary-color);
+  --color-brand-primary-light: color-mix(in srgb, var(--primary-color) 15%, transparent);
+  --color-brand-secondary: var(--secondary-color);
+  --color-brand-tertiary: var(--tertiary-color);
+  --color-brand-accent: var(--accent-color);
+  --color-brand-surface: var(--surface-color);
+  --radius-brand: var(--border-radius);
+  --radius-btn: var(--btn-radius);
+  --radius-card: var(--card-radius);
+  --radius-input: var(--input-radius);
+}
+
 /* ─── Dark mode class-based (Tailwind v4) ────────────────────────── */
 @variant dark (&:is(.dark *));
 
@@ -52,10 +75,9 @@ body {
   color: #fff;
 }
 
-/* ─── Focus ring ─────────────────────────────────────────────────── */
+/* ─── Global Focus ────────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid #6366f1;
-  outline-offset: 2px;
+  outline: none;
 }
 
 /* ─── Brand marquee ──────────────────────────────────────────────── */

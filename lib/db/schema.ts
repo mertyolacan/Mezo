@@ -383,6 +383,21 @@ export const siteSettings = pgTable("site_settings", {
   paymentCodEnabled: boolean("payment_cod_enabled").notNull().default(true),
   paymentCardEnabled: boolean("payment_card_enabled").notNull().default(false),
 
+  // ── Tema Ayarları ─────────────────────────────────────────────────────────
+  primaryColor: varchar("primary_color", { length: 7 }).notNull().default("#4f46e5"),
+  secondaryColor: varchar("secondary_color", { length: 7 }).notNull().default("#6366f1"),
+  tertiaryColor: varchar("tertiary_color", { length: 7 }).notNull().default("#818cf8"),
+  accentColor: varchar("accent_color", { length: 7 }).notNull().default("#f43f5e"),
+  surfaceColor: varchar("surface_color", { length: 7 }).notNull().default("#f8fafc"),
+  borderRadius: varchar("border_radius", { length: 20 }).notNull().default("0.75rem"),
+  buttonRadius: varchar("button_radius", { length: 20 }).notNull().default("0.5rem"),
+  cardRadius: varchar("card_radius", { length: 20 }).notNull().default("1rem"),
+  inputRadius: varchar("input_radius", { length: 20 }).notNull().default("0.75rem"),
+  navbarStyle: varchar("navbar_style", { length: 50 }).notNull().default("glass"),
+  cardShadow: varchar("card_shadow", { length: 20 }).notNull().default("md"),
+  animationIntensity: varchar("animation_intensity", { length: 50 }).notNull().default("smooth"),
+  fontFamily: varchar("font_family", { length: 100 }).notNull().default("Inter"),
+
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 

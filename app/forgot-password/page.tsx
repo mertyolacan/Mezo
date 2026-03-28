@@ -41,7 +41,7 @@ export default function ForgotPasswordPage() {
           Giriş sayfasına dön
         </Link>
 
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-8">
+        <div className="bg-white dark:bg-zinc-900 rounded-card border border-zinc-200 dark:border-zinc-800 p-8 shadow-[var(--card-shadow)]">
           {sent ? (
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-green-50 dark:bg-green-900/20 mb-4">
@@ -55,8 +55,8 @@ export default function ForgotPasswordPage() {
           ) : (
             <>
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl">
-                  <Mail className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                <div className="p-2 bg-brand-primary/10 dark:bg-brand-primary/20 rounded-btn">
+                  <Mail className="h-5 w-5 text-brand-primary dark:text-brand-primary-light" />
                 </div>
                 <div>
                   <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">Şifremi Unuttum</h1>
@@ -65,7 +65,7 @@ export default function ForgotPasswordPage() {
               </div>
 
               {error && (
-                <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm px-4 py-3 rounded-xl mb-4">
+                <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm px-4 py-3 rounded-btn mb-4">
                   {error}
                 </div>
               )}
@@ -81,14 +81,14 @@ export default function ForgotPasswordPage() {
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     placeholder="ornek@email.com veya 05xx xxx xx xx"
-                    className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-3 text-sm text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-zinc-900 transition"
+                    className="w-full rounded-input border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-3 text-sm text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:bg-white dark:focus:bg-zinc-900 transition"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white font-semibold py-3 px-4 rounded-xl transition-colors"
+                  className="w-full flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary/90 disabled:opacity-60 text-white font-semibold py-3 px-4 rounded-btn transition-all shadow-lg shadow-brand-primary/20"
                 >
                   {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                   Sıfırlama Bağlantısı Gönder

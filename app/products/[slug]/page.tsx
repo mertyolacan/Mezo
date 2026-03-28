@@ -164,7 +164,7 @@ export default async function ProductDetailPage({ params }: Props) {
         <div className="space-y-6">
           <div className="space-y-1">
             <div className="flex items-center gap-2 mb-1">
-              {brand && <span className="text-[10px] uppercase tracking-widest font-bold text-indigo-600 dark:text-indigo-400">{brand.name}</span>}
+              {brand && <span className="text-[10px] uppercase tracking-widest font-extrabold text-brand-primary">{brand.name}</span>}
               {category && <span className="text-[10px] uppercase tracking-widest text-zinc-400">· {category.name}</span>}
             </div>
             <h1 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-zinc-50 leading-tight tracking-tight">{p.name}</h1>
@@ -214,15 +214,15 @@ function ProductCard({ product: rp, isFavorited }: { product: CardProduct, isFav
   const discount = comparePrice ? Math.round((1 - price / comparePrice) * 100) : null;
   const images = rp.images as string[];
   return (
-    <Link href={`/products/${rp.slug}`} className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800 overflow-hidden hover:border-zinc-300 dark:hover:border-zinc-600 hover:shadow-sm transition-all">
-      <div className="relative aspect-square bg-zinc-50 dark:bg-zinc-800">
+    <Link href={`/products/${rp.slug}`} className="group bg-white dark:bg-zinc-900 rounded-brand border border-zinc-100 dark:border-zinc-800 overflow-hidden hover:border-brand-primary/40 hover:shadow-md transition-all focus:ring-2 focus:ring-brand-secondary/30">
+      <div className="relative aspect-square bg-zinc-50 dark:bg-zinc-800 rounded-brand">
         {images[0] ? (
           <Image src={images[0]} alt={rp.name} fill className="object-contain group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 50vw, 25vw" />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-zinc-300 text-xs">Görsel yok</div>
         )}
         {discount && (
-          <span className="absolute top-2 left-2 bg-indigo-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-md">-{discount}%</span>
+          <span className="absolute top-2 left-2 bg-brand-accent text-white text-xs font-bold px-1.5 py-1 rounded-md shadow-sm">-{discount}%</span>
         )}
         <FavoriteButton productId={rp.id} initialFavorited={isFavorited} />
       </div>

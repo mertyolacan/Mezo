@@ -22,7 +22,28 @@ const links = {
   ],
 };
 
-export default function Footer() {
+export default function Footer({ siteName = "MesoPro" }: { siteName?: string }) {
+  const renderBrand = () => {
+    if (siteName === "MesoPro") {
+      return <>Meso<span className="text-brand-primary">Pro</span></>;
+    }
+    
+    if (typeof siteName === "string" && siteName.includes(" ")) {
+      return (
+        <>
+          {siteName.split(" ")[0]}<span className="text-brand-primary ml-1">{siteName.substring(siteName.indexOf(" ") + 1)}</span>
+        </>
+      );
+    }
+
+    return (
+      <>
+        {typeof siteName === "string" && siteName.slice(0, Math.max(1, Math.ceil(siteName.length / 2)))}
+        <span className="text-brand-primary">{typeof siteName === "string" && siteName.slice(Math.max(1, Math.ceil(siteName.length / 2)))}</span>
+      </>
+    );
+  };
+
   return (
     <footer className="border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-950 mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -30,7 +51,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="sm:col-span-2 md:col-span-1">
             <Link href="/" className="text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-              Meso<span className="text-indigo-500">Pro</span>
+              {renderBrand()}
             </Link>
             <p className="mt-3 text-sm text-zinc-500 leading-relaxed">
               Klinikler ve doktorlar için profesyonel mezoterapi ürünleri.
@@ -61,7 +82,7 @@ export default function Footer() {
 
         <div className="mt-10 pt-6 border-t border-zinc-100 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-zinc-400">
-            © {new Date().getFullYear()} MesoPro. Tüm hakları saklıdır.
+            © {new Date().getFullYear()} {siteName}. Tüm hakları saklıdır.
           </p>
           <div className="flex items-center gap-4">
             <Link href="/kvkk" className="text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">

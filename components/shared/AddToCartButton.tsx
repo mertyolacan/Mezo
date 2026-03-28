@@ -56,7 +56,7 @@ export default function AddToCartButton({ product, stock }: { product: Product; 
     return (
       <button
         disabled
-        className="w-full h-10 flex items-center justify-center rounded-xl text-sm font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed border border-transparent"
+        className="w-full h-10 flex items-center justify-center rounded-brand text-sm font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed border border-transparent"
       >
         Stokta Yok
       </button>
@@ -68,7 +68,7 @@ export default function AddToCartButton({ product, stock }: { product: Product; 
       {/* Sepete Ekle - Initial State */}
       <button
         onClick={() => updateCart(1)}
-        className={`absolute inset-0 w-full h-full flex items-center justify-center rounded-xl text-sm font-bold transition-all duration-300 border-2 border-indigo-600 bg-white dark:bg-zinc-950 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/10 active:scale-95 shadow-sm shadow-indigo-600/5 ${
+        className={`absolute inset-0 w-full h-full flex items-center justify-center rounded-brand text-sm font-bold transition-all duration-300 border-2 border-brand-primary bg-white dark:bg-zinc-950 text-brand-primary hover:bg-brand-primary/5 active:scale-95 shadow-sm shadow-brand-primary/5 ${
           quantity > 0 ? "opacity-0 pointer-events-none -translate-y-2 scale-95" : "opacity-100 translate-y-0 scale-100"
         }`}
       >
@@ -77,13 +77,13 @@ export default function AddToCartButton({ product, stock }: { product: Product; 
 
       {/* Quantity Selector - Active State */}
       <div 
-        className={`absolute inset-0 flex items-center w-full h-full border-2 border-indigo-600 rounded-xl overflow-hidden bg-white dark:bg-zinc-950 shadow-sm shadow-indigo-600/10 transition-all duration-300 ${
+        className={`absolute inset-0 flex items-center w-full h-full border-2 border-brand-primary rounded-btn overflow-hidden bg-white dark:bg-zinc-950 shadow-sm shadow-brand-primary/10 transition-all duration-300 ${
           quantity > 0 ? "opacity-100 translate-y-0 scale-100" : "opacity-0 pointer-events-none translate-y-2 scale-105"
         }`}
       >
         <button
           onClick={() => updateCart(quantity - 1)}
-          className="h-full px-3 flex items-center justify-center text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 active:bg-indigo-100 transition-colors"
+          className="h-full px-3 flex items-center justify-center text-brand-primary hover:bg-brand-primary/5 active:bg-brand-primary/10 transition-colors"
           aria-label="Azalt"
         >
           {quantity === 1 ? <Trash2 className="h-4 w-4" /> : <Minus className="h-4 w-4" />}
@@ -97,7 +97,7 @@ export default function AddToCartButton({ product, stock }: { product: Product; 
         <button
           onClick={() => updateCart(quantity + 1)}
           disabled={quantity >= stock}
-          className="h-full px-3 flex items-center justify-center text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 active:bg-indigo-100 disabled:opacity-30 transition-colors"
+          className="h-full px-3 flex items-center justify-center text-brand-primary hover:bg-brand-primary/5 active:bg-brand-primary/10 disabled:opacity-30 transition-colors"
           aria-label="Artır"
         >
           <Plus className="h-4 w-4" />

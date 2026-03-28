@@ -90,13 +90,13 @@ export default function AdminSidebar() {
       {/* Logo */}
       <div className="h-16 flex items-center justify-between px-4 border-b border-zinc-100 dark:border-zinc-900 overflow-hidden">
         <Link href="/admin" className="flex items-center gap-2.5 group" onClick={() => setMobileOpen(false)}>
-          <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shrink-0 shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+          <div className="w-8 h-8 rounded-btn bg-brand-primary flex items-center justify-center shrink-0 shadow-lg shadow-brand-primary/20 group-hover:scale-105 transition-transform">
             <span className="text-white font-bold text-lg leading-none">M</span>
           </div>
           {showLabels && (
             <div className="flex flex-col animate-in slide-in-from-left-2 duration-300">
-              <span className="text-sm font-bold text-zinc-900 dark:text-zinc-50 leading-none">MesoPro</span>
-              <span className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider mt-0.5">Yönetim Merkeziniz</span>
+              <span className="text-sm font-bold text-zinc-900 dark:text-zinc-50 leading-none">Site Yön.</span>
+              <span className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider mt-0.5">Kontrol Paneli</span>
             </div>
           )}
         </Link>
@@ -129,15 +129,15 @@ export default function AdminSidebar() {
                     href={item.href}
                     title={!showLabels ? item.label : undefined}
                     onClick={() => setMobileOpen(false)}
-                    className={`group relative flex items-center rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200 ${
+                    className={`group relative flex items-center rounded-btn px-3 py-2 text-sm font-medium transition-all duration-200 ${
                       active
-                        ? "bg-indigo-50/80 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                        ? "bg-brand-primary/10 dark:bg-brand-primary/20 text-brand-primary dark:text-brand-primary-light shadow-sm"
                         : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 hover:text-zinc-900 dark:hover:text-zinc-100"
                     }`}
                   >
                     {/* Active Accent Line */}
                     {active && (
-                      <div className="absolute left-0 w-1 h-5 bg-indigo-600 dark:bg-indigo-500 rounded-r-full" />
+                      <div className="absolute left-0 w-1 h-5 bg-brand-primary rounded-r-full" />
                     )}
 
                     <item.icon className={`h-[18px] w-[18px] shrink-0 transition-transform ${active ? "scale-110" : "group-hover:scale-110"}`} />
@@ -145,7 +145,7 @@ export default function AdminSidebar() {
                     {showLabels && <span className="ml-3 truncate flex-1">{item.label}</span>}
 
                     {count > 0 && (
-                      <span className={`inline-flex items-center justify-center rounded-full bg-indigo-600 text-white text-[10px] font-bold ring-2 ring-white dark:ring-zinc-950 ${
+                      <span className={`inline-flex items-center justify-center rounded-full bg-brand-primary text-white text-[10px] font-bold ring-2 ring-white dark:ring-zinc-950 ${
                         !showLabels ? "absolute -top-1 -right-1 min-w-[14px] h-[14px]" : "min-w-[18px] h-[18px] ml-auto"
                       }`}>
                         {count > 99 ? "99+" : count}

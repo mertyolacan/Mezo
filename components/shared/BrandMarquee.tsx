@@ -17,7 +17,7 @@ function LogoSet({ brands, ariaHidden }: { brands: Brand[]; ariaHidden?: boolean
               src={brand.logo!}
               alt={ariaHidden ? "" : brand.name}
               fill
-              className="object-contain opacity-40 hover:opacity-100 grayscale hover:grayscale-0 transition-all duration-300"
+              className="object-contain opacity-100 grayscale-0 dark:opacity-40 dark:grayscale dark:hover:opacity-100 dark:hover:grayscale-0 hover:scale-105 transition-all duration-300"
               sizes="112px"
             />
           </div>

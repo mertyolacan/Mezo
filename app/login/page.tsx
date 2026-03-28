@@ -32,10 +32,10 @@ function FloatingInput({
         onFocus={onFocus}
         onBlur={onBlur}
         placeholder=" "
-        className={`block w-full px-4 pt-6 pb-2 text-sm text-zinc-900 dark:text-zinc-50 bg-white dark:bg-zinc-900 border ${
+        className={`block w-full px-4 pt-6 pb-2 text-sm text-zinc-900 dark:text-zinc-50 bg-white dark:bg-zinc-900 border rounded-input ${
           hasError
             ? "border-red-500 focus:border-red-500"
-            : "border-zinc-300 dark:border-zinc-700 focus:border-zinc-600 dark:focus:border-zinc-400"
+            : "border-zinc-300 dark:border-zinc-700 focus:border-brand-primary dark:focus:border-brand-primary-light"
         } appearance-none focus:outline-none focus:ring-0 peer transition-all`}
       />
       <label
@@ -162,7 +162,7 @@ export default function LoginPage() {
           <div className="flex gap-8 border-b border-zinc-200 dark:border-zinc-800 mb-8 w-full">
             <Link
               href="/login"
-              className="pb-3 text-sm font-bold border-b-2 border-zinc-900 dark:border-zinc-100 text-zinc-900 dark:text-zinc-50"
+              className="pb-3 text-sm font-bold border-b-2 border-brand-primary text-brand-primary dark:text-brand-primary-light"
             >
               Giriş Yap
             </Link>
@@ -213,7 +213,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-[#2E2E36] hover:bg-[#1f1f25] disabled:opacity-70 text-white font-bold tracking-widest text-sm py-4 uppercase transition-colors"
+              className="w-full flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary/90 active:scale-[0.98] disabled:opacity-70 text-white font-bold tracking-widest text-sm py-4 rounded-btn uppercase transition-all shadow-lg shadow-brand-primary/20"
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               GİRİŞ YAP

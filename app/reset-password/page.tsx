@@ -21,7 +21,7 @@ function ResetPasswordForm() {
     return (
       <div className="text-center">
         <p className="text-sm text-zinc-500">Geçersiz bağlantı. Lütfen yeni bir şifre sıfırlama talebinde bulunun.</p>
-        <Link href="/forgot-password" className="text-indigo-600 dark:text-indigo-400 text-sm hover:underline mt-4 inline-block">
+        <Link href="/forgot-password" className="text-brand-primary dark:text-brand-primary-light text-sm hover:underline mt-4 inline-block">
           Şifremi Unuttum
         </Link>
       </div>
@@ -75,8 +75,8 @@ function ResetPasswordForm() {
   return (
     <>
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl">
-          <KeyRound className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+        <div className="p-2 bg-brand-primary/5 dark:bg-brand-primary/10 rounded-btn">
+          <KeyRound className="h-5 w-5 text-brand-primary dark:text-brand-primary-light" />
         </div>
         <div>
           <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">Yeni Şifre Belirle</h1>
@@ -85,7 +85,7 @@ function ResetPasswordForm() {
       </div>
 
       {error && (
-        <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm px-4 py-3 rounded-xl mb-4">
+        <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm px-4 py-3 rounded-btn mb-4">
           {error}
         </div>
       )}
@@ -101,7 +101,7 @@ function ResetPasswordForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="En az 6 karakter"
-              className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-3 pr-11 text-sm text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-zinc-900 transition"
+              className="w-full rounded-input border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-3 pr-11 text-sm text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary focus:bg-white dark:focus:bg-zinc-900 transition"
             />
             <button type="button" onClick={() => setShowPw((p) => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600">
               {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -117,14 +117,14 @@ function ResetPasswordForm() {
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             placeholder="Şifrenizi tekrar girin"
-            className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-3 text-sm text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-zinc-900 transition"
+            className="w-full rounded-input border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-3 text-sm text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary focus:bg-white dark:focus:bg-zinc-900 transition"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white font-semibold py-3 px-4 rounded-xl transition-colors"
+          className="w-full flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary/90 active:bg-brand-primary/95 shadow-lg shadow-brand-primary/20 disabled:opacity-60 text-white font-semibold py-3 px-4 rounded-btn transition-colors"
         >
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
           Şifremi Güncelle
@@ -146,7 +146,7 @@ export default function ResetPasswordPage() {
           Giriş sayfasına dön
         </Link>
 
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-8">
+        <div className="bg-white dark:bg-zinc-900 rounded-card border border-zinc-200 dark:border-zinc-800 p-8 shadow-[var(--card-shadow)]">
           <Suspense fallback={<div className="text-center text-sm text-zinc-400">Yükleniyor...</div>}>
             <ResetPasswordForm />
           </Suspense>

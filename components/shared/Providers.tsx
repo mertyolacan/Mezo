@@ -18,11 +18,15 @@ export default function Providers({
   isLoggedIn,
   userIsAdmin,
   contact,
+  siteName,
+  logoUrl,
 }: {
   children: React.ReactNode;
   isLoggedIn: boolean;
   userIsAdmin?: boolean;
   contact?: Contact;
+  siteName?: string;
+  logoUrl?: string | null;
 }) {
   const pathname = usePathname();
   const isAdminRoute = pathname.startsWith("/admin");
@@ -35,10 +39,10 @@ export default function Providers({
   return (
     <CartProvider>
       <NavigationProgress />
-      {showNavbar && <Navbar isLoggedIn={isLoggedIn} isAdmin={userIsAdmin} />}
+      {showNavbar && <Navbar isLoggedIn={isLoggedIn} isAdmin={userIsAdmin} siteName={siteName} logoUrl={logoUrl} />}
       <div className={isAdminRoute ? undefined : "pt-[90px] md:pt-[64px]"}>
         {children}
-        {showFooter && <Footer />}
+        {showFooter && <Footer siteName={siteName} />}
       </div>
       {showContactBubble && (
         <ContactBubble
