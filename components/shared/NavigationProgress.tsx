@@ -66,7 +66,7 @@ function ProgressBar() {
 
   return (
     <div
-      className="fixed top-0 left-0 z-[9999] h-[2px] bg-indigo-500 shadow-[0_0_6px_rgba(99,102,241,0.6)]"
+      className="fixed top-0 left-0 z-[9999] h-[2px] bg-brand-primary shadow-[0_0_6px_rgba(99,102,241,0.6)]"
       style={{
         width: `${width}%`,
         transition: width === 100 ? "width 200ms ease-out" : "width 400ms ease-out",

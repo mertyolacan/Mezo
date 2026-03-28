@@ -94,7 +94,7 @@ export default function BlogForm({ initialData }: BlogFormProps) {
     setValue("tags", tags.filter((t: string) => t !== tag));
   }
 
-  const inputClass = "w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none";
+  const inputClass = "w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all outline-none";
   const labelClass = "block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5";
 
   return (
@@ -111,7 +111,7 @@ export default function BlogForm({ initialData }: BlogFormProps) {
           <div className="lg:col-span-2 space-y-8">
             <section className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-6">
               <div className="flex items-center gap-2 border-b border-zinc-100 dark:border-zinc-800 -mx-6 px-6 pb-4 mb-2">
-                <FileText className="h-4 w-4 text-indigo-500" />
+                <FileText className="h-4 w-4 text-brand-primary" />
                 <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-widest">Yazı İçeriği</h2>
               </div>
 
@@ -193,7 +193,7 @@ export default function BlogForm({ initialData }: BlogFormProps) {
                   <label className={labelClass}>Etiketler</label>
                   <div className="flex flex-wrap gap-2 mb-3">
                     {tags.map((tag: string) => (
-                      <span key={tag} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 dark:bg-zinc-800 text-indigo-600 dark:text-indigo-400 text-[11px] font-bold rounded-lg border border-indigo-100 dark:border-zinc-700">
+                      <span key={tag} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-brand-primary/5 dark:bg-zinc-800 text-brand-primary dark:text-brand-primary text-[11px] font-bold rounded-lg border border-indigo-100 dark:border-zinc-700">
                         {tag}
                         <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-500">
                           <X className="h-3 w-3" />
@@ -247,7 +247,7 @@ export default function BlogForm({ initialData }: BlogFormProps) {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold px-10 py-3 rounded-2xl shadow-lg shadow-indigo-500/20 transition-all active:scale-[0.98]"
+                className="flex items-center gap-2 bg-brand-primary hover:bg-brand-primary-light disabled:opacity-50 text-white font-bold px-10 py-3 rounded-2xl shadow-lg shadow-brand-primary/20 transition-all active:scale-[0.98]"
               >
                 {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
                 {loading ? "Kaydediliyor..." : initialData?.id ? "Yazıyı Güncelle" : "Yazıyı Yayınla"}

@@ -70,7 +70,7 @@ function SearchableDropdown({
           w-full flex items-center justify-between text-left gap-2
           transition-all duration-150
           ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer hover:border-zinc-400 dark:hover:border-zinc-500"}
-          ${open ? "ring-2 ring-indigo-500/30 border-indigo-400 dark:border-indigo-500" : ""}
+          ${open ? "ring-2 ring-brand-primary/30 border-brand-primary dark:border-brand-primary" : ""}
         `}
       >
         <span className={`truncate flex-1 ${value ? "text-zinc-900 dark:text-zinc-50" : "text-zinc-400 dark:text-zinc-500"}`}>
@@ -96,7 +96,7 @@ function SearchableDropdown({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Ara..."
-                className="w-full pl-8 pr-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 dark:focus:border-indigo-500 transition-all text-zinc-900 dark:text-zinc-50 placeholder-zinc-400"
+                className="w-full pl-8 pr-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary dark:focus:border-brand-primary transition-all text-zinc-900 dark:text-zinc-50 placeholder-zinc-400"
               />
             </div>
           </div>
@@ -122,13 +122,13 @@ function SearchableDropdown({
                     className={`
                       w-full text-left px-4 py-2.5 text-sm flex items-center gap-2.5 transition-colors
                       ${isSelected
-                        ? "bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 font-semibold"
+                        ? "bg-brand-primary/5 dark:bg-brand-primary/10/40 text-brand-primary dark:text-brand-primary font-semibold"
                         : "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/70"
                       }
                     `}
                   >
                     <span className="flex-1">{loc.name}</span>
-                    {isSelected && <CheckIcon className="h-3.5 w-3.5 shrink-0 text-indigo-500" />}
+                    {isSelected && <CheckIcon className="h-3.5 w-3.5 shrink-0 text-brand-primary" />}
                   </button>
                 );
               })

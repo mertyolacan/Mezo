@@ -114,7 +114,7 @@ export default function AdminHeader() {
         <Link
           href="/"
           target="_blank"
-          className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-all border border-indigo-100 dark:border-indigo-500/20"
+          className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-brand-primary dark:text-brand-primary bg-brand-primary/5 dark:bg-brand-primary/10 rounded-full hover:bg-brand-primary/10 dark:hover:bg-brand-primary/20 transition-all border border-indigo-100 dark:border-brand-primary/20"
         >
           <Globe className="h-3.5 w-3.5" />
           Siteni Gör

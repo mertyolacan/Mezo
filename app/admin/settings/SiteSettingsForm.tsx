@@ -90,7 +90,7 @@ export default function SiteSettingsForm({ initialSettings }: Props) {
     icon: Icon,
     title,
     desc,
-    color = "text-indigo-500",
+    color = "text-brand-primary",
   }: {
     icon: React.ElementType;
     title: string;
@@ -167,7 +167,7 @@ export default function SiteSettingsForm({ initialSettings }: Props) {
       {activeTab === "contact" && (
         <div className="space-y-6 animate-in fade-in duration-200">
           <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
-            <SectionHeader icon={Phone} title="İletişim Bilgileri" desc="Müşterilere gösterilecek bilgiler" color="text-blue-500" />
+            <SectionHeader icon={Phone} title="İletişim Bilgileri" desc="Müşterilere gösterilecek bilgiler" color="text-brand-primary" />
             <div className="p-6 space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
@@ -230,12 +230,12 @@ export default function SiteSettingsForm({ initialSettings }: Props) {
                     key={name}
                     className={`flex items-center justify-between gap-4 p-4 rounded-2xl border transition-all ${
                       enabled
-                        ? "bg-indigo-50/40 dark:bg-indigo-500/5 border-indigo-200 dark:border-indigo-500/20"
+                        ? "bg-brand-primary/5/40 dark:bg-brand-primary/5 border-indigo-200 dark:border-brand-primary/20"
                         : "bg-zinc-50 dark:bg-zinc-800/30 border-zinc-200 dark:border-zinc-700"
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-xl ${enabled ? "bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400"}`}>
+                      <div className={`p-2 rounded-xl ${enabled ? "bg-brand-primary/10 dark:bg-brand-primary/20 text-brand-primary dark:text-brand-primary" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400"}`}>
                         <Icon className="h-5 w-5" />
                       </div>
                       <div>
@@ -246,7 +246,7 @@ export default function SiteSettingsForm({ initialSettings }: Props) {
                     <button
                       type="button"
                       onClick={() => setValue(name, !enabled)}
-                      className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ${enabled ? "bg-indigo-600" : "bg-zinc-200 dark:bg-zinc-700"}`}
+                      className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ${enabled ? "bg-brand-primary" : "bg-zinc-200 dark:bg-zinc-700"}`}
                       role="switch"
                       aria-checked={enabled}
                     >
@@ -387,7 +387,7 @@ export default function SiteSettingsForm({ initialSettings }: Props) {
 
             {/* Görsel Efektler & Stil */}
             <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
-              <SectionHeader icon={Palette} title="Görsel Efektler & Stil" desc="Sitenin derinlik ve hareket ayarları" color="text-indigo-500" />
+              <SectionHeader icon={Palette} title="Görsel Efektler & Stil" desc="Sitenin derinlik ve hareket ayarları" color="text-brand-primary" />
               <div className="p-6 space-y-6">
                 <div>
                   <label className={lbl}>Navbar (Üst Menü) Stili</label>
@@ -467,7 +467,7 @@ export default function SiteSettingsForm({ initialSettings }: Props) {
 
           {/* Tipografi */}
           <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
-            <SectionHeader icon={Palette} title="Tipografi" desc="Yazı tipi ve font ayarları" color="text-blue-500" />
+            <SectionHeader icon={Palette} title="Tipografi" desc="Yazı tipi ve font ayarları" color="text-brand-primary" />
             <div className="p-6">
               <label className={lbl}>Font Ailesi</label>
               <select {...register("fontFamily")} className={inp}>
@@ -489,7 +489,7 @@ export default function SiteSettingsForm({ initialSettings }: Props) {
         <button
           type="submit"
           disabled={loading}
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-bold px-8 py-2.5 rounded-xl shadow-lg shadow-indigo-500/20 transition-all active:scale-[0.98]"
+          className="flex items-center gap-2 bg-brand-primary hover:bg-brand-primary-light disabled:opacity-60 text-white text-sm font-bold px-8 py-2.5 rounded-xl shadow-lg shadow-brand-primary/20 transition-all active:scale-[0.98]"
         >
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
           {saved && <Check className="h-4 w-4" />}

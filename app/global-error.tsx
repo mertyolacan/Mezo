@@ -16,7 +16,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
           <p className="text-zinc-500 mb-6 text-sm">Beklenmedik bir hata oluştu. Lütfen tekrar deneyin.</p>
           <button
             onClick={reset}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
+            className="bg-brand-primary hover:bg-brand-primary-light text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
           >
             Tekrar Dene
           </button>

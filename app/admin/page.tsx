@@ -47,14 +47,14 @@ export default async function AdminDashboard() {
       label: "Sipariş",
       value: orderStats.count.toLocaleString("tr-TR"),
       icon: ShoppingBag,
-      cls: "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400",
+      cls: "bg-brand-primary/5 dark:bg-brand-primary/10/20 text-brand-primary dark:text-brand-primary",
       href: "/admin/orders",
     },
     {
       label: "Müşteri",
       value: userCount.count.toLocaleString("tr-TR"),
       icon: Users,
-      cls: "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400",
+      cls: "bg-blue-50 dark:bg-blue-900/20 text-brand-primary dark:text-brand-primary",
       href: "/admin/users",
     },
     {
@@ -82,9 +82,9 @@ export default async function AdminDashboard() {
 
   const statusMap: Record<string, { label: string; cls: string }> = {
     pending: { label: "Bekliyor", cls: "bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300" },
-    confirmed: { label: "Onaylandı", cls: "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" },
+    confirmed: { label: "Onaylandı", cls: "bg-blue-100 dark:bg-blue-900 text-brand-primary dark:text-blue-300" },
     processing: { label: "Hazırlanıyor", cls: "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300" },
-    shipped: { label: "Kargoda", cls: "bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300" },
+    shipped: { label: "Kargoda", cls: "bg-brand-primary/10 dark:bg-brand-primary/10 text-brand-primary dark:text-brand-primary" },
     delivered: { label: "Teslim", cls: "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300" },
     cancelled: { label: "İptal", cls: "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300" },
   };
@@ -98,7 +98,7 @@ export default async function AdminDashboard() {
           <Link
             key={stat.label}
             href={stat.href}
-            className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5 flex items-center gap-4 hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors"
+            className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5 flex items-center gap-4 hover:border-indigo-300 dark:hover:border-brand-primary transition-colors"
           >
             <div className={`p-3 rounded-xl shrink-0 ${stat.cls}`}>
               <stat.icon className="h-5 w-5" />
@@ -136,7 +136,7 @@ export default async function AdminDashboard() {
       <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-x-auto">
         <div className="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
           <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">Son Siparişler</h2>
-          <Link href="/admin/orders" className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline">
+          <Link href="/admin/orders" className="text-sm text-brand-primary dark:text-brand-primary hover:underline">
             Tümünü gör →
           </Link>
         </div>
@@ -155,7 +155,7 @@ export default async function AdminDashboard() {
               return (
                 <tr key={order.id} className="border-b border-zinc-100 dark:border-zinc-800 last:border-0">
                   <td className="px-5 py-3 font-mono text-xs text-zinc-700 dark:text-zinc-300">
-                    <Link href={`/admin/orders/${order.id}`} className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                    <Link href={`/admin/orders/${order.id}`} className="hover:text-brand-primary dark:hover:text-brand-primary">
                       {order.orderNumber}
                     </Link>
                   </td>

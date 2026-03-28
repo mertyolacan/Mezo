@@ -14,7 +14,7 @@ const SectionHeader = ({
   icon: Icon,
   title,
   desc,
-  color = "text-indigo-500",
+  color = "text-brand-primary",
 }: {
   icon: React.ElementType;
   title: string;
@@ -65,7 +65,7 @@ export default function GlobalSettingsForm({ initialData }: Props) {
   }
 
   const inputClass =
-    "w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none";
+    "w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all outline-none";
   const labelClass = "block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5";
 
   return (
@@ -81,7 +81,7 @@ export default function GlobalSettingsForm({ initialData }: Props) {
               <input {...methods.register("titleSeparator")} className={inputClass} placeholder=" | " />
               <p className="text-[11px] text-zinc-400 mt-1.5">
                 Örnek: <span className="font-mono">Ürünler {methods.watch("titleSeparator") || " | "} {methods.watch("siteName") || "MesoPro"}</span>
-                <span className="ml-2 text-zinc-300 dark:text-zinc-600">— Site adı <a href="/admin/settings" className="text-indigo-500 hover:underline">Ayarlar</a>'dan yönetilir</span>
+                <span className="ml-2 text-zinc-300 dark:text-zinc-600">— Site adı <a href="/admin/settings" className="text-brand-primary hover:underline">Ayarlar</a>'dan yönetilir</span>
               </p>
             </div>
             <div>
@@ -118,7 +118,7 @@ export default function GlobalSettingsForm({ initialData }: Props) {
                 </span>
               </div>
               <p className="text-[11px] text-zinc-400 mt-1.5">
-                Site Adı ve Slogan <a href="/admin/settings" className="text-indigo-500 hover:underline">Genel Ayarlar</a>'dan, ayırıcı yukarıdaki alandan yönetilir.
+                Site Adı ve Slogan <a href="/admin/settings" className="text-brand-primary hover:underline">Genel Ayarlar</a>'dan, ayırıcı yukarıdaki alandan yönetilir.
               </p>
             </div>
 
@@ -187,7 +187,7 @@ export default function GlobalSettingsForm({ initialData }: Props) {
           <button
             type="submit"
             disabled={loading}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold px-10 py-2.5 rounded-xl shadow-lg shadow-indigo-500/20 transition-all active:scale-[0.98]"
+            className="flex items-center gap-2 bg-brand-primary hover:bg-brand-primary-light disabled:opacity-50 text-white font-bold px-10 py-2.5 rounded-xl shadow-lg shadow-brand-primary/20 transition-all active:scale-[0.98]"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : saved ? <Check className="h-4 w-4" /> : null}
             {loading ? "Kaydediliyor..." : saved ? "Kaydedildi!" : "Tüm Ayarları Kaydet"}

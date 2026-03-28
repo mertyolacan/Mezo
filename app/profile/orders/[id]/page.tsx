@@ -9,8 +9,8 @@ import { Package } from "lucide-react";
 
 const statusLabels: Record<string, { label: string; class: string }> = {
   pending:    { label: "Beklemede",     class: "bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400" },
-  processing: { label: "Hazırlanıyor",  class: "bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400" },
-  shipped:    { label: "Kargoda",       class: "bg-indigo-100 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400" },
+  processing: { label: "Hazırlanıyor",  class: "bg-blue-100 text-brand-primary dark:bg-blue-950 dark:text-brand-primary" },
+  shipped:    { label: "Kargoda",       class: "bg-brand-primary/10 text-brand-primary dark:bg-brand-primary/10 dark:text-brand-primary" },
   delivered:  { label: "Teslim Edildi", class: "bg-green-100 text-green-600 dark:bg-green-950 dark:text-green-400" },
   cancelled:  { label: "İptal",         class: "bg-red-100 text-red-600 dark:bg-red-950 dark:text-red-400" },
 };

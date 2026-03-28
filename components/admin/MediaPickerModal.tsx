@@ -88,7 +88,7 @@ export default function MediaPickerModal({ open, onClose, onSelect, multiple = t
               type="button"
               onClick={() => fileRef.current?.click()}
               disabled={uploading}
-              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-lg transition-colors"
+              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 bg-brand-primary hover:bg-brand-primary-light disabled:opacity-50 text-white rounded-lg transition-colors"
             >
               {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
               Yükle
@@ -121,14 +121,14 @@ export default function MediaPickerModal({ open, onClose, onSelect, multiple = t
                       onClick={() => toggle(item.url)}
                       className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
                         isSelected
-                          ? "border-indigo-500 ring-2 ring-indigo-300"
+                          ? "border-brand-primary ring-2 ring-indigo-300"
                           : "border-transparent hover:border-zinc-300 dark:hover:border-zinc-600"
                       }`}
                     >
                       <Image src={item.url} alt="" fill className="object-cover" sizes="150px" />
                       {isSelected && (
-                        <div className="absolute inset-0 bg-indigo-600/20 flex items-center justify-center">
-                          <div className="bg-indigo-600 rounded-full p-1">
+                        <div className="absolute inset-0 bg-brand-primary/20 flex items-center justify-center">
+                          <div className="bg-brand-primary rounded-full p-1">
                             <Check className="h-3 w-3 text-white" />
                           </div>
                         </div>
@@ -171,7 +171,7 @@ export default function MediaPickerModal({ open, onClose, onSelect, multiple = t
               type="button"
               onClick={handleConfirm}
               disabled={selected.length === 0}
-              className="text-sm px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white transition-colors"
+              className="text-sm px-4 py-2 rounded-lg bg-brand-primary hover:bg-brand-primary-light disabled:opacity-50 text-white transition-colors"
             >
               Seç ({selected.length})
             </button>

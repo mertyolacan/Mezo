@@ -42,8 +42,8 @@ export default async function AdminUserDetailPage({
       <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center shrink-0">
-              <User className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+            <div className="h-12 w-12 rounded-full bg-brand-primary/5 dark:bg-brand-primary/10/20 flex items-center justify-center shrink-0">
+              <User className="h-6 w-6 text-brand-primary dark:text-brand-primary" />
             </div>
             <div>
               <p className="font-semibold text-zinc-900 dark:text-zinc-50">{user.name ?? "İsim yok"}</p>

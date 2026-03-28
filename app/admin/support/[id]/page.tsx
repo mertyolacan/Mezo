@@ -57,7 +57,7 @@ export default async function AdminTicketDetailPage({ params }: Props) {
           key={reply.id}
           className={`rounded-xl border p-4 text-sm ${
             reply.isAdmin
-              ? "border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950 ml-8"
+              ? "border-indigo-200 dark:border-indigo-800 bg-brand-primary/5 dark:bg-brand-primary/10 ml-8"
               : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900"
           }`}
         >

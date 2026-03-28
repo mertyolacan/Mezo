@@ -10,16 +10,16 @@ type Section = "orders" | "reviews" | "tickets" | "messages";
 
 const orderStatusMap: Record<string, { label: string; cls: string }> = {
   pending:    { label: "Bekliyor",      cls: "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300" },
-  confirmed:  { label: "Onaylandı",    cls: "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300" },
+  confirmed:  { label: "Onaylandı",    cls: "bg-blue-100 dark:bg-blue-900/40 text-brand-primary dark:text-blue-300" },
   processing: { label: "Hazırlanıyor", cls: "bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300" },
-  shipped:    { label: "Kargoda",      cls: "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300" },
+  shipped:    { label: "Kargoda",      cls: "bg-brand-primary/10 dark:bg-brand-primary/10/40 text-brand-primary dark:text-brand-primary" },
   delivered:  { label: "Teslim",       cls: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300" },
   cancelled:  { label: "İptal",        cls: "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300" },
 };
 
 const ticketStatusMap: Record<string, { label: string; cls: string }> = {
   open:        { label: "Açık",    cls: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" },
-  in_progress: { label: "İşlemde", cls: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" },
+  in_progress: { label: "İşlemde", cls: "bg-blue-100 text-brand-primary dark:bg-blue-900/40 dark:text-blue-300" },
   resolved:    { label: "Çözüldü", cls: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300" },
   closed:      { label: "Kapalı",  cls: "bg-zinc-100 text-zinc-500 dark:bg-zinc-800" },
 };
@@ -96,7 +96,7 @@ export default function UserActivitySection({
                     return (
                       <tr key={o.id} className="border-b border-zinc-100 dark:border-zinc-800 last:border-0">
                         <td className="px-5 py-3 font-mono text-xs">
-                          <Link href={`/admin/orders/${o.id}`} className="text-indigo-600 dark:text-indigo-400 hover:underline">{o.orderNumber}</Link>
+                          <Link href={`/admin/orders/${o.id}`} className="text-brand-primary dark:text-brand-primary hover:underline">{o.orderNumber}</Link>
                         </td>
                         <td className="px-5 py-3 font-semibold text-zinc-900 dark:text-zinc-50 whitespace-nowrap">
                           {Number(o.total).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
@@ -121,7 +121,7 @@ export default function UserActivitySection({
                     <div className="flex items-center gap-2 flex-wrap">
                       <Stars rating={r.rating} />
                       {r.productName && (
-                        <Link href={`/products/${r.productSlug}`} target="_blank" className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline">
+                        <Link href={`/products/${r.productSlug}`} target="_blank" className="text-xs text-brand-primary dark:text-brand-primary hover:underline">
                           {r.productName}
                         </Link>
                       )}
@@ -150,7 +150,7 @@ export default function UserActivitySection({
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${s.cls}`}>{s.label}</span>
-                      <Link href={`/admin/support/${t.id}`} className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline">Görüntüle →</Link>
+                      <Link href={`/admin/support/${t.id}`} className="text-xs text-brand-primary dark:text-brand-primary hover:underline">Görüntüle →</Link>
                     </div>
                   </div>
                 );
@@ -163,14 +163,14 @@ export default function UserActivitySection({
                   <div className="flex items-start justify-between gap-3 mb-1.5 flex-wrap">
                     <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{m.subject ?? "—"}</p>
                     <div className="flex items-center gap-2 shrink-0">
-                      <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${m.isRead ? "bg-zinc-100 text-zinc-400 dark:bg-zinc-800" : "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400"}`}>
+                      <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${m.isRead ? "bg-zinc-100 text-zinc-400 dark:bg-zinc-800" : "bg-brand-primary/10 text-brand-primary dark:bg-brand-primary/10/30 dark:text-brand-primary"}`}>
                         {m.isRead ? "Okundu" : "Okunmadı"}
                       </span>
                       <span className="text-xs text-zinc-400">{new Date(m.createdAt).toLocaleDateString("tr-TR")}</span>
                     </div>
                   </div>
                   <p className="text-sm text-zinc-500 leading-relaxed">{m.message}</p>
-                  <a href={`mailto:${m.email}?subject=Re: ${m.subject}`} className="mt-2 inline-block text-xs text-indigo-600 dark:text-indigo-400 hover:underline">Yanıtla →</a>
+                  <a href={`mailto:${m.email}?subject=Re: ${m.subject}`} className="mt-2 inline-block text-xs text-brand-primary dark:text-brand-primary hover:underline">Yanıtla →</a>
                 </div>
               ))}
             </div>

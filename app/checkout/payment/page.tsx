@@ -44,7 +44,7 @@ function PaymentForm() {
     return (
       <div className="text-center py-12">
         <p className="text-red-500 text-sm mb-4">{error}</p>
-        <a href="/checkout" className="text-indigo-600 dark:text-indigo-400 text-sm hover:underline">
+        <a href="/checkout" className="text-brand-primary dark:text-brand-primary text-sm hover:underline">
           Sepete Geri Dön
         </a>
       </div>
@@ -54,7 +54,7 @@ function PaymentForm() {
   if (!formContent) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
       </div>
     );
   }
@@ -78,7 +78,7 @@ export default function PaymentPage() {
       <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
         <Suspense fallback={
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+            <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
           </div>
         }>
           <PaymentForm />

@@ -23,7 +23,7 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
         Siparişiniz hazırlanmaya başladığında e-posta ile bilgilendirileceksiniz. Ödeme kapıda nakit olarak alınacaktır.
       </p>
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
-        <Link href="/products" className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-6 py-3 rounded-xl transition-colors">
+        <Link href="/products" className="flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary-light text-white text-sm font-semibold px-6 py-3 rounded-xl transition-colors">
           <ShoppingBag className="h-4 w-4" />
           Alışverişe Devam Et
         </Link>

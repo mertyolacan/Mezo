@@ -12,9 +12,9 @@ type Props = { params: Promise<{ id: string }> };
 
 const statusMap: Record<string, { label: string; cls: string }> = {
   pending: { label: "Bekliyor", cls: "bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300" },
-  confirmed: { label: "Onaylandı", cls: "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" },
+  confirmed: { label: "Onaylandı", cls: "bg-blue-100 dark:bg-blue-900 text-brand-primary dark:text-blue-300" },
   processing: { label: "Hazırlanıyor", cls: "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300" },
-  shipped: { label: "Kargoda", cls: "bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300" },
+  shipped: { label: "Kargoda", cls: "bg-brand-primary/10 dark:bg-brand-primary/10 text-brand-primary dark:text-brand-primary" },
   delivered: { label: "Teslim Edildi", cls: "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300" },
   cancelled: { label: "İptal", cls: "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300" },
 };

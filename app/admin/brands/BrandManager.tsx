@@ -26,7 +26,7 @@ export default function BrandManager({ initialBrands }: { initialBrands: Brand[]
   const [pickerFor, setPickerFor] = useState<"new" | "edit" | null>(null);
 
   const inputClass =
-    "rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition";
+    "rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-brand-primary transition";
 
   async function handleAdd() {
     if (!newName.trim()) return;
@@ -110,7 +110,7 @@ export default function BrandManager({ initialBrands }: { initialBrands: Brand[]
             <button
               onClick={handleAdd}
               disabled={adding || !newName.trim()}
-              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+              className="flex items-center gap-2 bg-brand-primary hover:bg-brand-primary-light disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
             >
               <Plus className="h-4 w-4" />
               Ekle
@@ -120,7 +120,7 @@ export default function BrandManager({ initialBrands }: { initialBrands: Brand[]
             <button
               type="button"
               onClick={() => setPickerFor("new")}
-              className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-indigo-600 dark:hover:text-indigo-400 border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 py-1.5 transition-colors"
+              className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-brand-primary dark:hover:text-brand-primary border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 py-1.5 transition-colors"
             >
               <ImageIcon className="h-3.5 w-3.5" />
               Logo Seç
@@ -154,7 +154,7 @@ export default function BrandManager({ initialBrands }: { initialBrands: Brand[]
                       <button
                         type="button"
                         onClick={() => setPickerFor("edit")}
-                        className="relative w-10 h-10 rounded-lg overflow-hidden border-2 border-dashed border-zinc-300 dark:border-zinc-600 hover:border-indigo-400 bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center transition-colors shrink-0"
+                        className="relative w-10 h-10 rounded-lg overflow-hidden border-2 border-dashed border-zinc-300 dark:border-zinc-600 hover:border-brand-primary bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center transition-colors shrink-0"
                         title="Logo değiştir"
                       >
                         {editLogo ? (

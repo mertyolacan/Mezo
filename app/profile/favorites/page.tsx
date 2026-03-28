@@ -38,7 +38,7 @@ export default async function FavoritesPage() {
         <div className="flex flex-col items-center justify-center h-48 text-zinc-400 gap-3 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800">
           <Heart className="h-10 w-10" />
           <p className="text-sm">Henüz favori eklenmedi</p>
-          <Link href="/products" className="text-sm text-indigo-500 hover:underline">Ürünlere bak</Link>
+          <Link href="/products" className="text-sm text-brand-primary hover:underline">Ürünlere bak</Link>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">

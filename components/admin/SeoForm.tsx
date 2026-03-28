@@ -56,10 +56,10 @@ export default function SeoForm({ prefix = "", defaultValues, previewUrl = "meso
   return (
     <div className="space-y-6">
       {/* 1. Google Preview Card */}
-      <section className="bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 rounded-2xl shadow-sm overflow-hidden group transition-all hover:shadow-md hover:border-indigo-500/20">
+      <section className="bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 rounded-2xl shadow-sm overflow-hidden group transition-all hover:shadow-md hover:border-brand-primary/20">
         <div className="p-4 border-b border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+            <div className="p-1.5 rounded-lg bg-brand-primary/5 dark:bg-brand-primary/10 text-brand-primary dark:text-brand-primary">
               <Globe className="h-4 w-4" />
             </div>
             <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-50">Arama Motoru Önizlemesi</h3>
@@ -71,7 +71,7 @@ export default function SeoForm({ prefix = "", defaultValues, previewUrl = "meso
             <cite className="not-italic text-[13px] text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
               {previewUrl} <ChevronRight className="h-3 w-3" />
             </cite>
-            <h3 className="text-[20px] text-indigo-600 dark:text-indigo-400 leading-tight font-medium hover:underline cursor-pointer line-clamp-1">
+            <h3 className="text-[20px] text-brand-primary dark:text-brand-primary leading-tight font-medium hover:underline cursor-pointer line-clamp-1">
               {title.trim() || defaultValues?.title || "Sayfa Başlığı Buraya Gelecek"}
             </h3>
             <p className="text-[14px] text-zinc-600 dark:text-zinc-400 leading-relaxed line-clamp-2">
@@ -101,7 +101,7 @@ export default function SeoForm({ prefix = "", defaultValues, previewUrl = "meso
             </div>
             <input
               {...register(`${prefix}title`)}
-              className="w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500/50 transition-all outline-none"
+              className="w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary/10 focus:border-brand-primary/50 transition-all outline-none"
               placeholder={defaultValues?.title || "Etkileyici bir başlık..."}
             />
           </div>
@@ -118,7 +118,7 @@ export default function SeoForm({ prefix = "", defaultValues, previewUrl = "meso
             <textarea
               {...register(`${prefix}description`)}
               rows={4}
-              className="w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500/50 transition-all outline-none resize-none"
+              className="w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary/10 focus:border-brand-primary/50 transition-all outline-none resize-none"
               placeholder={defaultValues?.description || "Sayfa içeriği özeti..."}
             />
           </div>
@@ -137,13 +137,13 @@ export default function SeoForm({ prefix = "", defaultValues, previewUrl = "meso
               value={ogImage}
               onChange={(url) => setValue(`${prefix}ogImage`, url, { shouldDirty: true })}
               previewType="video"
-              inputClass="w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm outline-none focus:border-indigo-500/50 transition-all"
+              inputClass="w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm outline-none focus:border-brand-primary/50 transition-all"
             />
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Anahtar Kelimeler</label>
-            <div className="flex flex-wrap gap-2 p-2 min-h-[46px] bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-xl focus-within:border-indigo-500/50 transition-all">
+            <div className="flex flex-wrap gap-2 p-2 min-h-[46px] bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-xl focus-within:border-brand-primary/50 transition-all">
               {keywords.map((kw: string) => (
                 <span key={kw} className="flex items-center gap-1.5 px-2 py-1 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 text-xs font-bold rounded-lg border border-zinc-200 dark:border-zinc-700 animate-in zoom-in-95">
                   {kw}
@@ -177,14 +177,14 @@ export default function SeoForm({ prefix = "", defaultValues, previewUrl = "meso
             <input
               type="checkbox"
               {...register(`${prefix}noIndex`)}
-              className="w-5 h-5 rounded-lg border-zinc-300 text-indigo-600 focus:ring-indigo-500/20 transition-all cursor-pointer accent-indigo-600"
+              className="w-5 h-5 rounded-lg border-zinc-300 text-brand-primary focus:ring-brand-primary/20 transition-all cursor-pointer accent-brand-primary"
             />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Canonical (Özgün) URL</label>
             <input
               {...register(`${prefix}canonicalUrl`)}
-              className="w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm outline-none focus:border-indigo-500/50 transition-all"
+              className="w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm outline-none focus:border-brand-primary/50 transition-all"
               placeholder="https://yoursite.com/original-path"
             />
           </div>

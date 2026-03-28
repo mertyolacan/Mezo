@@ -9,7 +9,7 @@ import NewTicketModal from "./NewTicketModal";
 export const dynamic = "force-dynamic";
 
 const statusConfig: Record<string, { label: string; class: string }> = {
-  open:        { label: "Açık",          class: "bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400" },
+  open:        { label: "Açık",          class: "bg-blue-100 text-brand-primary dark:bg-blue-950 dark:text-brand-primary" },
   in_progress: { label: "İşlemde",       class: "bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400" },
   resolved:    { label: "Çözüldü",       class: "bg-green-100 text-green-600 dark:bg-green-950 dark:text-green-400" },
   closed:      { label: "Kapatıldı",     class: "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400" },

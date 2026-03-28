@@ -63,7 +63,7 @@ export default function FaqManager({ initialFaqs }: { initialFaqs: Faq[] }) {
       {!showForm && (
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          className="flex items-center gap-2 bg-brand-primary hover:bg-brand-primary-light text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
         >
           <Plus className="h-4 w-4" /> Yeni SSS Ekle
         </button>
@@ -78,7 +78,7 @@ export default function FaqManager({ initialFaqs }: { initialFaqs: Faq[] }) {
               <input
                 value={form.question}
                 onChange={(e) => setForm((f) => ({ ...f, question: e.target.value }))}
-                className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
             </div>
             <div>
@@ -87,7 +87,7 @@ export default function FaqManager({ initialFaqs }: { initialFaqs: Faq[] }) {
                 rows={4}
                 value={form.answer}
                 onChange={(e) => setForm((f) => ({ ...f, answer: e.target.value }))}
-                className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -97,7 +97,7 @@ export default function FaqManager({ initialFaqs }: { initialFaqs: Faq[] }) {
                   value={form.category}
                   onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
                   placeholder="ör. Ürünler, Ödeme…"
-                  className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
                 />
               </div>
               <div>
@@ -106,7 +106,7 @@ export default function FaqManager({ initialFaqs }: { initialFaqs: Faq[] }) {
                   type="number"
                   value={form.sortOrder}
                   onChange={(e) => setForm((f) => ({ ...f, sortOrder: Number(e.target.value) }))}
-                  className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
                 />
               </div>
             </div>
@@ -116,7 +116,7 @@ export default function FaqManager({ initialFaqs }: { initialFaqs: Faq[] }) {
             </label>
           </div>
           <div className="flex gap-2">
-            <button onClick={submit} disabled={loading || !form.question || !form.answer} className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+            <button onClick={submit} disabled={loading || !form.question || !form.answer} className="flex items-center gap-1.5 bg-brand-primary hover:bg-brand-primary-light disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
               <Check className="h-3.5 w-3.5" /> {editId ? "Güncelle" : "Kaydet"}
             </button>
             <button onClick={cancel} className="flex items-center gap-1.5 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-sm px-4 py-2 rounded-lg transition-colors">
@@ -136,7 +136,7 @@ export default function FaqManager({ initialFaqs }: { initialFaqs: Faq[] }) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   {faq.category && (
-                    <span className="text-xs bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full">{faq.category}</span>
+                    <span className="text-xs bg-brand-primary/5 dark:bg-brand-primary/10/30 text-brand-primary dark:text-brand-primary px-2 py-0.5 rounded-full">{faq.category}</span>
                   )}
                   {!faq.isActive && <span className="text-xs text-zinc-400">Pasif</span>}
                 </div>

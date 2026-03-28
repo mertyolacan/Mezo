@@ -27,7 +27,7 @@ export default async function AdminCampaignsPage() {
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Kampanyalar</h1>
         <Link
           href="/admin/campaigns/new"
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          className="flex items-center gap-2 bg-brand-primary hover:bg-brand-primary-light text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
         >
           <Plus className="h-4 w-4" />
           Yeni Kampanya
@@ -58,7 +58,7 @@ export default async function AdminCampaignsPage() {
                   <td className="px-3 py-2.5 sm:px-4 sm:py-3">
                     <p className="font-medium text-zinc-900 dark:text-zinc-50">{c.name}</p>
                     {c.couponCode && (
-                      <code className="text-xs bg-zinc-100 dark:bg-zinc-800 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 rounded">
+                      <code className="text-xs bg-zinc-100 dark:bg-zinc-800 text-brand-primary dark:text-brand-primary px-1.5 py-0.5 rounded">
                         {c.couponCode}
                       </code>
                     )}

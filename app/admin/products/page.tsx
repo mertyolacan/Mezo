@@ -34,7 +34,7 @@ export default async function AdminProductsPage() {
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Ürünler</h1>
         <Link
           href="/admin/products/new"
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          className="flex items-center gap-2 bg-brand-primary hover:bg-brand-primary-light text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
         >
           <Plus className="h-4 w-4" />
           Yeni Ürün
@@ -45,7 +45,7 @@ export default async function AdminProductsPage() {
         <div className="flex flex-col items-center justify-center h-64 text-zinc-400 gap-3">
           <Package className="h-10 w-10" />
           <p className="text-sm">Henüz ürün yok</p>
-          <Link href="/admin/products/new" className="text-indigo-500 text-sm hover:underline">
+          <Link href="/admin/products/new" className="text-brand-primary text-sm hover:underline">
             İlk ürünü ekle
           </Link>
         </div>

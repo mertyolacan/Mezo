@@ -50,8 +50,8 @@ export default async function AdminSettingsPage() {
   return (
     <div className="space-y-6 max-w-4xl">
       <div className="flex items-center gap-3">
-        <div className="p-2.5 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-500/20">
-          <Settings className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+        <div className="p-2.5 bg-brand-primary/5 dark:bg-brand-primary/10/20 rounded-xl border border-indigo-100 dark:border-brand-primary/20">
+          <Settings className="h-5 w-5 text-brand-primary dark:text-brand-primary" />
         </div>
         <div>
           <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">Genel Ayarlar</h1>

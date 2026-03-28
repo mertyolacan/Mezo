@@ -67,7 +67,7 @@ export default async function AdminMessagesPage() {
               <div className="mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center gap-4">
                 <a
                   href={`mailto:${msg.email}?subject=Re: ${msg.subject}`}
-                  className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
+                  className="text-xs text-brand-primary dark:text-brand-primary hover:underline"
                 >
                   Yanıtla →
                 </a>

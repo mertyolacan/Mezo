@@ -50,7 +50,7 @@ export default async function AdminReviewsPage() {
               <Stars rating={review.rating} />
               <span className="text-xs text-zinc-400">{review.userName ?? "Anonim"}</span>
               <span className="text-xs text-zinc-300 dark:text-zinc-600">·</span>
-              <Link href={`/products/${review.productSlug}`} className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline truncate">
+              <Link href={`/products/${review.productSlug}`} className="text-xs text-brand-primary dark:text-brand-primary hover:underline truncate">
                 {review.productName}
               </Link>
             </div>

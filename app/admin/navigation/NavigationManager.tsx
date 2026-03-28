@@ -110,7 +110,7 @@ export default function NavigationManager({ initialMenus }: { initialMenus: NavM
   }
 
   const inputClass =
-    "w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition";
+    "w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-brand-primary transition";
 
   return (
     <div className="grid md:grid-cols-3 gap-6">
@@ -133,7 +133,7 @@ export default function NavigationManager({ initialMenus }: { initialMenus: NavM
             <button
               onClick={createMenu}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white text-sm font-semibold py-1.5 rounded-lg hover:bg-indigo-700 disabled:opacity-60 transition-colors"
+              className="w-full flex items-center justify-center gap-2 bg-brand-primary text-white text-sm font-semibold py-1.5 rounded-lg hover:bg-brand-primary-light disabled:opacity-60 transition-colors"
             >
               {loading && <Loader2 className="h-3 w-3 animate-spin" />}
               Oluştur
@@ -148,7 +148,7 @@ export default function NavigationManager({ initialMenus }: { initialMenus: NavM
               onClick={() => setSelectedMenuId(menu.id)}
               className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors ${
                 selectedMenuId === menu.id
-                  ? "bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-medium"
+                  ? "bg-brand-primary/5 dark:bg-brand-primary/10 text-brand-primary dark:text-brand-primary font-medium"
                   : "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800"
               }`}
             >
@@ -172,7 +172,7 @@ export default function NavigationManager({ initialMenus }: { initialMenus: NavM
               </h2>
               <button
                 onClick={() => setShowNewItem(!showNewItem)}
-                className="flex items-center gap-1.5 text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
+                className="flex items-center gap-1.5 text-sm text-brand-primary dark:text-brand-primary hover:underline"
               >
                 <Plus className="h-4 w-4" />
                 Öğe Ekle
@@ -203,7 +203,7 @@ export default function NavigationManager({ initialMenus }: { initialMenus: NavM
                   <button
                     onClick={addItem}
                     disabled={loading}
-                    className="flex items-center gap-2 bg-indigo-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-60 transition-colors"
+                    className="flex items-center gap-2 bg-brand-primary text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-brand-primary-light disabled:opacity-60 transition-colors"
                   >
                     {loading && <Loader2 className="h-3 w-3 animate-spin" />}
                     Ekle
@@ -216,7 +216,7 @@ export default function NavigationManager({ initialMenus }: { initialMenus: NavM
               {selectedMenu.items.map((item) => (
                 <div key={item.id}>
                   {editItem?.id === item.id ? (
-                    <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border-2 border-indigo-300 dark:border-indigo-700 space-y-3">
+                    <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border-2 border-indigo-300 dark:border-brand-primary space-y-3">
                       <div className="grid sm:grid-cols-2 gap-3">
                         <div>
                           <label className="block text-xs font-medium text-zinc-500 mb-1">Etiket</label>
@@ -236,7 +236,7 @@ export default function NavigationManager({ initialMenus }: { initialMenus: NavM
                           <option value="_self">Aynı sekme</option>
                           <option value="_blank">Yeni sekme</option>
                         </select>
-                        <button onClick={saveItem} disabled={loading || itemSaved} className={`flex items-center gap-2 text-white text-sm font-semibold px-4 py-2 rounded-lg disabled:opacity-60 transition-colors ${itemSaved ? "bg-green-500" : "bg-indigo-600 hover:bg-indigo-700"}`}>
+                        <button onClick={saveItem} disabled={loading || itemSaved} className={`flex items-center gap-2 text-white text-sm font-semibold px-4 py-2 rounded-lg disabled:opacity-60 transition-colors ${itemSaved ? "bg-green-500" : "bg-brand-primary hover:bg-brand-primary-light"}`}>
                           {loading && <Loader2 className="h-3 w-3 animate-spin" />}
                           {!loading && itemSaved && <Check className="h-3 w-3" />}
                           {itemSaved ? "Kaydedildi!" : "Kaydet"}
@@ -255,7 +255,7 @@ export default function NavigationManager({ initialMenus }: { initialMenus: NavM
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => setEditItem(item)}
-                          className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline px-2"
+                          className="text-xs text-brand-primary dark:text-brand-primary hover:underline px-2"
                         >
                           Düzenle
                         </button>

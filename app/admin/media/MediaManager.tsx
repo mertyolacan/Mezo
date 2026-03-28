@@ -86,7 +86,7 @@ export default function MediaManager() {
     <div className="space-y-6">
       {/* Upload zone */}
       <div
-        className="border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl p-8 text-center cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-600 transition-colors"
+        className="border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl p-8 text-center cursor-pointer hover:border-brand-primary dark:hover:border-brand-primary transition-colors"
         onClick={() => fileRef.current?.click()}
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => { e.preventDefault(); handleUpload(e.dataTransfer.files); }}
@@ -101,7 +101,7 @@ export default function MediaManager() {
         />
         {uploading ? (
           <div className="flex flex-col items-center gap-2 text-zinc-500">
-            <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+            <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
             <p className="text-sm">Yükleniyor...</p>
           </div>
         ) : (
@@ -119,7 +119,7 @@ export default function MediaManager() {
         <input
           value={folder}
           onChange={(e) => setFolder(e.target.value)}
-          className="rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-1.5 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition w-48"
+          className="rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-1.5 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-brand-primary transition w-48"
         />
         <button
           onClick={() => { setItems([]); setNextCursor(null); loadImages(); }}

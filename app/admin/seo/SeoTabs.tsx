@@ -50,7 +50,7 @@ export default function SeoTabs({ globalData, pages, seoMap }: Props) {
                   : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
               }`}
             >
-              <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-indigo-600 dark:text-indigo-400" : ""}`} />
+              <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-brand-primary dark:text-brand-primary" : ""}`} />
               <span className="hidden sm:inline">{tab.label}</span>
               <span className="sm:hidden">{tab.shortLabel}</span>
             </button>

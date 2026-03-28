@@ -6,9 +6,9 @@ import { updateOrderStatus } from "./actions";
 
 const statusOptions: Record<string, { label: string; cls: string }> = {
   pending:    { label: "Bekliyor",      cls: "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300" },
-  confirmed:  { label: "Onaylandı",    cls: "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300" },
+  confirmed:  { label: "Onaylandı",    cls: "bg-blue-100 dark:bg-blue-900/40 text-brand-primary dark:text-blue-300" },
   processing: { label: "Hazırlanıyor", cls: "bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300" },
-  shipped:    { label: "Kargoda",      cls: "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300" },
+  shipped:    { label: "Kargoda",      cls: "bg-brand-primary/10 dark:bg-brand-primary/10/40 text-brand-primary dark:text-brand-primary" },
   delivered:  { label: "Teslim Edildi",cls: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300" },
   cancelled:  { label: "İptal",        cls: "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300" },
 };
@@ -61,7 +61,7 @@ export default function ChangeOrderStatusButton({ orderId, status }: { orderId: 
                 onClick={() => change(key)}
                 className={`w-full text-left text-xs px-3 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors ${
                   key === current
-                    ? "font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30"
+                    ? "font-semibold text-brand-primary dark:text-brand-primary bg-brand-primary/5 dark:bg-brand-primary/10/30"
                     : "text-zinc-700 dark:text-zinc-300"
                 }`}
               >

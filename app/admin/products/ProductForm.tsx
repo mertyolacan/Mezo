@@ -136,7 +136,7 @@ export default function ProductForm({ categories, brands, allProducts = [], init
 
   const removeTag = (tag: string) => setValue("tags", tags.filter((t: string) => t !== tag));
 
-  const inputClass = "w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none";
+  const inputClass = "w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all outline-none";
   const labelClass = "block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5";
 
   return (
@@ -161,13 +161,13 @@ export default function ProductForm({ categories, brands, allProducts = [], init
             <section className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6 pb-4 border-b border-zinc-100 dark:border-zinc-800">
                 <div className="flex items-center gap-2">
-                  <Images className="h-4 w-4 text-indigo-500" />
+                  <Images className="h-4 w-4 text-brand-primary" />
                   <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-widest">Ürün Resimleri</h2>
                 </div>
                 <button
                   type="button"
                   onClick={() => setPickerOpen(true)}
-                  className="text-xs font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 transition-colors uppercase tracking-wider"
+                  className="text-xs font-bold text-brand-primary hover:text-brand-primary dark:text-brand-primary transition-colors uppercase tracking-wider"
                 >
                   Medyadan Seç
                 </button>
@@ -178,12 +178,12 @@ export default function ProductForm({ categories, brands, allProducts = [], init
                   <div
                     key={url}
                     className={`relative aspect-square rounded-2xl overflow-hidden border-2 transition-all group ${
-                      i === 0 ? "border-indigo-500 shadow-lg shadow-indigo-500/10" : "border-zinc-100 dark:border-zinc-800 hover:border-indigo-300"
+                      i === 0 ? "border-brand-primary shadow-lg shadow-indigo-500/10" : "border-zinc-100 dark:border-zinc-800 hover:border-indigo-300"
                     }`}
                   >
                     <Image src={url} alt={`Ürün ${i}`} fill className="object-contain p-2" sizes="200px" />
                     {i === 0 && (
-                      <div className="absolute top-2 left-2 bg-indigo-600 text-[9px] font-bold text-white px-2 py-0.5 rounded-full uppercase tracking-tighter">
+                      <div className="absolute top-2 left-2 bg-brand-primary text-[9px] font-bold text-white px-2 py-0.5 rounded-full uppercase tracking-tighter">
                         Kapak
                       </div>
                     )}
@@ -204,9 +204,9 @@ export default function ProductForm({ categories, brands, allProducts = [], init
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
-                  className="aspect-square rounded-2xl border-2 border-dashed border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center gap-2 text-zinc-400 hover:border-indigo-400 hover:text-indigo-500 transition-all bg-zinc-50/30 dark:bg-zinc-800/10"
+                  className="aspect-square rounded-2xl border-2 border-dashed border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center gap-2 text-zinc-400 hover:border-brand-primary hover:text-brand-primary transition-all bg-zinc-50/30 dark:bg-zinc-800/10"
                 >
-                  {uploading ? <Loader2 className="h-6 w-6 animate-spin text-indigo-500" /> : <Plus className="h-6 w-6" />}
+                  {uploading ? <Loader2 className="h-6 w-6 animate-spin text-brand-primary" /> : <Plus className="h-6 w-6" />}
                   <span className="text-[10px] font-bold uppercase tracking-wider">{uploading ? "Yükleniyor" : "Yeni Ekle"}</span>
                 </button>
               </div>
@@ -357,7 +357,7 @@ export default function ProductForm({ categories, brands, allProducts = [], init
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" {...register("isFeatured")} className="sr-only peer" />
-                    <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-indigo-600"></div>
+                    <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-brand-primary"></div>
                   </label>
                 </div>
 

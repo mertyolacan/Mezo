@@ -18,7 +18,7 @@ function FailedContent() {
       <p className="text-sm text-zinc-500 mb-6">{error}</p>
       <Link
         href="/checkout"
-        className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-6 py-3 rounded-xl transition-colors"
+        className="inline-flex items-center gap-2 bg-brand-primary hover:bg-brand-primary-light text-white text-sm font-semibold px-6 py-3 rounded-xl transition-colors"
       >
         Tekrar Dene
       </Link>

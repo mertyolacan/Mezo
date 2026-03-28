@@ -28,7 +28,7 @@ async function AdminLoginForm({
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-            Meso<span className="text-indigo-500">Pro</span>
+            Meso<span className="text-brand-primary">Pro</span>
           </h1>
           <p className="text-sm text-zinc-500 mt-1">Admin Paneli</p>
         </div>
@@ -48,7 +48,7 @@ async function AdminLoginForm({
                 type="email"
                 name="email"
                 required
-                className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2.5 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2.5 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-brand-primary transition"
                 placeholder="admin@mesopro.com"
               />
             </div>
@@ -60,13 +60,13 @@ async function AdminLoginForm({
                 type="password"
                 name="password"
                 required
-                className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2.5 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2.5 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-brand-primary transition"
                 placeholder="••••••••"
               />
             </div>
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-2.5 rounded-lg transition-colors"
+              className="w-full flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary-light text-white text-sm font-medium py-2.5 rounded-lg transition-colors"
             >
               Giriş Yap
             </button>

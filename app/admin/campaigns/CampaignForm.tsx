@@ -23,15 +23,15 @@ const campaignTypes = [
 ];
 
 const colorMap: Record<string, string> = {
-  indigo: "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300",
-  blue:   "border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300",
+  indigo: "border-brand-primary bg-brand-primary/5 dark:bg-brand-primary/10/40 text-brand-primary dark:text-brand-primary",
+  blue:   "border-brand-primary bg-blue-50 dark:bg-blue-950/40 text-brand-primary dark:text-blue-300",
   violet: "border-violet-500 bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300",
   purple: "border-purple-500 bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300",
   pink:   "border-pink-500 bg-pink-50 dark:bg-pink-950/40 text-pink-700 dark:text-pink-300",
   orange: "border-orange-500 bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300",
 };
 const iconColorMap: Record<string, string> = {
-  indigo: "text-indigo-500", blue: "text-blue-500", violet: "text-violet-500",
+  indigo: "text-brand-primary", blue: "text-brand-primary", violet: "text-violet-500",
   purple: "text-purple-500", pink: "text-pink-500", orange: "text-orange-500",
 };
 
@@ -143,7 +143,7 @@ export default function CampaignForm({ categories, products, initialData, campai
     }
   }
 
-  const inputClass = "w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition";
+  const inputClass = "w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-brand-primary transition";
   const labelClass = "block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1";
   const hintClass  = "text-xs text-zinc-400 dark:text-zinc-500 mt-1";
 
@@ -212,10 +212,10 @@ export default function CampaignForm({ categories, products, initialData, campai
             </div>
             {form.couponCode && (
               <div className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg border border-dashed border-zinc-300 dark:border-zinc-600">
-                <Tag className="h-4 w-4 text-indigo-500 shrink-0" />
+                <Tag className="h-4 w-4 text-brand-primary shrink-0" />
                 <div>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">Müşteri şu kodu kullanacak:</p>
-                  <p className="text-lg font-mono font-bold tracking-widest text-indigo-600 dark:text-indigo-400">{form.couponCode}</p>
+                  <p className="text-lg font-mono font-bold tracking-widest text-brand-primary dark:text-brand-primary">{form.couponCode}</p>
                 </div>
               </div>
             )}
@@ -241,9 +241,9 @@ export default function CampaignForm({ categories, products, initialData, campai
                   <p className="font-semibold text-zinc-700 dark:text-zinc-300">{Number(form.minAmount) - 1}₺</p>
                   <p className="text-red-400 mt-0.5">İndirim yok</p>
                 </div>
-                <div className="p-2 bg-indigo-50 dark:bg-indigo-950/40 rounded-lg border border-indigo-200 dark:border-indigo-800">
-                  <p className="text-indigo-400">Sepet</p>
-                  <p className="font-semibold text-indigo-700 dark:text-indigo-300">{form.minAmount}₺</p>
+                <div className="p-2 bg-brand-primary/5 dark:bg-brand-primary/10/40 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                  <p className="text-brand-primary">Sepet</p>
+                  <p className="font-semibold text-brand-primary dark:text-brand-primary">{form.minAmount}₺</p>
                   <p className="text-green-500 mt-0.5">İndirim aktif ✓</p>
                 </div>
                 <div className="p-2 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
@@ -457,7 +457,7 @@ export default function CampaignForm({ categories, products, initialData, campai
                 onClick={() => { set("discountType", opt.type); set("discountValue", opt.value); }}
                 className={`flex-1 py-2.5 rounded-lg border-2 text-sm font-medium transition-all ${
                   (opt.value === "100" && Number(form.discountValue) === 100) || (opt.value === "" && Number(form.discountValue) !== 100)
-                    ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300"
+                    ? "border-brand-primary bg-brand-primary/5 dark:bg-brand-primary/10/40 text-brand-primary dark:text-brand-primary"
                     : "border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400"
                 }`}>
                 {opt.label}
@@ -511,11 +511,11 @@ export default function CampaignForm({ categories, products, initialData, campai
 
       {/* Kampanya Özeti */}
       {form.discountValue && (
-        <div className="flex gap-2 p-4 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-xl">
-          <Info className="h-4 w-4 text-indigo-500 shrink-0 mt-0.5" />
+        <div className="flex gap-2 p-4 bg-brand-primary/5 dark:bg-brand-primary/10/40 border border-indigo-200 dark:border-indigo-800 rounded-xl">
+          <Info className="h-4 w-4 text-brand-primary shrink-0 mt-0.5" />
           <div>
-            <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 mb-0.5">Kampanya Özeti</p>
-            <p className="text-sm text-indigo-600 dark:text-indigo-400">{buildSummary()}</p>
+            <p className="text-xs font-semibold text-brand-primary dark:text-brand-primary mb-0.5">Kampanya Özeti</p>
+            <p className="text-sm text-brand-primary dark:text-brand-primary">{buildSummary()}</p>
           </div>
         </div>
       )}
@@ -547,14 +547,14 @@ export default function CampaignForm({ categories, products, initialData, campai
         </div>
         <div className="space-y-3 pt-2 border-t border-zinc-100 dark:border-zinc-800">
           <label className="flex items-center gap-3 cursor-pointer">
-            <input type="checkbox" checked={form.isActive} onChange={(e) => set("isActive", e.target.checked)} className="w-4 h-4 accent-indigo-600" />
+            <input type="checkbox" checked={form.isActive} onChange={(e) => set("isActive", e.target.checked)} className="w-4 h-4 accent-brand-primary" />
             <div>
               <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Kampanyayı Aktif Et</span>
               <p className={hintClass}>Pasif kampanyalar kasada uygulanmaz.</p>
             </div>
           </label>
           <label className="flex items-center gap-3 cursor-pointer">
-            <input type="checkbox" checked={form.isStackable} onChange={(e) => set("isStackable", e.target.checked)} className="w-4 h-4 accent-indigo-600" />
+            <input type="checkbox" checked={form.isStackable} onChange={(e) => set("isStackable", e.target.checked)} className="w-4 h-4 accent-brand-primary" />
             <div>
               <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Diğer Kampanyalarla Birleştirilebilir</span>
               <p className={hintClass}>İşaretliyse müşteri aynı siparişte birden fazla kampanyadan faydalanabilir.</p>
@@ -565,7 +565,7 @@ export default function CampaignForm({ categories, products, initialData, campai
 
       <div className="flex gap-3">
         <button type="submit" disabled={loading}
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-medium px-6 py-2.5 rounded-lg transition-colors">
+          className="flex items-center gap-2 bg-brand-primary hover:bg-brand-primary-light disabled:opacity-60 text-white text-sm font-medium px-6 py-2.5 rounded-lg transition-colors">
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
           {!loading && saved && <Check className="h-4 w-4" />}
           {saved ? "Kaydedildi!" : campaignId ? "Güncelle" : "Kampanyayı Kaydet"}

@@ -42,7 +42,7 @@ const MenuButton = ({
     title={title}
     className={`p-1.5 rounded-md transition-colors ${
       active 
-        ? "bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400" 
+        ? "bg-brand-primary/10 dark:bg-brand-primary/10 text-brand-primary dark:text-brand-primary" 
         : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
     } disabled:opacity-30`}
   >
@@ -102,7 +102,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
   };
 
   return (
-    <div className="rich-text-editor w-full border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden bg-white dark:bg-zinc-900 group focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
+    <div className="rich-text-editor w-full border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden bg-white dark:bg-zinc-900 group focus-within:ring-2 focus-within:ring-brand-primary/20 focus-within:border-brand-primary transition-all">
       {/* Media Picker Modal */}
       <MediaPickerModal 
         open={showMediaPicker}

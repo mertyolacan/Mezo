@@ -59,7 +59,7 @@ export default function AddToCartButton({ product, disabled }: { product: Produc
             ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed"
             : added
             ? "bg-green-500 text-white"
-            : "bg-indigo-600 hover:bg-indigo-700 text-white active:scale-95"
+            : "bg-brand-primary hover:bg-brand-primary-light text-white active:scale-95"
         }`}
       >
         {added ? <Check className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}

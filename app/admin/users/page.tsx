@@ -62,7 +62,7 @@ export default async function AdminUsersPage({
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
-            <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <Users className="h-5 w-5 text-brand-primary dark:text-brand-primary" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">Kullanıcılar</h1>
@@ -77,7 +77,7 @@ export default async function AdminUsersPage({
           name="q"
           defaultValue={q}
           placeholder="Ad veya e-posta ile ara..."
-          className="w-full max-w-sm pl-10 pr-4 py-2.5 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+          className="w-full max-w-sm pl-10 pr-4 py-2.5 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-brand-primary transition"
         />
       </form>
 
@@ -133,7 +133,7 @@ export default async function AdminUsersPage({
                   <td className="px-3 py-2.5 sm:px-5 sm:py-3 text-right whitespace-nowrap">
                     <Link
                       href={`/admin/users/${user.id}`}
-                      className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
+                      className="text-xs text-brand-primary dark:text-brand-primary hover:underline"
                     >
                       Detay →
                     </Link>
@@ -158,7 +158,7 @@ export default async function AdminUsersPage({
               href={`/admin/users?page=${p}${q ? `&q=${q}` : ""}`}
               className={`h-8 w-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
                 p === page
-                  ? "bg-indigo-600 text-white"
+                  ? "bg-brand-primary text-white"
                   : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:border-indigo-300"
               }`}
             >

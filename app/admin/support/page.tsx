@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 const statusMap: Record<string, { label: string; cls: string }> = {
   open: { label: "Açık", cls: "bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300" },
-  in_progress: { label: "İşlemde", cls: "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" },
+  in_progress: { label: "İşlemde", cls: "bg-blue-100 dark:bg-blue-900 text-brand-primary dark:text-blue-300" },
   resolved: { label: "Çözüldü", cls: "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300" },
   closed: { label: "Kapalı", cls: "bg-zinc-100 dark:bg-zinc-800 text-zinc-500" },
 };
@@ -84,7 +84,7 @@ export default async function AdminSupportPage() {
                   <td className="px-3 py-2.5 sm:px-4 sm:py-3 whitespace-nowrap">
                     <Link
                       href={`/admin/support/${ticket.id}`}
-                      className="p-1.5 rounded-lg text-zinc-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950 transition-colors inline-flex"
+                      className="p-1.5 rounded-lg text-zinc-400 hover:text-brand-primary hover:bg-brand-primary/5 dark:hover:bg-brand-primary/20 transition-colors inline-flex"
                     >
                       <Eye className="h-4 w-4" />
                     </Link>

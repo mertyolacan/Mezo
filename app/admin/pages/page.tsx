@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 const statusMap: Record<string, { label: string; cls: string }> = {
   draft: { label: "Taslak", cls: "bg-zinc-100 dark:bg-zinc-800 text-zinc-500" },
   published: { label: "Yayında", cls: "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300" },
-  scheduled: { label: "Zamanlandı", cls: "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" },
+  scheduled: { label: "Zamanlandı", cls: "bg-blue-100 dark:bg-blue-900 text-brand-primary dark:text-blue-300" },
 };
 
 export default async function AdminPagesPage() {
@@ -25,7 +25,7 @@ export default async function AdminPagesPage() {
         <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">Sayfalar</h1>
         <Link
           href="/admin/pages/new"
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+          className="flex items-center gap-2 bg-brand-primary hover:bg-brand-primary-light text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
         >
           <Plus className="h-4 w-4" />
           Yeni Sayfa
@@ -56,7 +56,7 @@ export default async function AdminPagesPage() {
                     <div className="flex items-center justify-end gap-2">
                       <Link
                         href={`/admin/pages/${page.id}`}
-                        className="p-1.5 rounded-lg text-zinc-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950 transition-colors"
+                        className="p-1.5 rounded-lg text-zinc-400 hover:text-brand-primary hover:bg-brand-primary/5 dark:hover:bg-brand-primary/20 transition-colors"
                       >
                         <Pencil className="h-4 w-4" />
                       </Link>

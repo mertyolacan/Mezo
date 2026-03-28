@@ -46,7 +46,7 @@ export default async function DynamicPage({ params }: Props) {
                   {section.data.title && <h1 className="text-4xl font-bold text-white mb-3">{section.data.title}</h1>}
                   {section.data.subtitle && <p className="text-lg text-zinc-200 mb-6">{section.data.subtitle}</p>}
                   {section.data.buttonText && section.data.buttonUrl && (
-                    <a href={section.data.buttonUrl} className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors">
+                    <a href={section.data.buttonUrl} className="inline-block bg-brand-primary hover:bg-brand-primary-light text-white font-semibold px-6 py-3 rounded-lg transition-colors">
                       {section.data.buttonText}
                     </a>
                   )}
@@ -92,11 +92,11 @@ export default async function DynamicPage({ params }: Props) {
 
           case "cta":
             return (
-              <section key={i} className="bg-indigo-600 dark:bg-indigo-700 py-16 px-4 text-center">
+              <section key={i} className="bg-brand-primary dark:bg-brand-primary-light py-16 px-4 text-center">
                 {section.data.text && <h2 className="text-3xl font-bold text-white mb-3">{section.data.text}</h2>}
                 {section.data.description && <p className="text-indigo-100 mb-8 max-w-xl mx-auto">{section.data.description}</p>}
                 {section.data.buttonText && section.data.buttonUrl && (
-                  <a href={section.data.buttonUrl} className="inline-block bg-white text-indigo-600 font-semibold px-8 py-3 rounded-lg hover:bg-indigo-50 transition-colors">
+                  <a href={section.data.buttonUrl} className="inline-block bg-white text-brand-primary font-semibold px-8 py-3 rounded-lg hover:bg-brand-primary/5 transition-colors">
                     {section.data.buttonText}
                   </a>
                 )}

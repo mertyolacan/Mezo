@@ -33,7 +33,7 @@ export default function ProductImageGallery({ images, name, discount }: Props) {
           </div>
         )}
         {discount && (
-          <span className="absolute top-4 left-4 bg-indigo-600 text-white text-sm font-bold px-2 py-1 rounded-lg shadow-sm">
+          <span className="absolute top-4 left-4 bg-brand-primary text-white text-sm font-bold px-2 py-1 rounded-lg shadow-sm">
             -{discount}%
           </span>
         )}
@@ -49,7 +49,7 @@ export default function ProductImageGallery({ images, name, discount }: Props) {
               onClick={() => setActive(i)}
               className={`relative h-20 w-20 shrink-0 rounded-xl overflow-hidden border-2 transition-all ${
                 active === i
-                  ? "border-indigo-500 ring-2 ring-indigo-200 dark:ring-indigo-800"
+                  ? "border-brand-primary ring-2 ring-indigo-200 dark:ring-indigo-800"
                   : "border-zinc-100 dark:border-zinc-800 opacity-60 hover:opacity-100"
               }`}
             >

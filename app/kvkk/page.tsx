@@ -90,7 +90,7 @@ export default function KvkkPage() {
           <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-3">8. İletişim</h2>
           <p className="text-zinc-600 dark:text-zinc-400">
             KVKK kapsamındaki talepleriniz için{" "}
-            <a href="/contact" className="text-indigo-600 dark:text-indigo-400 hover:underline">
+            <a href="/contact" className="text-brand-primary dark:text-brand-primary hover:underline">
               iletişim formumuz
             </a>{" "}
             aracılığıyla bize ulaşabilirsiniz.

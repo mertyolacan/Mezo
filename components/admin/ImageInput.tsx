@@ -26,7 +26,7 @@ export default function ImageInput({
 
   const baseInput =
     inputClass ||
-    "w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none";
+    "w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all outline-none";
 
   return (
     <>
@@ -43,7 +43,7 @@ export default function ImageInput({
             type="button"
             onClick={() => setOpen(true)}
             title="Medya kütüphanesinden seç"
-            className="shrink-0 flex items-center gap-1.5 px-3 py-2 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs font-semibold rounded-xl hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-600 dark:hover:bg-indigo-500/10 dark:hover:border-indigo-500/30 dark:hover:text-indigo-400 transition-all"
+            className="shrink-0 flex items-center gap-1.5 px-3 py-2 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs font-semibold rounded-xl hover:bg-brand-primary/5 hover:border-indigo-300 hover:text-brand-primary dark:hover:bg-brand-primary/10 dark:hover:border-brand-primary/30 dark:hover:text-brand-primary transition-all"
           >
             <ImageIcon className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Medya</span>

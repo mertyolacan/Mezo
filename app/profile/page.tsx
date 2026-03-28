@@ -20,8 +20,8 @@ export default async function ProfilePage() {
 
       {/* Profil kartı */}
       <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 flex items-center gap-4">
-        <div className="h-14 w-14 rounded-full bg-indigo-100 dark:bg-indigo-950 flex items-center justify-center shrink-0">
-          <User className="h-7 w-7 text-indigo-500" />
+        <div className="h-14 w-14 rounded-full bg-brand-primary/10 dark:bg-brand-primary/10 flex items-center justify-center shrink-0">
+          <User className="h-7 w-7 text-brand-primary" />
         </div>
         <div>
           <p className="font-semibold text-zinc-900 dark:text-zinc-50">{user?.name ?? "Kullanıcı"}</p>
@@ -33,8 +33,8 @@ export default async function ProfilePage() {
       {/* İstatistikler */}
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5 flex items-center gap-4">
-          <div className="h-10 w-10 rounded-lg bg-indigo-50 dark:bg-indigo-950 flex items-center justify-center">
-            <ShoppingBag className="h-5 w-5 text-indigo-500" />
+          <div className="h-10 w-10 rounded-lg bg-brand-primary/5 dark:bg-brand-primary/10 flex items-center justify-center">
+            <ShoppingBag className="h-5 w-5 text-brand-primary" />
           </div>
           <div>
             <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{orderCount}</p>

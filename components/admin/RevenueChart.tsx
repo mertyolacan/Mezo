@@ -67,7 +67,7 @@ export default function RevenueChart() {
               onClick={() => setPeriod(p)}
               className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
                 period === p
-                  ? "bg-indigo-600 text-white"
+                  ? "bg-brand-primary text-white"
                   : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
               }`}
             >
