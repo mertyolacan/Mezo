@@ -29,7 +29,7 @@ export default function ProductTabs({ description, productId, isLoggedIn }: Prop
             onClick={() => setActive(t.key)}
             className={`px-6 py-4 text-sm font-medium border-b-2 -mb-px transition-colors ${
               active === t.key
-                ? "border-indigo-500 text-indigo-600 dark:text-indigo-400"
+                ? "border-brand-primary text-brand-primary"
                 : "border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
             }`}
           >

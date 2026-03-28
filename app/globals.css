@@ -71,7 +71,7 @@ body {
 
 /* ─── Selection ──────────────────────────────────────────────────── */
 ::selection {
-  background: #818cf8;
+  background: var(--primary-color);
   color: #fff;
 }
 

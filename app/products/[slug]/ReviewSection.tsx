@@ -108,7 +108,7 @@ export default function ReviewSection({ productId, isLoggedIn, compact = false }
               onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
               placeholder="Başlık (isteğe bağlı)"
               maxLength={255}
-              className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:border-brand-primary transition-colors"
             />
           </div>
 
@@ -119,7 +119,7 @@ export default function ReviewSection({ productId, isLoggedIn, compact = false }
               placeholder="Deneyiminizi paylaşın..."
               rows={3}
               required
-              className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+              className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:border-brand-primary transition-colors resize-none"
             />
           </div>
 
@@ -128,7 +128,7 @@ export default function ReviewSection({ productId, isLoggedIn, compact = false }
           <button
             type="submit"
             disabled={submitting}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors"
+            className="flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary/90 disabled:opacity-50 text-white text-sm font-bold px-6 py-2.5 rounded-btn transition-colors tracking-wide mt-2"
           >
             {submitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
             Gönder
@@ -145,7 +145,7 @@ export default function ReviewSection({ productId, isLoggedIn, compact = false }
       {!isLoggedIn && (
         <p className="mb-8 text-sm text-zinc-400">
           Değerlendirme yazmak için{" "}
-          <a href="/login" className="text-indigo-600 dark:text-indigo-400 hover:underline">giriş yapın</a>.
+          <a href="/login" className="text-brand-primary font-medium hover:underline">giriş yapın</a>.
         </p>
       )}
 
