@@ -23,10 +23,10 @@ export async function GET(req: NextRequest) {
     .from(products)
     .where(inArray(products.id, cartIds));
 
-  // Collect unique cross-sell IDs, excluding items already in cart
+  // Collect all unique cross-sell IDs
   const crossSellSet = new Set<number>();
   for (const p of cartProducts) {
-    for (const id of p.crossSellIds ?? []) {
+    for (const id of (p.crossSellIds as number[]) ?? []) {
       if (!cartIds.includes(id)) crossSellSet.add(id);
     }
   }
@@ -47,5 +47,15 @@ export async function GET(req: NextRequest) {
     .from(products)
     .where(and(inArray(products.id, [...crossSellSet]), eq(products.isActive, true)));
 
-  return NextResponse.json({ data: crossSellProducts });
+  // Map them back to the source cart item
+  const mappedData = cartProducts.map(cp => {
+    const ids = (cp.crossSellIds as number[]) ?? [];
+    const suggestions = crossSellProducts.filter(csp => ids.includes(csp.id) && !cartIds.includes(csp.id));
+    return {
+      sourceId: cp.id,
+      products: suggestions
+    };
+  }).filter(item => item.products.length > 0);
+
+  return NextResponse.json({ data: mappedData });
 }

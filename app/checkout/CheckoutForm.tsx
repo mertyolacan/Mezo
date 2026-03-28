@@ -9,6 +9,7 @@ import { formatPrice } from "@/lib/utils";
 import {
   ShoppingBag, Loader2, Tag, CheckCircle2, Minus, Plus, Trash2,
   User, MapPin, FileText, Banknote, ChevronRight, Package, CreditCard, Sparkles,
+  X, ChevronUp, ChevronDown
 } from "lucide-react";
 import { evaluateCampaignsClient } from "@/lib/campaign-engine-client";
 import type { ClientCampaign } from "@/lib/campaign-engine-client";
@@ -42,6 +43,7 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "card">(codEnabled ? "cod" : "card");
   const [savedAddresses] = useState<SavedAddress[]>(initialAddresses);
   const [crossSells, setCrossSells] = useState<{ id: number; name: string; slug: string; price: unknown; comparePrice: unknown; images: unknown }[]>([]);
+  const [isMobileSummaryOpen, setIsMobileSummaryOpen] = useState(false);
 
   // Form — server-side verilerle önceden doldurulmuş, useEffect yok
   const defaultAddr = initialAddresses.find((a) => a.isDefault) ?? initialAddresses[0];
@@ -223,7 +225,7 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
 
         {/* ── Form ─────────────────────────────────────────────── */}
-        <form onSubmit={handleSubmit} className="lg:col-span-3 space-y-5">
+        <form id="checkout-form" onSubmit={handleSubmit} className="lg:col-span-3 space-y-5">
           {error && (
             <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm px-4 py-3 rounded-xl">
               {error}
@@ -380,7 +382,7 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-between gap-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white font-semibold py-4 px-6 rounded-2xl transition-colors"
+            className="hidden lg:flex w-full items-center justify-between gap-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white font-semibold py-4 px-6 rounded-2xl transition-colors"
           >
             <span className="flex items-center gap-2">
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -395,164 +397,113 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
         {/* ── Sipariş Özeti ─────────────────────────────────────── */}
         <div className="lg:col-span-2 lg:sticky lg:top-20 space-y-4">
 
-          {/* Birlikte Alınan Ürünler */}
-          {crossSells.length > 0 && (
-            <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-              <div className="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-indigo-500 shrink-0" />
-                <h2 className="font-semibold text-zinc-900 dark:text-zinc-50 text-sm">Birlikte Alınan Ürünler</h2>
-              </div>
-              <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
-                {crossSells.map((cs) => {
-                  const imgs = cs.images as string[];
-                  const price = Number(cs.price);
-                  const comparePrice = cs.comparePrice ? Number(cs.comparePrice) : null;
-                  const inCart = items.some((i) => i.id === cs.id);
-                  return (
-                    <div key={cs.id} className="flex items-center gap-3 px-4 py-3">
-                      <Link href={`/products/${cs.slug}`} className="relative h-12 w-12 shrink-0 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800">
-                        {imgs[0] ? (
-                          <Image src={imgs[0]} alt={cs.name} fill className="object-contain" sizes="48px" />
-                        ) : (
-                          <Package className="h-5 w-5 text-zinc-300 absolute inset-0 m-auto" />
-                        )}
-                      </Link>
-                      <div className="flex-1 min-w-0">
-                        <Link href={`/products/${cs.slug}`} className="text-xs font-medium text-zinc-800 dark:text-zinc-100 line-clamp-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-                          {cs.name}
-                        </Link>
-                        <div className="flex items-baseline gap-1.5 mt-0.5">
-                          <span className="text-xs font-bold text-zinc-900 dark:text-zinc-50">{formatPrice(price)}</span>
-                          {comparePrice && <span className="text-[10px] text-zinc-400 line-through">{formatPrice(comparePrice)}</span>}
-                        </div>
-                      </div>
-                      {inCart ? (
-                        <span className="flex items-center gap-1 text-[10px] font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950 px-2 py-1 rounded-full shrink-0">
-                          <CheckCircle2 className="h-3 w-3" /> Sepette
-                        </span>
+
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 sm:rounded-[2rem] rounded-2xl p-5 sm:p-6 shadow-xl shadow-zinc-200/30 dark:shadow-none">
+
+            <h2 className="text-lg font-black mb-5 sm:mb-6 flex items-center gap-2 text-zinc-900 dark:text-zinc-50">
+              <ShoppingBag className="h-5 w-5 text-indigo-500" /> Sipariş Özeti
+            </h2>
+
+            <div className="divide-y divide-zinc-100 dark:divide-zinc-800/50 border-b border-zinc-100 dark:border-zinc-800 mb-6">
+              {items.map((item) => {
+                const itemApplied = applied.flatMap(a => {
+                    const original = activeCampaigns.find(c => c.id === a.id);
+                    const isRelevant = (original?.productId == null && original?.categoryId == null) || (original?.productId != null && original?.productId === item.id) || (original?.categoryId != null && original?.categoryId === item.categoryId);
+                    return isRelevant ? [{ ...original, badge: a.name }] : [];
+                }).reduce((acc, curr) => {
+                    if (!acc.find(x => x?.name === curr?.name)) acc.push(curr);
+                    return acc;
+                }, [] as any[]);
+
+                const itemTotal = item.price * item.quantity;
+                const itemDiscountShare = total > 0 ? (itemTotal / total) * totalDiscount : 0;
+                const itemFinalTotal = Math.max(0, itemTotal - itemDiscountShare);
+
+                return (
+                  <div key={item.id} className="flex gap-4 py-4">
+                    <div className="relative h-16 w-16 shrink-0 rounded-2xl overflow-hidden bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 flex items-center justify-center">
+                      {item.image ? (
+                        <Image src={item.image} alt={item.name} fill className="object-contain p-2" sizes="64px" />
                       ) : (
-                        <button
-                          type="button"
-                          onClick={() => addCrossSellToCart(cs)}
-                          className="flex items-center gap-1 text-[10px] font-semibold bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1.5 rounded-lg transition-colors shrink-0"
-                        >
-                          <Plus className="h-3 w-3" /> Ekle
-                        </button>
+                        <Package className="h-6 w-6 text-zinc-300" />
                       )}
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
 
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-
-            <div className="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800">
-              <h2 className="font-semibold text-zinc-900 dark:text-zinc-50 text-sm">Sipariş Özeti</h2>
-            </div>
-
-            <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
-              {items.map((item) => (
-                <div key={item.id} className="flex gap-3 px-5 py-4">
-                  <div className="relative h-16 w-16 shrink-0 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800">
-                    {item.image ? (
-                      <Image src={item.image} alt={item.name} fill className="object-contain" sizes="64px" />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Package className="h-6 w-6 text-zinc-300" />
+                    <div className="flex-1 min-w-0 flex flex-col py-0.5 justify-between">
+                      <div>
+                        <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100 line-clamp-2 leading-snug">
+                          {item.name}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded-md">
+                            {item.quantity} Adet
+                          </span>
+                          {itemApplied.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {itemApplied.map((ac, idx) => (
+                                <span key={idx} className="text-[9px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/40 px-1.5 py-0.5 rounded-md">
+                                  {ac.badge}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
-                  </div>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start gap-1 justify-between">
-                      <p className="text-xs font-medium text-zinc-800 dark:text-zinc-100 line-clamp-2 leading-snug pr-1">
-                        {item.name}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => remove(item.id)}
-                        className="shrink-0 p-0.5 text-zinc-300 hover:text-red-400 dark:text-zinc-600 dark:hover:text-red-400 transition-colors"
-                        aria-label="Ürünü kaldır"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-
-                    <div className="flex items-center justify-between mt-2">
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => updateQty(item.id, Math.max(1, item.quantity - 1))}
-                          disabled={item.quantity <= 1}
-                          className="h-6 w-6 rounded-lg border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-30 transition-colors"
-                        >
-                          <Minus className="h-3 w-3" />
-                        </button>
-                        <span className="text-xs font-semibold w-6 text-center text-zinc-900 dark:text-zinc-50">
-                          {item.quantity}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => updateQty(item.id, item.quantity + 1)}
-                          className="h-6 w-6 rounded-lg border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                        >
-                          <Plus className="h-3 w-3" />
-                        </button>
+                      <div className="flex items-end justify-between mt-2">
+                         <div />
+                         <div className="text-right flex flex-col items-end justify-center">
+                           {itemDiscountShare > 0 ? (
+                             <>
+                               <p className="text-[10px] text-zinc-400 font-bold line-through tabular-nums decoration-zinc-300">{formatPrice(itemTotal)}</p>
+                               <p className="text-sm font-black text-indigo-600 dark:text-indigo-400 tabular-nums leading-none mt-0.5">{formatPrice(itemFinalTotal)}</p>
+                             </>
+                           ) : (
+                             <p className="text-sm font-black text-zinc-900 dark:text-zinc-50 tabular-nums leading-none">{formatPrice(itemTotal)}</p>
+                           )}
+                         </div>
                       </div>
-                      <span className="text-xs font-bold text-zinc-900 dark:text-zinc-50">
-                        {formatPrice(item.price * item.quantity)}
-                      </span>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
-            {qualifiable.length > 0 && (
-              <div className="px-5 py-4 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-400">Kampanyalar</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {qualifiable.map((c) => {
-                    const discount = appliedMap[c.id];
-                    const isLit = c.qualified && discount != null && discount > 0;
-                    return (
-                      <div
-                        key={c.id}
-                        title={c.progress ? `${c.progress.current} / ${c.progress.required}` : undefined}
-                        className={`flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full border transition-all duration-500 cursor-default select-none ${
-                          isLit
-                            ? "bg-green-500 border-green-500 text-white shadow-sm shadow-green-200 dark:shadow-green-900"
-                            : "bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-400"
-                        }`}
-                      >
-                        <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${isLit ? "bg-white" : "bg-zinc-300 dark:bg-zinc-600"}`} />
-                        <span>{c.badge}</span>
-                        {isLit ? (
-                          <span className="font-bold opacity-90">· -{formatPrice(discount)}</span>
-                        ) : c.progress ? (
-                          <span className="opacity-60">{c.progress.current}/{c.progress.required}</span>
-                        ) : null}
-                      </div>
-                    );
-                  })}
-                </div>
+            <div className="hidden lg:block space-y-4 mb-6">
+              <div className="flex justify-between items-center text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                  <span>Ara Toplam</span>
+                  <span className="font-bold text-zinc-900 dark:text-zinc-50 tabular-nums">{formatPrice(total)}</span>
               </div>
-            )}
+              
+              {applied.length > 0 && (
+                 <div className="space-y-2 pt-3 pb-1 border-t border-zinc-50 dark:border-zinc-800/50">
+                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Uygulanan Kampanyalar</p>
+                    {applied.map((ac) => (
+                       <div key={ac.id} className="flex justify-between items-center text-sm">
+                           <span className="text-emerald-600 dark:text-emerald-400 font-medium truncate flex-1 flex items-center gap-1.5">
+                               <CheckCircle2 className="h-3.5 w-3.5 shrink-0"/> {ac.name}
+                           </span>
+                           <span className="font-bold text-emerald-600 dark:text-emerald-400 shrink-0 tabular-nums">-{formatPrice(ac.discount)}</span>
+                       </div>
+                    ))}
+                 </div>
+              )}
+            </div>
 
-            <div className="px-5 py-4 border-t border-zinc-100 dark:border-zinc-800">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-400 mb-2">İndirim Kodu</p>
+            <div className="pt-2 pb-6 border-t border-zinc-100 dark:border-zinc-800">
+              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2.5">İndirim Kodu</p>
               {coupon ? (
-                <div className="flex items-center gap-2 bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800 rounded-xl px-3 py-2.5">
-                  <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
-                  <span className="text-xs font-semibold text-green-700 dark:text-green-400">{coupon} uygulandı</span>
+                <div className="flex items-center justify-between bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/40 rounded-xl px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                    <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400">{coupon}</span>
+                  </div>
                 </div>
               ) : (
                 <>
                   <div className="flex gap-2">
                     <input
-                      className="flex-1 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-3 py-2 text-xs font-mono text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-zinc-900 transition uppercase tracking-widest placeholder:tracking-normal placeholder:font-sans"
+                      className="flex-1 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-3 text-sm font-mono text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-zinc-900 transition uppercase tracking-widest placeholder:tracking-normal placeholder:font-sans"
                       placeholder="Kupon kodu girin"
                       value={couponInput}
                       onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
@@ -562,47 +513,115 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
                       type="button"
                       onClick={applyCoupon}
                       disabled={!couponInput}
-                      className="flex items-center gap-1.5 text-xs bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-semibold px-3 py-2 rounded-xl disabled:opacity-40 transition-colors"
+                      className="flex items-center gap-1.5 text-sm bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold px-4 py-3 rounded-xl disabled:opacity-40 transition-colors"
                     >
-                      <Tag className="h-3 w-3" />
                       Uygula
                     </button>
                   </div>
                   {couponError && (
-                    <p className="text-xs text-red-500 mt-1.5">{couponError}</p>
+                    <p className="text-xs text-red-500 mt-2 font-medium">{couponError}</p>
                   )}
                 </>
               )}
             </div>
 
-            <div className="px-5 py-4 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
-              <div className="flex justify-between text-sm text-zinc-500">
-                <span>Ara toplam</span>
-                <span>{formatPrice(total)}</span>
-              </div>
-
-              {applied.map((ac) => (
-                <div key={ac.id} className="flex justify-between text-xs text-green-600 dark:text-green-400">
-                  <span className="truncate mr-2">{ac.name}</span>
-                  <span className="shrink-0 font-medium">-{formatPrice(ac.discount)}</span>
-                </div>
-              ))}
-
-              <div className="flex justify-between items-baseline pt-2 border-t border-zinc-100 dark:border-zinc-800">
-                <span className="font-bold text-zinc-900 dark:text-zinc-50">Toplam</span>
-                <div className="text-right">
-                  <span className="text-xl font-bold text-zinc-900 dark:text-zinc-50">{formatPrice(finalTotal)}</span>
-                  {totalDiscount > 0 && (
-                    <p className="text-xs text-green-600 dark:text-green-400 font-medium">{formatPrice(totalDiscount)} tasarruf</p>
-                  )}
-                </div>
-              </div>
+            <div className="hidden lg:block h-px bg-zinc-100 dark:bg-zinc-800 my-2" />
+            <div className="hidden lg:flex justify-between items-end mt-4">
+                 <div>
+                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1.5">ÖDENECEK TUTAR</p>
+                    <p className="text-3xl sm:text-4xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight tabular-nums">{formatPrice(finalTotal)}</p>
+                 </div>
+                 {totalDiscount > 0 && (
+                    <div className="text-right flex flex-col items-end">
+                        <p className="text-[9px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/40 px-1.5 py-0.5 rounded-md mb-1 uppercase tracking-wider">Toplam Kazanç</p>
+                        <p className="text-sm font-black text-emerald-600 tabular-nums">{formatPrice(totalDiscount)}</p>
+                    </div>
+                 )}
             </div>
 
           </div>
         </div>
 
       </div>
+
+      {/* Mobile Spacer to ensure scroll doesn't get hidden behind bottom bar */}
+      <div className="lg:hidden h-28 w-full shrink-0" />
+
+      {/* Mobile Overlay */}
+      {isMobileSummaryOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/40 z-40 transition-opacity backdrop-blur-sm"
+          onClick={() => setIsMobileSummaryOpen(false)}
+        />
+      )}
+
+      {/* Mobile Sticky Bottom Bar & Drawer */}
+      <div className="lg:hidden fixed bottom-0 left-0 w-full z-50 flex flex-col justify-end pointer-events-none">
+        <div className={`bg-white dark:bg-zinc-900 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.12)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.5)] pointer-events-auto flex flex-col w-full transition-transform duration-300 ease-out translate-y-0`}>
+          {/* Expandable Drawer */}
+          <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isMobileSummaryOpen ? 'max-h-[60vh] opacity-100' : 'max-h-0 opacity-0'}`}>
+            <div className="p-5 border-b border-zinc-100 dark:border-zinc-800 relative max-h-[60vh] overflow-y-auto">
+               <button type="button" onClick={() => setIsMobileSummaryOpen(false)} className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 bg-zinc-50 dark:bg-zinc-800 rounded-full transition-colors">
+                   <X className="h-5 w-5" />
+               </button>
+               <h3 className="font-bold text-lg mb-4 text-zinc-900 dark:text-zinc-50 border-b border-zinc-100 dark:border-zinc-800 pb-3 pr-10">Sipariş Özeti</h3>
+               
+               <div className="space-y-3 sm:space-y-4 text-sm mt-2">
+                  <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
+                    <span>Ara Toplam</span>
+                    <span className="font-bold text-zinc-900 dark:text-zinc-50">{formatPrice(total)}</span>
+                  </div>
+                  
+                  {applied.length > 0 && (
+                     <div className="space-y-2 pt-2 border-t border-zinc-50 dark:border-zinc-800/50">
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Uygulanan Kampanyalar</p>
+                        {applied.map((ac) => (
+                           <div key={ac.id} className="flex justify-between items-center text-sm">
+                               <span className="text-emerald-600 dark:text-emerald-400 font-medium truncate flex-1 flex items-center gap-1.5">
+                                   <CheckCircle2 className="h-3.5 w-3.5 shrink-0"/> {ac.name}
+                               </span>
+                               <span className="font-bold text-emerald-600 dark:text-emerald-400 shrink-0 tabular-nums">-{formatPrice(ac.discount)}</span>
+                           </div>
+                        ))}
+                     </div>
+                  )}
+
+                  <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex justify-between items-end">
+                     <div>
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1.5">ÖDENECEK TUTAR</p>
+                        <p className="text-2xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight tabular-nums">{formatPrice(finalTotal)}</p>
+                     </div>
+                     {totalDiscount > 0 && (
+                        <div className="text-right flex flex-col items-end">
+                            <p className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/40 px-1.5 py-0.5 rounded-md mb-1 uppercase tracking-wider">Toplam Kazanç</p>
+                            <p className="text-sm font-black text-emerald-600 dark:text-emerald-400 tabular-nums">{formatPrice(totalDiscount)}</p>
+                        </div>
+                     )}
+                  </div>
+
+               </div>
+            </div>
+          </div>
+
+          {/* Sticky Footer */}
+          <div className="p-4 sm:p-5 flex justify-between items-center bg-white dark:bg-zinc-900 rounded-t-3xl border-t border-zinc-100 dark:border-zinc-800 relative z-10 w-full">
+             <div className="flex flex-col cursor-pointer select-none" onClick={() => setIsMobileSummaryOpen(!isMobileSummaryOpen)}>
+                <div className="flex items-center gap-1 text-zinc-500 dark:text-zinc-400 font-bold tracking-wide uppercase text-[10px] mb-0.5">
+                    Toplam {isMobileSummaryOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+                </div>
+                <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 tabular-nums tracking-tight">
+                    {formatPrice(finalTotal)}
+                </div>
+             </div>
+             
+             <button form="checkout-form" type="submit" disabled={loading} className="flex items-center gap-2 bg-indigo-900 hover:bg-indigo-800 active:bg-indigo-950 text-white font-bold py-3.5 px-6 rounded-full shrink-0 transition-colors shadow-lg shadow-indigo-900/20 text-sm tracking-wide uppercase">
+                {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                {paymentMethod === "cod" ? "ONAYLA" : "ÖDEMEYE GEÇ"}
+             </button>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }

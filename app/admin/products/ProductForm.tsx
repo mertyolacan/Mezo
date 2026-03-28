@@ -341,6 +341,64 @@ export default function ProductForm({ categories, brands, allProducts = [], init
                 </div>
               </div>
             </section>
+
+            {/* Visibility & Relations */}
+            <section className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-6">
+              <div className="flex items-center gap-2 border-b border-zinc-100 dark:border-zinc-800 -mx-6 px-6 pb-4 mb-2">
+                <Globe className="h-4 w-4 text-zinc-400" />
+                <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-widest">Görünürlük ve İlişkiler</h2>
+              </div>
+
+              <div className="space-y-6">
+                <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-800/30 border border-zinc-200 dark:border-zinc-700 rounded-xl">
+                  <div>
+                    <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Öne Çıkarılan Ürün</h3>
+                    <p className="text-[10px] text-zinc-500 mt-0.5">Bu ürünü anasayfada sergile</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" {...register("isFeatured")} className="sr-only peer" />
+                    <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-indigo-600"></div>
+                  </label>
+                </div>
+
+                <div className="space-y-2">
+                  <label className={labelClass}>Yanında Alınan Ürünler</label>
+                  <select onChange={(e) => {
+                    const id = parseInt(e.target.value);
+                    if (id && !crossSellIds.includes(id)) {
+                      setValue("crossSellIds", [...crossSellIds, id], { shouldDirty: true });
+                    }
+                    e.target.value = "";
+                  }} className={inputClass}>
+                    <option value="">Ürün Seçerek Ekle...</option>
+                    {allProducts.filter(p => !crossSellIds.includes(p.id)).map(p => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                  
+                  {crossSellIds.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+                      {crossSellIds.map((id: number) => {
+                        const product = allProducts.find(p => p.id === id);
+                        return product ? (
+                          <div key={id} className="flex items-center gap-2 pl-1 pr-2 py-1 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg max-w-full shadow-sm hover:border-indigo-200 transition-colors">
+                            <div className="relative w-7 h-7 rounded bg-zinc-50 overflow-hidden shrink-0 border border-zinc-100">
+                               {Array.isArray(product.images) && product.images.length > 0 ? (
+                                  <Image src={product.images[0] as string} alt={product.name} fill className="object-cover" sizes="28px" />
+                               ) : <Package className="h-4 w-4 m-1.5 text-zinc-300" />}
+                            </div>
+                            <span className="text-[10px] font-bold text-zinc-700 dark:text-zinc-300 truncate max-w-[140px] leading-tight">{product.name}</span>
+                            <button type="button" onClick={() => setValue("crossSellIds", crossSellIds.filter((cid: number) => cid !== id), { shouldDirty: true })} className="text-zinc-400 hover:text-red-500 transition-colors ml-1 bg-zinc-50 rounded p-0.5">
+                               <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ) : null;
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
           </div>
         </div>
 

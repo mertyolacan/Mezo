@@ -56,14 +56,23 @@ function CampaignNudge({ c, onGone }: { c: QualifiableExtended, onGone: (id: num
 }
 
 export default function CartPage() {
-  const { items, total, count, remove, updateQty } = useCart();
+  const { items, total, count, remove, updateQty, add } = useCart();
   const [loadedCampaigns, setLoadedCampaigns] = useState<ClientCampaign[]>([]);
   const [transitioningNudges, setTransitioningNudges] = useState<QualifiableExtended[]>([]);
   const [isMobileSummaryOpen, setIsMobileSummaryOpen] = useState(false);
+  const [crossSells, setCrossSells] = useState<{ sourceId: number; products: { id: number; name: string; slug: string; price: unknown; comparePrice: unknown; images: unknown }[] }[]>([]);
 
   useEffect(() => {
     fetch("/api/campaigns/active").then(r => r.json()).then(d => setLoadedCampaigns(d.data || []));
   }, []);
+
+  useEffect(() => {
+    if (items.length === 0) return;
+    const ids = items.map((i) => i.id).join(",");
+    fetch(`/api/products/cross-sell?ids=${ids}`)
+      .then((r) => r.json())
+      .then((d) => setCrossSells(d.data ?? []));
+  }, [items]);
 
   const { applied, totalDiscount, qualifiable } = useMemo(() => {
     if (items.length === 0) return { applied: [], totalDiscount: 0, qualifiable: [] };
@@ -203,6 +212,56 @@ export default function CartPage() {
                         )}
                     </div>
                   )}
+
+                  {/* Yanında alınan ürünleri (Cross-Sells) */}
+                  {(() => {
+                    const itemCrossSells = crossSells.find(cs => cs.sourceId === item.id)?.products || [];
+                    if (itemCrossSells.length === 0) return null;
+                    return (
+                      <div className="pt-4 border-t border-zinc-100 flex flex-col gap-3 w-full -mt-2">
+                        <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest pl-1">Birlikte Alabileceğiniz Ürünler</h3>
+                        <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-none">
+                          {itemCrossSells.map((cs) => {
+                             const imgs = cs.images as string[];
+                             const price = Number(cs.price);
+                             const inCart = items.some((i) => i.id === cs.id);
+                             return (
+                               <div key={cs.id} className="min-w-[200px] sm:min-w-[240px] flex items-center gap-3 p-3 bg-zinc-50 border border-zinc-100 rounded-2xl hover:border-indigo-100 hover:bg-white transition-all">
+                                  <Link href={`/products/${cs.slug}`} className="relative h-12 w-12 shrink-0 rounded-xl overflow-hidden bg-white border border-zinc-100 shadow-sm flex items-center justify-center">
+                                    {imgs[0] ? (
+                                      <Image src={imgs[0]} alt={cs.name} fill className="object-contain p-1.5" sizes="48px" />
+                                    ) : (
+                                      <Package className="h-5 w-5 text-zinc-300" />
+                                    )}
+                                  </Link>
+                                  <div className="flex-1 min-w-0 pr-1">
+                                    <Link href={`/products/${cs.slug}`} className="text-xs font-bold text-zinc-900 line-clamp-1 hover:text-indigo-600 transition-colors">
+                                      {cs.name}
+                                    </Link>
+                                    <div className="text-xs font-black text-indigo-600 mt-0.5">{formatPrice(price)}</div>
+                                  </div>
+                                  {inCart ? (
+                                    <div className="flex flex-col items-center justify-center h-8 w-8 bg-emerald-50 text-emerald-600 rounded-lg shrink-0 border border-emerald-100" title="Sepette">
+                                      <CheckCircle2 className="h-4 w-4" />
+                                    </div>
+                                   ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => add({ id: cs.id, name: cs.name, price, image: imgs[0] ?? "", slug: cs.slug, categoryId: null })}
+                                      className="flex items-center justify-center h-8 w-8 bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg transition-colors shrink-0 shadow-sm shadow-zinc-900/20"
+                                      title="Sepete Ekle"
+                                    >
+                                      <Plus className="h-4 w-4" />
+                                    </button>
+                                  )}
+                               </div>
+                             );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                 </div>
               );
             })}
@@ -271,6 +330,9 @@ export default function CartPage() {
                  <p className="text-[9px] sm:text-[10px] text-zinc-400">256-Bit SSL Koruma</p>
              </div>
           </div>
+          
+
+
         </div>
       </div>
 
@@ -296,24 +358,38 @@ export default function CartPage() {
                </button>
                <h3 className="font-bold text-lg mb-4 text-zinc-900 border-b border-zinc-100 pb-3 pr-10">Sipariş Özeti</h3>
                
-               <div className="space-y-3 sm:space-y-4 text-sm">
+               <div className="space-y-3 sm:space-y-4 text-sm mt-2">
                   <div className="flex justify-between text-zinc-600">
-                    <span>Sepet Tutarı</span>
+                    <span>Ara Toplam</span>
                     <span className="font-bold text-zinc-900">{formatPrice(total)}</span>
                   </div>
                   
                   {applied.length > 0 && (
                      <div className="space-y-2 pt-2 border-t border-zinc-50">
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Uygulanan Kampanyalar</p>
                         {applied.map((ac) => (
                            <div key={ac.id} className="flex justify-between items-center text-sm">
                                <span className="text-emerald-600 font-medium truncate flex-1 flex items-center gap-1.5">
-                                   {ac.name}
+                                   <CheckCircle2 className="h-3.5 w-3.5 shrink-0"/> {ac.name}
                                </span>
                                <span className="font-bold text-emerald-600 shrink-0 tabular-nums">-{formatPrice(ac.discount)}</span>
                            </div>
                         ))}
                      </div>
                   )}
+
+                  <div className="pt-4 border-t border-zinc-100 flex justify-between items-end">
+                     <div>
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1.5">ÖDENECEK TUTAR</p>
+                        <p className="text-2xl font-black text-indigo-600 tracking-tight tabular-nums">{formatPrice(finalTotal)}</p>
+                     </div>
+                     {totalDiscount > 0 && (
+                        <div className="text-right flex flex-col items-end">
+                            <p className="text-[9px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-md mb-1 uppercase tracking-wider">Toplam Kazanç</p>
+                            <p className="text-sm font-black text-emerald-600 tabular-nums">{formatPrice(totalDiscount)}</p>
+                        </div>
+                     )}
+                  </div>
 
                </div>
             </div>
