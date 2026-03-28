@@ -221,6 +221,8 @@ export const campaigns = pgTable("campaigns", {
   currentUsage: integer("current_usage").notNull().default(0),
   isActive: boolean("is_active").notNull().default(true),
   isStackable: boolean("is_stackable").notNull().default(true),
+  badgeImage: text("badge_image"),
+  showBadge: boolean("show_badge").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 }, (t) => [

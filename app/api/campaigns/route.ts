@@ -13,6 +13,8 @@ const campaignSchema = z.object({
   discountValue: z.number().positive("İndirim değeri pozitif olmalı"),
   isActive: z.boolean().default(true),
   isStackable: z.boolean().default(false),
+  badgeImage: z.string().nullable().optional(),
+  showBadge: z.boolean().default(false),
   startDate: z.string().nullable().optional(),
   endDate: z.string().nullable().optional(),
   minAmount: z.number().nullable().optional(),

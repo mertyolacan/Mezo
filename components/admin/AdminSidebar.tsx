@@ -24,6 +24,7 @@ import {
   HelpCircle,
   Star,
   X,
+  BadgeCheck,
 } from "lucide-react";
 
 const navGroups = [
@@ -125,7 +126,7 @@ export default function AdminSidebar() {
 
                 return (
                   <Link
-                    key={item.href}
+                    key={item.label}
                     href={item.href}
                     title={!showLabels ? item.label : undefined}
                     onClick={() => setMobileOpen(false)}

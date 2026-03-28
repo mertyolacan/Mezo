@@ -13,6 +13,8 @@ const updateSchema = z.object({
   discountValue: z.number().positive().optional(),
   isActive: z.boolean().optional(),
   isStackable: z.boolean().optional(),
+  badgeImage: z.string().nullable().optional(),
+  showBadge: z.boolean().optional(),
   startDate: z.string().nullable().optional(),
   endDate: z.string().nullable().optional(),
   minAmount: z.number().nullable().optional(),

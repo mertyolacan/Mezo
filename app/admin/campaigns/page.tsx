@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { campaigns } from "@/lib/db/schema";
 import { desc } from "drizzle-orm";
 import Link from "next/link";
-import { Plus, Pencil, Megaphone } from "lucide-react";
+import { Plus, Pencil, Megaphone, BadgeCheck } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import DeleteCampaignButton from "./DeleteCampaignButton";
 import ToggleCampaignButton from "./ToggleCampaignButton";
@@ -48,6 +48,7 @@ export default async function AdminCampaignsPage() {
                 <th className="px-3 py-2.5 sm:px-4 sm:py-3 text-left font-medium text-zinc-500 hidden md:table-cell">Tip</th>
                 <th className="px-3 py-2.5 sm:px-4 sm:py-3 text-left font-medium text-zinc-500">İndirim</th>
                 <th className="px-3 py-2.5 sm:px-4 sm:py-3 text-left font-medium text-zinc-500 hidden lg:table-cell">Kullanım</th>
+                <th className="px-3 py-2.5 sm:px-4 sm:py-3 text-left font-medium text-zinc-500 hidden sm:table-cell">Rozet</th>
                 <th className="px-3 py-2.5 sm:px-4 sm:py-3 text-left font-medium text-zinc-500">Durum</th>
                 <th className="px-3 py-2.5 sm:px-4 sm:py-3 text-right font-medium text-zinc-500">İşlem</th>
               </tr>
@@ -71,6 +72,22 @@ export default async function AdminCampaignsPage() {
                   </td>
                   <td className="px-3 py-2.5 sm:px-4 sm:py-3 text-zinc-500 hidden lg:table-cell">
                     {c.currentUsage}{c.maxUsage ? ` / ${c.maxUsage}` : ""}
+                  </td>
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3 hidden sm:table-cell">
+                    {c.badgeImage && c.showBadge ? (
+                      <div className="flex items-center gap-2">
+                        <div className="relative w-8 h-8 rounded overflow-hidden bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shrink-0">
+                          <img src={c.badgeImage} alt="rozet" className="w-full h-full object-contain p-0.5" />
+                        </div>
+                        <BadgeCheck className="h-3.5 w-3.5 text-green-500" />
+                      </div>
+                    ) : c.badgeImage && !c.showBadge ? (
+                      <div className="relative w-8 h-8 rounded overflow-hidden bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 opacity-40">
+                        <img src={c.badgeImage} alt="rozet" className="w-full h-full object-contain p-0.5" />
+                      </div>
+                    ) : (
+                      <span className="text-xs text-zinc-300">—</span>
+                    )}
                   </td>
                   <td className="px-3 py-2.5 sm:px-4 sm:py-3 whitespace-nowrap">
                     <ToggleCampaignButton id={c.id} isActive={c.isActive} />

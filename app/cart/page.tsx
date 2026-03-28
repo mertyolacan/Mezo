@@ -63,7 +63,12 @@ export default function CartPage() {
   const [crossSells, setCrossSells] = useState<{ sourceId: number; products: { id: number; name: string; slug: string; price: unknown; comparePrice: unknown; images: unknown }[] }[]>([]);
 
   useEffect(() => {
-    fetch("/api/campaigns/active").then(r => r.json()).then(d => setLoadedCampaigns(d.data || []));
+    fetch("/api/campaigns/active")
+      .then((r) => r.json())
+      .then((d) => {
+        const campaigns = (d.data || []) as ClientCampaign[];
+        setLoadedCampaigns(campaigns.filter((c) => c.type !== "coupon"));
+      });
   }, []);
 
   useEffect(() => {

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import type { ClientCampaign } from "@/lib/campaign-engine-client";
+import { evaluateCampaignsClient, ClientCampaign } from "@/lib/campaign-engine-client";
 import ProductDetailClient from "./ProductDetailClient";
 import ProductImageGallery from "./ProductImageGallery";
 import ProductTabs from "./ProductTabs";
@@ -118,7 +118,9 @@ export default async function ProductDetailPage({ params }: Props) {
     favs.forEach(f => favoriteSet.add(f.pid));
   }
 
-  const clientCampaigns: ClientCampaign[] = rawCampaigns.map((c) => ({
+  const clientCampaigns: ClientCampaign[] = rawCampaigns
+    .filter((c) => c.type !== "coupon") // Kuponları listelerde gösterme
+    .map((c) => ({
     id: c.id,
     name: c.name,
     type: c.type,
@@ -135,6 +137,11 @@ export default async function ProductDetailPage({ params }: Props) {
     isStackable: c.isStackable,
     badge: (badgeMap[c.type] ?? "") + c.name,
   }));
+
+  // En öncelikli rozet görselini bul (varsa)
+  const campaignBadgeImage = rawCampaigns.find(
+    (c) => c.showBadge && c.badgeImage
+  )?.badgeImage ?? null;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -158,7 +165,7 @@ export default async function ProductDetailPage({ params }: Props) {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 lg:pt-6 pb-12">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Görseller */}
-        <ProductImageGallery images={p.images} name={p.name} discount={discount} />
+        <ProductImageGallery images={p.images} name={p.name} discount={discount} badgeImage={campaignBadgeImage} />
 
         {/* Bilgiler */}
         <div className="space-y-6">
@@ -197,7 +204,15 @@ export default async function ProductDetailPage({ params }: Props) {
         <div className="mt-16 border-t border-zinc-100 dark:border-zinc-800 pt-10">
           <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-6">Benzer Ürünler</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {relatedProducts.map((rp) => <ProductCard key={rp.id} product={rp} isFavorited={favoriteSet.has(rp.id)} />)}
+            {relatedProducts.map((rp) => (
+              <ProductCard 
+                key={rp.id} 
+                product={rp} 
+                isFavorited={favoriteSet.has(rp.id)} 
+                campaigns={clientCampaigns} 
+                allRawCampaigns={rawCampaigns}
+              />
+            ))}
           </div>
         </div>
       )}
@@ -206,13 +221,53 @@ export default async function ProductDetailPage({ params }: Props) {
   );
 }
 
-type CardProduct = { id: number; name: string; slug: string; price: unknown; comparePrice: unknown; images: unknown };
+type CardProduct = { id: number; name: string; slug: string; price: unknown; comparePrice: unknown; images: unknown; categoryId: number | null };
 
-function ProductCard({ product: rp, isFavorited }: { product: CardProduct, isFavorited: boolean }) {
+function ProductCard({ 
+  product: rp, 
+  isFavorited, 
+  campaigns, 
+  allRawCampaigns 
+}: { 
+  product: CardProduct, 
+  isFavorited: boolean, 
+  campaigns: ClientCampaign[],
+  allRawCampaigns: any[]
+}) {
   const price = Number(rp.price);
-  const comparePrice = rp.comparePrice ? Number(rp.comparePrice) : null;
-  const discount = comparePrice ? Math.round((1 - price / comparePrice) * 100) : null;
+  
+  // Kampanya indirimi hesapla
+  const { totalDiscount } = evaluateCampaignsClient(
+    campaigns,
+    [{ id: rp.id, price, quantity: 1, categoryId: rp.categoryId }],
+    price
+  );
+  const finalPrice = price - totalDiscount;
+
+  const manualComparePrice = rp.comparePrice ? Number(rp.comparePrice) : null;
+  const hasCampaignDiscount = totalDiscount > 0;
+
+  const displayComparePrice = hasCampaignDiscount ? price : manualComparePrice;
+  const displayPrice = hasCampaignDiscount ? finalPrice : price;
+
+  const discount = displayComparePrice && displayComparePrice > displayPrice
+    ? Math.round(((displayComparePrice - displayPrice) / displayComparePrice) * 100)
+    : null;
+
   const images = rp.images as string[];
+
+  // Rozet görselini bul (kuponlar hariç)
+  function getBadgeForProduct(productId: number, categoryId: number | null): string | null {
+    for (const c of allRawCampaigns) {
+      if (!c.badgeImage || !c.showBadge || c.type === "coupon") continue;
+      if (c.type === "product" && c.productId === productId) return c.badgeImage;
+      if (c.type === "category" && categoryId && c.categoryId === categoryId) return c.badgeImage;
+      if (["bogo", "volume", "cart_total"].includes(c.type) && !c.productId && !c.categoryId) return c.badgeImage;
+    }
+    return null;
+  }
+  const badgeImage = getBadgeForProduct(rp.id, rp.categoryId);
+
   return (
     <Link href={`/products/${rp.slug}`} className="group bg-white dark:bg-zinc-900 rounded-brand border border-zinc-100 dark:border-zinc-800 overflow-hidden hover:border-brand-primary/40 hover:shadow-md transition-all focus:ring-2 focus:ring-brand-secondary/30">
       <div className="relative aspect-square bg-zinc-50 dark:bg-zinc-800 rounded-brand">
@@ -221,16 +276,31 @@ function ProductCard({ product: rp, isFavorited }: { product: CardProduct, isFav
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-zinc-300 text-xs">Görsel yok</div>
         )}
+        
         {discount && (
-          <span className="absolute top-2 left-2 bg-brand-accent text-white text-xs font-bold px-1.5 py-1 rounded-md shadow-sm">-{discount}%</span>
+          <span className="absolute top-2 left-2 bg-brand-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm z-10">
+            -{discount}%
+          </span>
         )}
+
+        {/* Kampanya Rozeti */}
+        {badgeImage && (
+          <div className="absolute bottom-2 left-2 z-20 pointer-events-none">
+            <img
+              src={badgeImage}
+              alt="Kampanya rozeti"
+              className="w-10 h-10 sm:w-12 sm:h-12 object-contain drop-shadow-md"
+            />
+          </div>
+        )}
+
         <FavoriteButton productId={rp.id} initialFavorited={isFavorited} />
       </div>
       <div className="p-3">
         <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50 line-clamp-2 leading-snug">{rp.name}</p>
         <div className="mt-1.5 flex items-baseline gap-2">
-          <span className="text-sm font-bold text-zinc-900 dark:text-zinc-50">{formatPrice(price)}</span>
-          {comparePrice && <span className="text-xs text-zinc-400 line-through">{formatPrice(comparePrice)}</span>}
+          <span className="text-sm font-bold text-zinc-900 dark:text-zinc-50">{formatPrice(displayPrice)}</span>
+          {displayComparePrice && <span className="text-xs text-zinc-400 line-through">{formatPrice(displayComparePrice)}</span>}
         </div>
       </div>
     </Link>

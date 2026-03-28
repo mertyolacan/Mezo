@@ -8,9 +8,10 @@ type Props = {
   images: string[];
   name: string;
   discount: number | null;
+  badgeImage?: string | null;
 };
 
-export default function ProductImageGallery({ images, name, discount }: Props) {
+export default function ProductImageGallery({ images, name, discount, badgeImage }: Props) {
   const [active, setActive] = useState(0);
 
   return (
@@ -33,9 +34,19 @@ export default function ProductImageGallery({ images, name, discount }: Props) {
           </div>
         )}
         {discount && (
-          <span className="absolute top-4 left-4 bg-brand-primary text-white text-sm font-bold px-2 py-1 rounded-lg shadow-sm">
+          <span className="absolute top-4 left-4 bg-brand-primary text-white text-sm font-bold px-2 py-1 rounded-lg shadow-sm z-10">
             -{discount}%
           </span>
+        )}
+        {/* Kampanya Rozeti — galeri değişse bile sabit kalır */}
+        {badgeImage && (
+          <div className="absolute bottom-4 left-4 z-20 pointer-events-none">
+            <img
+              src={badgeImage}
+              alt="Kampanya rozeti"
+              className="w-20 h-20 object-contain drop-shadow-lg"
+            />
+          </div>
         )}
       </div>
 

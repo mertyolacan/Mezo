@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
-import { products, categories, brands, favorites } from "@/lib/db/schema";
-import { eq, and, like, or, desc, asc, sql, gte, lte } from "drizzle-orm";
+import { products, categories, brands, favorites, campaigns } from "@/lib/db/schema";
+import { eq, and, like, or, desc, asc, sql, gte, lte, isNull } from "drizzle-orm";
 import Image from "next/image";
 import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
@@ -13,7 +13,7 @@ import PriceFilter from "./PriceFilter";
 import { getAuthUser } from "@/lib/auth";
 import { getSeoMetadata } from "@/lib/seo";
 import MobileFilterBar from "./MobileFilterBar";
-import AddToCartButton from "@/components/shared/AddToCartButton";
+import { evaluateCampaignsClient, ClientCampaign } from "@/lib/campaign-engine-client";
 
 export const revalidate = 30;
 
@@ -70,6 +70,7 @@ export default async function ProductsPage({ searchParams }: Props) {
         stock: products.stock,
         images: products.images,
         isFeatured: products.isFeatured,
+        categoryId: products.categoryId,
         category: { name: categories.name, slug: categories.slug },
         brand: { name: brands.name },
       })
@@ -100,6 +101,48 @@ export default async function ProductsPage({ searchParams }: Props) {
       .from(favorites)
       .where(eq(favorites.userId, authUser.id));
     favRows.forEach((f) => favSet.add(f.productId));
+  }
+
+  // Aktif kampanyaların rozet bilgilerini çek
+  const now = new Date();
+  const activeCampaigns = await db
+    .select()
+    .from(campaigns)
+    .where(
+      and(
+        eq(campaigns.isActive, true),
+        or(isNull(campaigns.startDate), lte(campaigns.startDate, now)),
+        or(isNull(campaigns.endDate), gte(campaigns.endDate, now)),
+      )
+    );
+
+  const clientCampaigns: ClientCampaign[] = activeCampaigns
+    .filter((c) => c.type !== "coupon") // Kuponları listelerde gösterme
+    .map((c) => ({
+    id: c.id,
+    name: c.name,
+    type: c.type,
+    discountType: c.discountType,
+    discountValue: Number(c.discountValue),
+    minAmount: c.minAmount ? Number(c.minAmount) : null,
+    minQuantity: c.minQuantity,
+    buyQuantity: c.buyQuantity,
+    getQuantity: c.getQuantity,
+    productId: c.productId,
+    isStackable: c.isStackable,
+    categoryId: c.categoryId,
+    badge: c.name,
+  }));
+
+  // Ürün → rozet eşleştirmesi yap
+  function getBadgeForProduct(productId: number, categoryId: number | null): string | null {
+    for (const c of activeCampaigns) {
+      if (!c.badgeImage || !c.showBadge || c.type === "coupon") continue;
+      if (c.type === "product" && c.productId === productId) return c.badgeImage;
+      if (c.type === "category" && categoryId && c.categoryId === categoryId) return c.badgeImage;
+      if (["bogo", "volume", "cart_total"].includes(c.type) && !c.productId && !c.categoryId) return c.badgeImage;
+    }
+    return null;
   }
 
   return (
@@ -176,9 +219,25 @@ export default async function ProductsPage({ searchParams }: Props) {
             <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
               {rows.map((p) => {
                 const outOfStock = p.stock === 0;
-                const discount = p.comparePrice
-                  ? Math.round((1 - Number(p.price) / Number(p.comparePrice)) * 100)
+                const price = Number(p.price);
+                const { totalDiscount } = evaluateCampaignsClient(
+                  clientCampaigns,
+                  [{ id: p.id, price, quantity: 1, categoryId: p.categoryId }],
+                  price
+                );
+                const finalPrice = price - totalDiscount;
+
+                const manualComparePrice = p.comparePrice ? Number(p.comparePrice) : null;
+                const hasCampaignDiscount = totalDiscount > 0;
+
+                const displayComparePrice = hasCampaignDiscount ? price : manualComparePrice;
+                const displayPrice = hasCampaignDiscount ? finalPrice : price;
+
+                const discount = displayComparePrice && displayComparePrice > displayPrice
+                  ? Math.round(((displayComparePrice - displayPrice) / displayComparePrice) * 100)
                   : null;
+
+                const badgeImage = getBadgeForProduct(p.id, p.categoryId);
 
                 return (
                   <div key={p.id} className="group bg-white dark:bg-zinc-900 rounded-card border border-zinc-100 dark:border-zinc-800 overflow-hidden hover:border-brand-primary/50 transition-all flex flex-col shadow-[var(--card-shadow)] hover:shadow-lg focus-within:border-brand-primary">
@@ -212,6 +271,16 @@ export default async function ProductsPage({ searchParams }: Props) {
                           Öne Çıkan
                         </span>
                       )}
+                      {/* Kampanya Rozeti */}
+                      {badgeImage && !outOfStock && (
+                        <div className="absolute bottom-2 left-2 z-20 pointer-events-none">
+                          <img
+                            src={badgeImage}
+                            alt="Kampanya rozeti"
+                            className="w-14 h-14 sm:w-16 sm:h-16 object-contain drop-shadow-md"
+                          />
+                        </div>
+                      )}
                       <div className="absolute top-2 right-2 z-10 bg-white dark:bg-zinc-900 rounded-full shadow-sm">
                         <FavoriteButton productId={p.id} initialFavorited={favSet.has(p.id)} />
                       </div>
@@ -232,29 +301,17 @@ export default async function ProductsPage({ searchParams }: Props) {
 
                         <div className="mt-2.5 flex flex-col justify-end">
                           <span className="text-sm sm:text-base font-bold text-brand-primary">
-                            {formatPrice(p.price)}
+                            {formatPrice(displayPrice)}
                           </span>
-                          {p.comparePrice && (
+                          {displayComparePrice && (
                             <span className="text-[10px] sm:text-xs text-zinc-400 line-through">
-                              {formatPrice(p.comparePrice)}
+                              {formatPrice(displayComparePrice)}
                             </span>
                           )}
                         </div>
                       </Link>
 
-                      <div className="mt-auto pt-4 pb-1">
-                        <AddToCartButton
-                          product={{
-                            id: p.id,
-                            name: p.name,
-                            price: Number(p.price),
-                            image: p.images[0] || "",
-                            slug: p.slug,
-                            categoryId: null, // Safe placeholder
-                          }}
-                          stock={p.stock}
-                        />
-                      </div>
+                      <div className="mt-auto pt-2 pb-1" />
                     </div>
                   </div>
                 );

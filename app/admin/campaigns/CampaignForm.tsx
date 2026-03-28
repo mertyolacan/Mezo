@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Tag, ShoppingCart, Package, Grid3x3, Gift, BarChart3, Info, RefreshCw, Check } from "lucide-react";
+import { Loader2, Tag, ShoppingCart, Package, Grid3x3, Gift, BarChart3, Info, RefreshCw, Check, ImageIcon, X, BadgeCheck } from "lucide-react";
+import Image from "next/image";
+import MediaPickerModal from "@/components/admin/MediaPickerModal";
 
 type Category = { id: number; name: string };
 type Product = { id: number; name: string };
@@ -69,7 +71,11 @@ export default function CampaignForm({ categories, products, initialData, campai
     perUserLimit: String(initialData?.perUserLimit ?? ""),
     isActive: (initialData?.isActive as boolean) ?? true,
     isStackable: (initialData?.isStackable as boolean) ?? true,
+    badgeImage: (initialData?.badgeImage as string) ?? "",
+    showBadge: (initialData?.showBadge as boolean) ?? false,
   });
+
+  const [badgePickerOpen, setBadgePickerOpen] = useState(false);
 
   function set(key: string, value: string | boolean) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -126,6 +132,8 @@ export default function CampaignForm({ categories, products, initialData, campai
       couponCode: form.couponCode || null,
       startDate: form.startDate || null,
       endDate: form.endDate || null,
+      badgeImage: form.badgeImage || null,
+      showBadge: form.showBadge,
     };
     const res = await fetch(
       campaignId ? `/api/campaigns/${campaignId}` : "/api/campaigns",
@@ -149,6 +157,13 @@ export default function CampaignForm({ categories, products, initialData, campai
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+      <MediaPickerModal
+        open={badgePickerOpen}
+        onClose={() => setBadgePickerOpen(false)}
+        multiple={false}
+        onSelect={(urls) => { if (urls[0]) set("badgeImage", urls[0]); }}
+      />
+
       {error && (
         <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm px-4 py-3 rounded-lg">{error}</div>
       )}
@@ -560,6 +575,81 @@ export default function CampaignForm({ categories, products, initialData, campai
               <p className={hintClass}>İşaretliyse müşteri aynı siparişte birden fazla kampanyadan faydalanabilir.</p>
             </div>
           </label>
+        </div>
+      </div>
+
+      {/* Rozet Görseli */}
+      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
+        <div className="flex items-center gap-2">
+          <BadgeCheck className="h-5 w-5 text-brand-primary" />
+          <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">Kampanya Rozeti</h2>
+        </div>
+        <p className="text-xs text-zinc-400">Bu kampanyaya ait bir rozet/logo yükleyin. Rozet, ilgili ürünlerin resimlerinin üzerinde sabit bir konumda gösterilir.</p>
+
+        <div className="flex items-start gap-4">
+          {/* Önizleme */}
+          <div className="relative w-24 h-24 rounded-xl border-2 border-dashed border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center overflow-hidden shrink-0">
+            {form.badgeImage ? (
+              <>
+                <Image src={form.badgeImage} alt="Rozet" fill className="object-contain p-1" sizes="96px" />
+                <button
+                  type="button"
+                  onClick={() => set("badgeImage", "")}
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 transition-colors"
+                  title="Rozeti kaldır"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </>
+            ) : (
+              <div className="flex flex-col items-center gap-1 text-zinc-300">
+                <ImageIcon className="h-8 w-8" />
+                <span className="text-[10px]">Rozet yok</span>
+              </div>
+            )}
+          </div>
+
+          {/* Kontroller */}
+          <div className="flex-1 space-y-3">
+            <button
+              type="button"
+              onClick={() => setBadgePickerOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-sm font-medium rounded-lg hover:bg-brand-primary/5 hover:border-brand-primary/30 hover:text-brand-primary transition-all"
+            >
+              <ImageIcon className="h-4 w-4" />
+              {form.badgeImage ? "Rozeti Değiştir" : "Rozet Görseli Seç"}
+            </button>
+
+            <label className="flex items-center gap-3 cursor-pointer">
+              <div
+                onClick={() => set("showBadge", !form.showBadge)}
+                className={`relative w-10 h-6 rounded-full transition-colors cursor-pointer ${
+                  form.showBadge ? "bg-brand-primary" : "bg-zinc-200 dark:bg-zinc-700"
+                }`}
+              >
+                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${
+                  form.showBadge ? "translate-x-5" : "translate-x-1"
+                }`} />
+              </div>
+              <div>
+                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Rozeti Ürünlerde Göster</span>
+                <p className={hintClass}>Aktif olduğunda rozet ürün kartlarında ve detay sayfasında görünür.</p>
+              </div>
+            </label>
+
+            {form.showBadge && !form.badgeImage && (
+              <div className="flex items-center gap-2 p-2.5 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200 dark:border-amber-800">
+                <Info className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                <p className="text-xs text-amber-700 dark:text-amber-400">Rozet göstermek için önce bir görsel yükleyin.</p>
+              </div>
+            )}
+            {form.showBadge && form.badgeImage && (
+              <div className="flex items-center gap-2 p-2.5 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
+                <BadgeCheck className="h-3.5 w-3.5 text-green-500 shrink-0" />
+                <p className="text-xs text-green-700 dark:text-green-400">Rozet aktif — ilgili ürünlerin görsellerinde gösterilecek.</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

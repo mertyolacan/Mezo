@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
-import { products, categories, brands, favorites } from "@/lib/db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { products, categories, brands, favorites, campaigns } from "@/lib/db/schema";
+import { eq, and, desc, sql, or, isNull, lte, gte } from "drizzle-orm";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, ShieldCheck, Truck, RefreshCcw, Headphones } from "lucide-react";
@@ -10,6 +10,7 @@ import { getSeoMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import { getAuthUser } from "@/lib/auth";
 import FavoriteButton from "./products/FavoriteButton";
+import { evaluateCampaignsClient, ClientCampaign } from "@/lib/campaign-engine-client";
 
 export const revalidate = 60;
 
@@ -21,12 +22,43 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-  const [user, featuredProducts, allCategories, allBrands] = await Promise.all([
+  const now = new Date();
+  const [user, featuredProducts, allCategories, allBrands, activeCampaigns] = await Promise.all([
     getAuthUser(),
     db.select().from(products).where(and(eq(products.isActive, true), eq(products.isFeatured, true))).orderBy(desc(products.createdAt)).limit(8),
     db.select().from(categories).where(eq(categories.isActive, true)).orderBy(categories.sortOrder).limit(6),
     db.select({ id: brands.id, name: brands.name, logo: brands.logo }).from(brands).where(eq(brands.isActive, true)),
+    db.select().from(campaigns).where(and(eq(campaigns.isActive, true), or(isNull(campaigns.startDate), lte(campaigns.startDate, now)), or(isNull(campaigns.endDate), gte(campaigns.endDate, now)))),
   ]);
+
+  const clientCampaigns: ClientCampaign[] = activeCampaigns
+    .filter((c) => c.type !== "coupon") // Kuponları listelerde gösterme
+    .map((c) => ({
+    id: c.id,
+    name: c.name,
+    type: c.type,
+    discountType: c.discountType,
+    discountValue: Number(c.discountValue),
+    minAmount: c.minAmount ? Number(c.minAmount) : null,
+    minQuantity: c.minQuantity,
+    buyQuantity: c.buyQuantity,
+    getQuantity: c.getQuantity,
+    productId: c.productId,
+    isStackable: c.isStackable,
+    categoryId: c.categoryId,
+    badge: c.name,
+  }));
+
+  // Ürün → rozet eşleştirmesi yap
+  function getBadgeForProduct(productId: number, categoryId: number | null): string | null {
+    for (const c of activeCampaigns) {
+      if (!c.badgeImage || !c.showBadge || c.type === "coupon") continue;
+      if (c.type === "product" && c.productId === productId) return c.badgeImage;
+      if (c.type === "category" && categoryId && c.categoryId === categoryId) return c.badgeImage;
+      if (["bogo", "volume", "cart_total"].includes(c.type) && !c.productId && !c.categoryId) return c.badgeImage;
+    }
+    return null;
+  }
 
   const favoriteSet = new Set<number>();
   if (user) {
@@ -131,8 +163,23 @@ export default async function Home() {
             {featuredProducts.map((product) => {
               const images = product.images as string[];
               const price = Number(product.price);
-              const comparePrice = product.comparePrice ? Number(product.comparePrice) : null;
-              const discount = comparePrice && comparePrice > price ? Math.round(((comparePrice - price) / comparePrice) * 100) : null;
+              const { totalDiscount } = evaluateCampaignsClient(
+                clientCampaigns,
+                [{ id: product.id, price, quantity: 1, categoryId: product.categoryId }],
+                price
+              );
+              const finalPrice = price - totalDiscount;
+
+              const manualComparePrice = product.comparePrice ? Number(product.comparePrice) : null;
+              const hasCampaignDiscount = totalDiscount > 0;
+              
+              // Eğer kampanya indirimi varsa, asıl fiyatı compare price gibi göster
+              const displayComparePrice = hasCampaignDiscount ? price : manualComparePrice;
+              const displayPrice = hasCampaignDiscount ? finalPrice : price;
+
+              const discount = displayComparePrice && displayComparePrice > displayPrice 
+                ? Math.round(((displayComparePrice - displayPrice) / displayComparePrice) * 100) 
+                : null;
 
               return (
                 <div key={product.id} className="group bg-white dark:bg-zinc-900 rounded-card border border-zinc-100 dark:border-zinc-800 overflow-hidden shadow-[var(--card-shadow)] hover:shadow-lg transition-all focus-within:border-brand-primary">
@@ -144,9 +191,19 @@ export default async function Home() {
                         <div className="w-full h-full flex items-center justify-center text-zinc-300 text-xs">Görsel yok</div>
                       )}
                       {discount && (
-                        <span className="absolute top-2 left-2 bg-brand-accent text-white text-xs font-bold px-1.5 py-0.5 rounded-lg shadow-sm">
+                        <span className="absolute top-2 left-2 bg-brand-primary text-white text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded shadow-sm z-10">
                           -{discount}%
                         </span>
+                      )}
+                      {/* Kampanya Rozeti */}
+                      {getBadgeForProduct(product.id, product.categoryId) && (
+                        <div className="absolute bottom-2 left-2 z-20 pointer-events-none">
+                          <img
+                            src={getBadgeForProduct(product.id, product.categoryId)!}
+                            alt="Kampanya rozeti"
+                            className="w-14 h-14 sm:w-16 sm:h-16 object-contain drop-shadow-md"
+                          />
+                        </div>
                       )}
                       <FavoriteButton productId={product.id} initialFavorited={favoriteSet.has(product.id)} />
                     </div>
@@ -154,21 +211,21 @@ export default async function Home() {
                       <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200 line-clamp-2 mb-1">{product.name}</p>
                       <div className="flex items-baseline gap-1.5">
                         <span className="text-sm font-bold text-zinc-900 dark:text-zinc-50">
-                          {price.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                          {displayPrice.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
                         </span>
-                        {comparePrice && (
+                        {displayComparePrice && (
                           <span className="text-xs text-zinc-400 line-through">
-                            {comparePrice.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                            {displayComparePrice.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
                           </span>
                         )}
                       </div>
                     </div>
                   </Link>
                   <div className="px-3 pb-3">
-                    <AddToCartButton
-                      product={{ id: product.id, name: product.name, price, image: images[0] ?? "", slug: product.slug, categoryId: product.categoryId }}
-                      stock={product.stock}
-                    />
+                    <div className="flex items-center gap-1 opacity-60">
+                      <div className="flex text-amber-400 text-[10px]">★★★★★</div>
+                      <span className="text-[10px] text-zinc-500 hover:text-brand-primary transition-colors">(10+)</span>
+                    </div>
                   </div>
                 </div>
               );
