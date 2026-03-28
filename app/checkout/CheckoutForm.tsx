@@ -600,11 +600,11 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
         <div className={`bg-white dark:bg-zinc-900 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.12)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.5)] pointer-events-auto flex flex-col w-full transition-transform duration-300 ease-out translate-y-0`}>
           {/* Expandable Drawer */}
           <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isMobileSummaryOpen ? 'max-h-[60vh] opacity-100' : 'max-h-0 opacity-0'}`}>
-            <div className="p-5 border-b border-zinc-100 dark:border-zinc-800 relative max-h-[60vh] overflow-y-auto">
+            <div className="p-5 relative max-h-[60vh] overflow-y-auto">
                <button type="button" onClick={() => setIsMobileSummaryOpen(false)} className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 bg-zinc-50 dark:bg-zinc-800 rounded-full transition-colors">
                    <X className="h-5 w-5" />
                </button>
-               <h3 className="font-bold text-lg mb-4 text-zinc-900 dark:text-zinc-50 border-b border-zinc-100 dark:border-zinc-800 pb-3 pr-10">Sipariş Özeti</h3>
+               <h3 className="font-bold text-lg mb-4 text-zinc-900 dark:text-zinc-50 pb-3 pr-10">Sipariş Özeti</h3>
                
                <div className="space-y-3 sm:space-y-4 text-sm mt-2">
                   <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
@@ -613,7 +613,7 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
                   </div>
                   
                   {applied.length > 0 && (
-                     <div className="space-y-2 pt-2 border-t border-zinc-50 dark:border-zinc-800/50">
+                     <div className="space-y-2 pt-2">
                         <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Uygulanan Kampanyalar</p>
                         {applied.map((ac) => (
                            <div key={ac.id} className="flex justify-between items-center text-sm">
@@ -633,7 +633,7 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
           </div>
 
           {/* Sticky Footer */}
-          <div className="p-4 sm:p-5 flex justify-between items-center bg-white dark:bg-zinc-900 rounded-t-3xl border-t border-zinc-100 dark:border-zinc-800 relative z-10 w-full gap-2">
+          <div className="p-4 sm:p-5 flex justify-between items-center bg-white dark:bg-zinc-900 relative z-10 w-full gap-2 border-t border-zinc-50 dark:border-zinc-800">
              <div className="flex flex-col cursor-pointer select-none shrink-0" onClick={() => setIsMobileSummaryOpen(!isMobileSummaryOpen)}>
                 <div className="flex items-center gap-1 text-zinc-500 dark:text-zinc-400 font-bold tracking-wide uppercase text-[9px] mb-0.5">
                     Toplam {isMobileSummaryOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}

@@ -218,40 +218,60 @@ export default function CartPage() {
                     const itemCrossSells = crossSells.find(cs => cs.sourceId === item.id)?.products || [];
                     if (itemCrossSells.length === 0) return null;
                     return (
-                      <div className="pt-4 border-t border-zinc-100 flex flex-col gap-3 w-full -mt-2">
-                        <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest pl-1">Birlikte Alabileceğiniz Ürünler</h3>
-                        <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-none">
+                      <div className="pt-5 border-t border-zinc-100 flex flex-col gap-4 w-full -mt-2">
+                        <div className="flex items-center justify-between px-1">
+                          <h3 className="text-[10px] sm:text-xs font-black text-zinc-400 uppercase tracking-[0.2em]">Birlikte Alabileceğiniz Ürünler</h3>
+                        </div>
+                        <div className="flex overflow-x-auto gap-3 pb-4 scrollbar-none -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-0 lg:px-0 scroll-smooth snap-x snap-mandatory">
                           {itemCrossSells.map((cs) => {
                              const imgs = cs.images as string[];
                              const price = Number(cs.price);
                              const inCart = items.some((i) => i.id === cs.id);
                              return (
-                               <div key={cs.id} className="min-w-[170px] xs:min-w-[200px] sm:min-w-[240px] flex flex-col sm:flex-row items-start sm:items-center gap-2.5 sm:gap-3 p-3 bg-zinc-50 border border-zinc-100 rounded-2xl hover:border-indigo-100 hover:bg-white transition-all group shrink-0">
-                                  <Link href={`/products/${cs.slug}`} className="relative h-14 w-14 xs:h-16 xs:w-16 sm:h-12 sm:w-12 shrink-0 rounded-xl overflow-hidden bg-white border border-zinc-100 shadow-sm flex items-center justify-center group-hover:scale-95 transition-transform">
+                               <div key={cs.id} className="min-w-[150px] xs:min-w-[180px] sm:min-w-[260px] flex flex-col sm:flex-row items-center sm:items-center gap-3 p-3 bg-zinc-50/50 border border-zinc-100/80 rounded-2xl hover:border-indigo-100 hover:bg-white transition-all group shrink-0 snap-start">
+                                  <Link href={`/products/${cs.slug}`} className="relative h-16 w-16 xs:h-20 xs:w-20 sm:h-14 sm:w-14 shrink-0 rounded-xl overflow-hidden bg-white border border-zinc-100 shadow-sm flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
                                     {imgs[0] ? (
-                                      <Image src={imgs[0]} alt={cs.name} fill className="object-contain p-1.5" sizes="64px" />
+                                      <Image src={imgs[0]} alt={cs.name} fill className="object-contain p-2" sizes="(max-width: 640px) 80px, 56px" />
                                     ) : (
-                                      <Package className="h-5 w-5 text-zinc-300" />
+                                      <Package className="h-6 w-6 text-zinc-300" />
                                     )}
                                   </Link>
-                                  <div className="flex-1 min-w-0 w-full pr-1">
-                                    <Link href={`/products/${cs.slug}`} className="text-[11px] sm:text-xs font-bold text-zinc-900 line-clamp-1 hover:text-indigo-600 transition-colors">
+                                  <div className="flex-1 min-w-0 w-full text-center sm:text-left">
+                                    <Link href={`/products/${cs.slug}`} className="text-[11px] sm:text-xs font-bold text-zinc-900 line-clamp-1 hover:text-indigo-600 transition-colors uppercase tracking-tight">
                                       {cs.name}
                                     </Link>
-                                    <div className="flex items-center justify-between mt-1 sm:mt-0.5">
-                                       <div className="text-xs font-black text-indigo-600 tabular-nums">{formatPrice(price)}</div>
+                                    <div className="flex items-center justify-center sm:justify-between mt-1.5 sm:mt-1 gap-2">
+                                       <div className="text-[13px] sm:text-sm font-black text-indigo-600 tabular-nums">{formatPrice(price)}</div>
+                                       <div className="hidden sm:block">
+                                         {inCart ? (
+                                           <div className="flex items-center justify-center h-8 w-8 bg-emerald-50 text-emerald-600 rounded-xl shrink-0 border border-emerald-100" title="Sepette">
+                                             <CheckCircle2 className="h-4 w-4" />
+                                           </div>
+                                         ) : (
+                                           <button
+                                             type="button"
+                                             onClick={() => add({ id: cs.id, name: cs.name, price, image: imgs[0] ?? "", slug: cs.slug, categoryId: null })}
+                                             className="flex items-center justify-center h-8 w-8 bg-zinc-900 hover:bg-indigo-600 text-white rounded-xl transition-all shrink-0 shadow-md shadow-zinc-900/10 active:scale-90"
+                                             title="Sepete Ekle"
+                                           >
+                                             <Plus className="h-4 w-4" />
+                                           </button>
+                                         )}
+                                       </div>
+                                    </div>
+                                    {/* Mobile Add to Cart Button - Visible only on very small screens */}
+                                    <div className="sm:hidden mt-2">
                                        {inCart ? (
-                                         <div className="flex items-center justify-center h-7 w-7 bg-emerald-50 text-emerald-600 rounded-lg shrink-0 border border-emerald-100" title="Sepette">
-                                           <CheckCircle2 className="h-3.5 w-3.5" />
+                                         <div className="w-full flex items-center justify-center gap-1.5 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg border border-emerald-100 text-[10px] font-bold">
+                                            <CheckCircle2 className="h-3 w-3" /> SEPETTE
                                          </div>
                                        ) : (
                                          <button
                                            type="button"
                                            onClick={() => add({ id: cs.id, name: cs.name, price, image: imgs[0] ?? "", slug: cs.slug, categoryId: null })}
-                                           className="flex items-center justify-center h-7 w-7 bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg transition-colors shrink-0 shadow-sm shadow-zinc-900/20"
-                                           title="Sepete Ekle"
+                                           className="w-full py-1.5 bg-zinc-900 text-white rounded-lg text-[10px] font-black uppercase tracking-wider active:bg-indigo-600 transition-colors shadow-sm"
                                          >
-                                           <Plus className="h-3.5 w-3.5" />
+                                           EKLE
                                          </button>
                                        )}
                                     </div>
@@ -354,11 +374,11 @@ export default function CartPage() {
         <div className={`bg-white rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.12)] pointer-events-auto flex flex-col w-full transition-transform duration-300 ease-out translate-y-0`}>
           {/* Expandable Drawer */}
           <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isMobileSummaryOpen ? 'max-h-[60vh] opacity-100' : 'max-h-0 opacity-0'}`}>
-            <div className="p-5 border-b border-zinc-100 relative max-h-[60vh] overflow-y-auto">
+            <div className="p-5 relative max-h-[60vh] overflow-y-auto">
                <button onClick={() => setIsMobileSummaryOpen(false)} className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-zinc-600 bg-zinc-50 rounded-full transition-colors">
                    <X className="h-5 w-5" />
                </button>
-               <h3 className="font-bold text-lg mb-4 text-zinc-900 border-b border-zinc-100 pb-3 pr-10">Sipariş Özeti</h3>
+               <h3 className="font-bold text-lg mb-4 text-zinc-900 pb-3 pr-10">Sipariş Özeti</h3>
                
                <div className="space-y-3 sm:space-y-4 text-sm mt-2">
                   <div className="flex justify-between text-zinc-600">
@@ -367,7 +387,7 @@ export default function CartPage() {
                   </div>
                   
                   {applied.length > 0 && (
-                     <div className="space-y-2 pt-2 border-t border-zinc-50">
+                     <div className="space-y-2 pt-2">
                         <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Uygulanan Kampanyalar</p>
                         {applied.map((ac) => (
                            <div key={ac.id} className="flex justify-between items-center text-sm">
@@ -387,7 +407,7 @@ export default function CartPage() {
           </div>
 
           {/* Sticky Footer */}
-          <div className="p-4 sm:p-5 flex justify-between items-center bg-white rounded-t-3xl border-t border-zinc-100 relative z-10 w-full gap-2">
+          <div className="p-4 sm:p-5 flex justify-between items-center bg-white relative z-10 w-full gap-2">
              <div className="flex flex-col cursor-pointer select-none shrink-0" onClick={() => setIsMobileSummaryOpen(!isMobileSummaryOpen)}>
                 <div className="flex items-center gap-1 text-zinc-500 font-bold tracking-wide uppercase text-[9px] mb-0.5">
                     Toplam {isMobileSummaryOpen ? <ChevronDown className="h-3.5 w-3.5 text-zinc-400" /> : <ChevronUp className="h-3.5 w-3.5 text-zinc-400" />}

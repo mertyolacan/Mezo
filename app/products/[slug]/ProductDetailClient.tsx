@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { ShoppingCart, Check, Plus, Minus, Truck, ShieldCheck, X } from "lucide-react";
+import { ShoppingCart, Check, Plus, Minus, Truck, ShieldCheck, X, ChevronDown, ChevronUp } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import type { ClientCampaign } from "@/lib/campaign-engine-client";
 import { evaluateCampaignsClient } from "@/lib/campaign-engine-client";
@@ -230,85 +230,103 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
         </div>
       )}
 
-      {/* STICKY BOTTOM BAR FOR MOBILE — CART THEME */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] flex flex-col pointer-events-none">
-        {/* Campaign Breakdown (Expanded State) */}
-        {showCampaignDetails && applied.length > 1 && (
-          <div className="bg-emerald-600 text-white text-[11px] px-8 py-5 rounded-t-[2.5rem] shadow-[0_-15px_40px_rgba(0,0,0,0.1)] border-b border-white/10 space-y-3 animate-in slide-in-from-bottom duration-500 pointer-events-auto">
-             <div className="flex items-center justify-between mb-2">
-                <h4 className="font-black uppercase tracking-widest text-[10px]">İndirim Detayı</h4>
-                <button onClick={() => setShowCampaignDetails(false)}><X className="h-4 w-4" /></button>
-             </div>
-            {applied.map((c) => (
-              <div key={c.id} className="flex justify-between items-center bg-white/10 px-3 py-2 rounded-xl backdrop-blur-md">
-                <span className="font-bold uppercase tracking-tight text-[10px]">{c.badge}</span>
-                <span className="font-black tabular-nums">{formatPrice(c.discount)}</span>
-              </div>
-            ))}
-          </div>
+      {/* STICKY BOTTOM BAR FOR MOBILE — CART THEME SYNCED STRUCTURE */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] flex flex-col justify-end pointer-events-none">
+        
+        {/* Mobile Overlay Backdrop */}
+        {showCampaignDetails && applied.length > 0 && (
+          <div 
+            className="fixed inset-0 bg-black/40 z-40 transition-opacity backdrop-blur-sm pointer-events-auto"
+            onClick={() => setShowCampaignDetails(false)}
+          />
         )}
 
-        {/* Action Bar */}
-        <div className="bg-white dark:bg-zinc-950 rounded-t-[2.5rem] border-t border-zinc-100 dark:border-zinc-800 px-5 pt-4 pb-6 xs:pb-8 flex items-center justify-between gap-4 shadow-[0_-15px_50px_rgba(0,0,0,0.12)] pointer-events-auto">
-          <div 
-             className="flex flex-col cursor-pointer select-none min-w-0" 
-             onClick={() => applied.length > 1 ? setShowCampaignDetails(!showCampaignDetails) : null}
-          >
-             <div className="flex items-center gap-1 text-zinc-500 font-bold tracking-wide uppercase text-[9px] mb-1">
-                 Fiyat {applied.length > 1 && (showCampaignDetails ? <Minus className="h-3 w-3" /> : <Plus className="h-3 w-3" />)}
-             </div>
-             <div className="flex flex-col">
-                 <div className="text-xl xs:text-2xl font-black text-indigo-600 tabular-nums tracking-tight leading-none">
-                     {formatPrice(finalPrice)}
-                 </div>
-                 {totalDiscount > 0 && (
-                    <div className="flex items-center gap-1.5 mt-1.5 overflow-hidden">
-                       <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1 py-0.5 rounded uppercase leading-none shrink-0">Kazanç:</span>
-                       <span className="text-[11px] font-black text-emerald-600 tabular-nums leading-none tracking-tight truncate">{formatPrice(totalDiscount)}</span>
-                    </div>
-                 )}
-             </div>
+        {/* Main Sticky Container (Drawer + Footer) — Matches Cart Page Structure */}
+        <div className="bg-white dark:bg-zinc-950 rounded-t-[2.5rem] shadow-[0_-15px_50px_rgba(0,0,0,0.12)] pointer-events-auto flex flex-col w-full overflow-hidden relative z-50">
+          
+          {/* Campaign Breakdown (Expandable Drawer Area) */}
+          <div className={`overflow-hidden transition-all duration-500 ease-out ${showCampaignDetails && applied.length > 0 ? 'max-h-[50vh] opacity-100' : 'max-h-0 opacity-0'}`}>
+            <div className="p-6 relative max-h-[50vh] overflow-y-auto">
+               <button onClick={() => setShowCampaignDetails(false)} className="absolute top-5 right-5 p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 bg-zinc-50 dark:bg-zinc-900 rounded-full transition-colors">
+                   <X className="h-5 w-5" />
+               </button>
+               <h3 className="font-bold text-lg mb-4 text-zinc-900 dark:text-zinc-50 pb-3 pr-10 uppercase tracking-tight">İndirim Detayı</h3>
+               
+               <div className="space-y-3 sm:space-y-4 text-sm mt-3">
+                  <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.15em] mb-2 px-1">Uygulanan Kampanyalar</p>
+                  {applied.map((c) => (
+                     <div key={c.id} className="flex justify-between items-center text-sm px-1">
+                         <span className="text-emerald-600 font-bold truncate flex-1 flex items-center gap-1.5 uppercase tracking-tight text-[11px]">
+                             {c.badge}
+                         </span>
+                         <span className="font-black text-emerald-600 shrink-0 tabular-nums">-{formatPrice(c.discount)}</span>
+                     </div>
+                  ))}
+               </div>
+            </div>
           </div>
 
-          <div className="flex flex-1 items-center gap-2">
-            {!outOfStock && (
-              <div className="flex items-center border border-zinc-200 dark:border-zinc-700 rounded-2xl overflow-hidden bg-zinc-50 dark:bg-zinc-900 h-12 shadow-sm">
-                <button
-                  type="button"
-                  onClick={() => setQty((q) => Math.max(1, q - 1))}
-                  disabled={qty <= 1}
-                  className="h-full px-5 flex items-center justify-center text-zinc-500 active:bg-zinc-100 disabled:opacity-30 transition-colors"
-                >
-                  <Minus className="h-3.5 w-3.5" />
-                </button>
-                <span className="min-w-[1.5rem] text-center text-xs font-black text-zinc-900 dark:text-zinc-50 tabular-nums">
-                  {qty}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setQty((q) => q + 1)}
-                  disabled={qty >= p.stock}
-                  className="h-full px-5 flex items-center justify-center text-zinc-500 active:bg-zinc-100 transition-colors"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            )}
-
-            <button
-              onClick={handleAdd}
-              disabled={outOfStock}
-              className={`flex-1 h-12 flex items-center justify-center gap-2 rounded-2xl text-[11px] xs:text-xs font-black transition-all shadow-lg active:scale-95 uppercase tracking-wide px-2 ${
-                outOfStock
-                  ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-400 cursor-not-allowed"
-                  : added
-                  ? "bg-green-500 text-white shadow-green-500/20"
-                  : "bg-indigo-900 text-white shadow-indigo-900/20"
-              }`}
+          <div className="p-4 sm:p-5 flex items-center justify-between gap-4 bg-white dark:bg-zinc-950 relative z-10 w-full">
+            <div 
+               className="flex flex-col cursor-pointer select-none min-w-0" 
+               onClick={() => applied.length > 0 ? setShowCampaignDetails(!showCampaignDetails) : null}
             >
-              {added ? <Check className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
-              <span>{added ? "EKLENDİ" : outOfStock ? "STOKTA YOK" : "EKLE"}</span>
-            </button>
+               <div className="flex items-center gap-1 text-zinc-500 font-bold tracking-wide uppercase text-[9px] mb-1">
+                   Kampanya Detayları {applied.length > 0 && (showCampaignDetails ? <ChevronDown className="h-3 w-3 text-zinc-400" /> : <ChevronUp className="h-3 w-3 text-zinc-400" />)}
+               </div>
+               <div className="flex flex-col">
+                   <div className="text-xl xs:text-2xl font-black text-indigo-600 tabular-nums tracking-tight leading-none">
+                       {formatPrice(finalPrice)}
+                   </div>
+                   {totalDiscount > 0 && (
+                      <div className="flex items-center gap-1.5 mt-1.5 overflow-hidden">
+                         <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1 py-0.5 rounded uppercase leading-none shrink-0">Kazanç:</span>
+                         <span className="text-[11px] font-black text-emerald-600 tabular-nums leading-none tracking-tight truncate">{formatPrice(totalDiscount)}</span>
+                      </div>
+                   )}
+               </div>
+            </div>
+
+            <div className="flex flex-1 items-center gap-2">
+              {!outOfStock && (
+                <div className="flex items-center border border-zinc-200 dark:border-zinc-700 rounded-2xl overflow-hidden bg-zinc-50 dark:bg-zinc-900 h-14 shadow-sm">
+                  <button
+                    type="button"
+                    onClick={() => setQty((q) => Math.max(1, q - 1))}
+                    disabled={qty <= 1}
+                    className="h-full px-5 flex items-center justify-center text-zinc-500 active:bg-zinc-100 disabled:opacity-30 transition-colors"
+                  >
+                    <Minus className="h-3.5 w-3.5" />
+                  </button>
+                  <span className="min-w-[1.2rem] text-center text-xs font-black text-zinc-900 dark:text-zinc-50 tabular-nums">
+                    {qty}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setQty((q) => q + 1)}
+                    disabled={qty >= p.stock}
+                    className="h-full px-5 flex items-center justify-center text-zinc-500 active:bg-zinc-100 transition-colors"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
+
+              <button
+                onClick={handleAdd}
+                disabled={outOfStock}
+                className={`flex-1 h-14 flex items-center justify-center gap-2 rounded-2xl text-[11px] xs:text-xs font-black transition-all shadow-lg active:scale-95 uppercase tracking-wide px-2 ${
+                  outOfStock
+                    ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-400 cursor-not-allowed"
+                    : added
+                    ? "bg-green-500 text-white shadow-green-500/20"
+                    : "bg-indigo-900 text-white shadow-indigo-900/20"
+                }`}
+              >
+                {added ? <Check className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
+                <span>{added ? "EKLENDİ" : outOfStock ? "STOKTA YOK" : "EKLE"}</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
