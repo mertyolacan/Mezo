@@ -87,7 +87,7 @@ export default function MobileFilterBar({
   }, []);
 
   return (
-    <div className={`lg:hidden w-full sticky top-[110px] z-20 border-b border-zinc-200/50 dark:border-zinc-800/50 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md transition-all duration-500 transform will-change-transform ${
+    <div className={`lg:hidden w-full sticky top-[90px] md:top-[64px] z-20 border-b border-zinc-200/50 dark:border-zinc-800/50 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md transition-all duration-500 transform will-change-transform ${
       scrolled ? "-translate-y-full opacity-0 pointer-events-none ease-in shadow-none" : "translate-y-0 opacity-100 shadow-[0_10px_30px_rgba(0,0,0,0.03)] ease-[cubic-bezier(0.4,0,0.2,1)]"
     }`}>
       {/* Top Action Bar */}

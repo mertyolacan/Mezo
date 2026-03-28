@@ -226,34 +226,36 @@ export default function CartPage() {
                              const price = Number(cs.price);
                              const inCart = items.some((i) => i.id === cs.id);
                              return (
-                               <div key={cs.id} className="min-w-[200px] sm:min-w-[240px] flex items-center gap-3 p-3 bg-zinc-50 border border-zinc-100 rounded-2xl hover:border-indigo-100 hover:bg-white transition-all">
-                                  <Link href={`/products/${cs.slug}`} className="relative h-12 w-12 shrink-0 rounded-xl overflow-hidden bg-white border border-zinc-100 shadow-sm flex items-center justify-center">
+                               <div key={cs.id} className="min-w-[170px] xs:min-w-[200px] sm:min-w-[240px] flex flex-col sm:flex-row items-start sm:items-center gap-2.5 sm:gap-3 p-3 bg-zinc-50 border border-zinc-100 rounded-2xl hover:border-indigo-100 hover:bg-white transition-all group shrink-0">
+                                  <Link href={`/products/${cs.slug}`} className="relative h-14 w-14 xs:h-16 xs:w-16 sm:h-12 sm:w-12 shrink-0 rounded-xl overflow-hidden bg-white border border-zinc-100 shadow-sm flex items-center justify-center group-hover:scale-95 transition-transform">
                                     {imgs[0] ? (
-                                      <Image src={imgs[0]} alt={cs.name} fill className="object-contain p-1.5" sizes="48px" />
+                                      <Image src={imgs[0]} alt={cs.name} fill className="object-contain p-1.5" sizes="64px" />
                                     ) : (
                                       <Package className="h-5 w-5 text-zinc-300" />
                                     )}
                                   </Link>
-                                  <div className="flex-1 min-w-0 pr-1">
-                                    <Link href={`/products/${cs.slug}`} className="text-xs font-bold text-zinc-900 line-clamp-1 hover:text-indigo-600 transition-colors">
+                                  <div className="flex-1 min-w-0 w-full pr-1">
+                                    <Link href={`/products/${cs.slug}`} className="text-[11px] sm:text-xs font-bold text-zinc-900 line-clamp-1 hover:text-indigo-600 transition-colors">
                                       {cs.name}
                                     </Link>
-                                    <div className="text-xs font-black text-indigo-600 mt-0.5">{formatPrice(price)}</div>
-                                  </div>
-                                  {inCart ? (
-                                    <div className="flex flex-col items-center justify-center h-8 w-8 bg-emerald-50 text-emerald-600 rounded-lg shrink-0 border border-emerald-100" title="Sepette">
-                                      <CheckCircle2 className="h-4 w-4" />
+                                    <div className="flex items-center justify-between mt-1 sm:mt-0.5">
+                                       <div className="text-xs font-black text-indigo-600 tabular-nums">{formatPrice(price)}</div>
+                                       {inCart ? (
+                                         <div className="flex items-center justify-center h-7 w-7 bg-emerald-50 text-emerald-600 rounded-lg shrink-0 border border-emerald-100" title="Sepette">
+                                           <CheckCircle2 className="h-3.5 w-3.5" />
+                                         </div>
+                                       ) : (
+                                         <button
+                                           type="button"
+                                           onClick={() => add({ id: cs.id, name: cs.name, price, image: imgs[0] ?? "", slug: cs.slug, categoryId: null })}
+                                           className="flex items-center justify-center h-7 w-7 bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg transition-colors shrink-0 shadow-sm shadow-zinc-900/20"
+                                           title="Sepete Ekle"
+                                         >
+                                           <Plus className="h-3.5 w-3.5" />
+                                         </button>
+                                       )}
                                     </div>
-                                   ) : (
-                                    <button
-                                      type="button"
-                                      onClick={() => add({ id: cs.id, name: cs.name, price, image: imgs[0] ?? "", slug: cs.slug, categoryId: null })}
-                                      className="flex items-center justify-center h-8 w-8 bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg transition-colors shrink-0 shadow-sm shadow-zinc-900/20"
-                                      title="Sepete Ekle"
-                                    >
-                                      <Plus className="h-4 w-4" />
-                                    </button>
-                                  )}
+                                  </div>
                                </div>
                              );
                           })}
@@ -378,35 +380,32 @@ export default function CartPage() {
                      </div>
                   )}
 
-                  <div className="pt-4 border-t border-zinc-100 flex justify-between items-end">
-                     <div>
-                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1.5">ÖDENECEK TUTAR</p>
-                        <p className="text-2xl font-black text-indigo-600 tracking-tight tabular-nums">{formatPrice(finalTotal)}</p>
-                     </div>
-                     {totalDiscount > 0 && (
-                        <div className="text-right flex flex-col items-end">
-                            <p className="text-[9px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-md mb-1 uppercase tracking-wider">Toplam Kazanç</p>
-                            <p className="text-sm font-black text-emerald-600 tabular-nums">{formatPrice(totalDiscount)}</p>
-                        </div>
-                     )}
-                  </div>
+                   {/* Removed Ödenecek Tutar block as requested */}
 
                </div>
             </div>
           </div>
 
           {/* Sticky Footer */}
-          <div className="p-4 sm:p-5 flex justify-between items-center bg-white rounded-t-3xl border-t border-zinc-100 relative z-10 w-full">
-             <div className="flex flex-col cursor-pointer select-none" onClick={() => setIsMobileSummaryOpen(!isMobileSummaryOpen)}>
-                <div className="flex items-center gap-1 text-zinc-500 font-bold tracking-wide uppercase text-[10px] mb-0.5">
-                    Toplam {isMobileSummaryOpen ? <ChevronDown className="h-4 w-4 text-zinc-400" /> : <ChevronUp className="h-4 w-4 text-zinc-400" />}
+          <div className="p-4 sm:p-5 flex justify-between items-center bg-white rounded-t-3xl border-t border-zinc-100 relative z-10 w-full gap-2">
+             <div className="flex flex-col cursor-pointer select-none shrink-0" onClick={() => setIsMobileSummaryOpen(!isMobileSummaryOpen)}>
+                <div className="flex items-center gap-1 text-zinc-500 font-bold tracking-wide uppercase text-[9px] mb-0.5">
+                    Toplam {isMobileSummaryOpen ? <ChevronDown className="h-3.5 w-3.5 text-zinc-400" /> : <ChevronUp className="h-3.5 w-3.5 text-zinc-400" />}
                 </div>
-                <div className="text-2xl font-black text-indigo-600 tabular-nums tracking-tight">
-                    {formatPrice(finalTotal)}
+                <div className="flex flex-col">
+                    <div className="text-xl xs:text-2xl font-black text-indigo-600 tabular-nums tracking-tight leading-none">
+                        {formatPrice(finalTotal)}
+                    </div>
+                    {totalDiscount > 0 && (
+                       <div className="flex items-center gap-1 mt-1">
+                          <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1 py-0.5 rounded uppercase leading-none">Kazanç:</span>
+                          <span className="text-[11px] font-black text-emerald-600 tabular-nums leading-none tracking-tight">{formatPrice(totalDiscount)}</span>
+                       </div>
+                    )}
                 </div>
              </div>
              
-             <Link href="/checkout" className="bg-indigo-900 hover:bg-indigo-800 active:bg-indigo-950 text-white font-bold py-3.5 px-8 rounded-full shrink-0 transition-colors shadow-lg shadow-indigo-900/20 text-sm tracking-wide uppercase">
+             <Link href="/checkout" className="flex items-center justify-center bg-indigo-900 hover:bg-indigo-800 active:bg-indigo-950 text-white font-bold py-2.5 xs:py-3 sm:py-3.5 px-4 xs:px-6 sm:px-8 rounded-full shrink transition-colors shadow-lg shadow-indigo-900/20 text-[11px] xs:text-xs sm:text-sm tracking-wide uppercase whitespace-nowrap min-w-0 flex-1 sm:flex-none">
                 SİPARİŞİ ONAYLA
              </Link>
           </div>

@@ -103,7 +103,7 @@ export default async function ProductsPage({ searchParams }: Props) {
   }
 
   return (
-    <div className="max-w-7xl mx-auto lg:px-8 lg:py-12">
+    <div className="max-w-7xl mx-auto lg:px-8 pt-4 lg:pt-8 pb-12">
       <MobileFilterBar
         categories={cats}
         brands={brnds}

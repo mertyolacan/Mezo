@@ -72,111 +72,124 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
 
   return (
     <div className="space-y-6 pb-24 md:pb-0">
-      {/* Fiyat + Kampanyalar */}
-      <div className="space-y-3">
-        <div className="flex items-baseline gap-3">
-          <span className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
+      {/* Fiyat + Kampanyalar — DESKTOP ONLY */}
+      <div className="hidden md:flex flex-col gap-4">
+        <div className="flex items-baseline gap-4">
+          <span className="text-4xl font-black text-indigo-600 tabular-nums tracking-tighter">
             {formatPrice(finalPrice)}
           </span>
           {(totalDiscount > 0 || p.comparePrice) && (
-            <span className="text-lg text-zinc-400 line-through">
-              {formatPrice(subtotal)}
-            </span>
-          )}
-          {compareDiscount && totalDiscount === 0 && (
-            <span className="text-sm font-semibold text-red-500">-%{compareDiscount}</span>
+            <div className="flex flex-col justify-center">
+              <span className="text-base text-zinc-400 line-through font-bold opacity-40 leading-none">
+                {formatPrice(subtotal)}
+              </span>
+              {totalDiscount > 0 && (
+                <div className="flex items-center gap-1.5 mt-1">
+                   <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded uppercase tracking-tighter leading-none">Toplam Kazanç:</span>
+                   <span className="text-[11px] font-black text-emerald-600 tabular-nums leading-none tracking-tight">{formatPrice(totalDiscount)}</span>
+                </div>
+              )}
+            </div>
           )}
         </div>
 
-        {/* Kampanya badge'leri — yeşil yandığında indirim tutarını içinde gösterir */}
-        {qualifiable.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {qualifiable.map((c) => {
-              const discount = appliedMap[c.id];
-              const isLit = c.qualified && discount != null && discount > 0;
-              return (
-                <div
-                  key={c.id}
-                  title={c.progress ? `${c.progress.current} / ${c.progress.required}` : undefined}
-                  className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-full border transition-all duration-500 cursor-default select-none ${
-                    isLit
-                      ? "bg-green-500 border-green-500 text-white shadow-sm shadow-green-200 dark:shadow-green-900"
-                      : "bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-400"
-                  }`}
-                >
-                  <span className={`h-1.5 w-1.5 rounded-full shrink-0 transition-colors duration-500 ${isLit ? "bg-white" : "bg-zinc-300 dark:bg-zinc-600"}`} />
-                  <span>{c.badge}</span>
-                  {isLit ? (
-                    <span className="font-bold opacity-90">· -{formatPrice(discount)}</span>
-                  ) : c.progress && !isLit ? (
-                    <span className="opacity-60">{c.progress.current}/{c.progress.required}</span>
-                  ) : null}
-                </div>
-              );
-            })}
-          </div>
+        {/* Kampanya badge'leri */}
+        {(() => {
+          if (qualifiable.length === 0) return null;
+          return (
+            <div className="flex flex-wrap gap-2 pt-2">
+              {qualifiable.map((c) => {
+                const discount = appliedMap[c.id];
+                const isLit = c.qualified && discount != null && discount > 0;
+                return (
+                  <div
+                    key={c.id}
+                    className={`flex items-center gap-2 text-[10px] sm:text-[11px] font-bold px-3 py-1.5 rounded-lg border transition-all duration-300 uppercase leading-none ${
+                      isLit
+                        ? "bg-emerald-50 border-emerald-100 text-emerald-700 shadow-sm"
+                        : "bg-white border-zinc-200 text-zinc-700"
+                    }`}
+                  >
+                    <span className="shrink-0">{c.badge}</span>
+                    {isLit && discount != null && discount > 0 ? (
+                      <span className="font-black text-emerald-600 tabular-nums">· -{formatPrice(discount)}</span>
+                    ) : c.progress && (
+                      <span className="text-zinc-500 font-medium ml-1">({c.progress.current}/{c.progress.required})</span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
+      </div>
+
+      <div className="h-px bg-zinc-100 dark:bg-zinc-800 w-full" />
+
+      {/* Kısa açıklama & Stok durumu */}
+      <div className="space-y-4">
+        {p.shortDescription && (
+          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 leading-relaxed italic border-l-2 border-zinc-200 dark:border-zinc-700 pl-4">
+            {p.shortDescription}
+          </p>
         )}
+
+        <div className="flex items-center gap-2">
+          <span className={`inline-flex items-center text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${
+            outOfStock
+              ? "bg-red-50 text-red-600 border border-red-100"
+              : p.stock <= (p.lowStockThreshold ?? 5)
+              ? "bg-amber-50 text-amber-600 border border-amber-100"
+              : "bg-emerald-50 text-emerald-600 border border-emerald-100"
+          }`}>
+            <span className={`h-1.5 w-1.5 rounded-full mr-2 ${outOfStock ? "bg-red-500" : p.stock <= (p.lowStockThreshold ?? 5) ? "bg-amber-500" : "bg-emerald-500"}`} />
+            {outOfStock
+              ? "Stokta yok"
+              : p.stock <= (p.lowStockThreshold ?? 5)
+              ? `Son ${p.stock} ürün`
+              : "Stokta var"}
+          </span>
+        </div>
       </div>
 
-      {/* Kısa açıklama */}
-      {p.shortDescription && (
-        <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-          {p.shortDescription}
-        </p>
-      )}
-
-      {/* Stok durumu */}
-      <div className="flex items-center gap-2">
-        <span className={`inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full ${
-          outOfStock
-            ? "bg-red-100 text-red-600 dark:bg-red-950 dark:text-red-400"
-            : p.stock <= (p.lowStockThreshold ?? 5)
-            ? "bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400"
-            : "bg-green-100 text-green-600 dark:bg-green-950 dark:text-green-400"
-        }`}>
-          {outOfStock
-            ? "Stokta yok"
-            : p.stock <= (p.lowStockThreshold ?? 5)
-            ? `Son ${p.stock} ürün`
-            : "Stokta var"}
-        </span>
-      </div>
-
-      {/* Adet seçici + Sepete ekle */}
+      {/* Adet seçici + Sepete ekle — DESKTOP ONLY */}
       {!outOfStock && (
-        <div className="flex items-center gap-3">
-          <div className="flex items-center border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden bg-white dark:bg-zinc-900 shadow-sm">
-            <button
-              type="button"
-              onClick={() => setQty((q) => Math.max(1, q - 1))}
-              disabled={qty <= 1}
-              className="h-12 w-12 flex items-center justify-center text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-30 transition-colors"
-            >
-              <Minus className="h-4 w-4" />
-            </button>
-            <span className="w-10 text-center text-sm font-bold text-zinc-900 dark:text-zinc-50">
-              {qty}
-            </span>
-            <button
-              type="button"
-              onClick={() => setQty((q) => q + 1)}
-              disabled={qty >= p.stock}
-              className="h-12 w-12 flex items-center justify-center text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-            >
-              <Plus className="h-4 w-4" />
-            </button>
-          </div>
+        <div className="hidden md:flex flex-col gap-6 bg-zinc-50 dark:bg-zinc-900/50 p-6 rounded-[2rem] border border-zinc-100 dark:border-zinc-800">
+           <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Sipariş Adeti</span>
+              <div className="flex items-center border border-zinc-200 dark:border-zinc-700 rounded-2xl overflow-hidden bg-white dark:bg-zinc-900 shadow-sm h-12">
+                <button
+                  type="button"
+                  onClick={() => setQty((q) => Math.max(1, q - 1))}
+                  disabled={qty <= 1}
+                  className="w-14 flex items-center justify-center text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-30 transition-colors"
+                >
+                  <Minus className="h-4 w-4" />
+                </button>
+                <span className="w-10 text-center text-sm font-black text-zinc-900 dark:text-zinc-50 tabular-nums">
+                  {qty}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setQty((q) => q + 1)}
+                  disabled={qty >= p.stock}
+                  className="w-14 flex items-center justify-center text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+           </div>
 
           <button
             onClick={handleAdd}
-            className={`flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl text-sm font-bold transition-all shadow-lg shadow-indigo-600/20 active:scale-95 ${
+            className={`w-full h-16 flex items-center justify-center gap-3 rounded-2xl text-base font-black transition-all shadow-xl active:scale-95 uppercase tracking-widest ${
               added
                 ? "bg-green-500 text-white shadow-green-500/20"
-                : "bg-indigo-600 hover:bg-indigo-700 text-white"
+                : "bg-indigo-900 hover:bg-indigo-800 text-white shadow-indigo-900/20"
             }`}
           >
-            {added ? <Check className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
-            {added ? `${qty} ürün eklendi` : "Sepete Ekle"}
+            {added ? <Check className="h-5 w-5" /> : <ShoppingCart className="h-5 w-5" />}
+            {added ? "SEPETE EKLENDİ" : "SEPETE EKLE"}
           </button>
         </div>
       )}
@@ -184,7 +197,7 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
       {outOfStock && (
         <button
           disabled
-          className="w-full h-14 flex items-center justify-center gap-2 rounded-xl text-sm font-bold bg-zinc-100 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed"
+          className="hidden md:flex w-full h-16 items-center justify-center gap-2 rounded-2xl text-base font-black bg-zinc-100 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed uppercase tracking-widest"
         >
           <ShoppingCart className="h-4 w-4" />
           Stokta yok
@@ -217,153 +230,132 @@ export default function ProductDetailClient({ product: p, campaigns }: Props) {
         </div>
       )}
 
-      {/* STICKY BOTTOM BAR FOR MOBILE */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] flex flex-col animate-in slide-in-from-bottom duration-500">
+      {/* STICKY BOTTOM BAR FOR MOBILE — CART THEME */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] flex flex-col pointer-events-none">
         {/* Campaign Breakdown (Expanded State) */}
         {showCampaignDetails && applied.length > 1 && (
-          <div className="bg-emerald-700 text-white text-[11px] px-6 py-3 border-b border-white/10 space-y-2 animate-in slide-in-from-bottom duration-300">
+          <div className="bg-emerald-600 text-white text-[11px] px-8 py-5 rounded-t-[2.5rem] shadow-[0_-15px_40px_rgba(0,0,0,0.1)] border-b border-white/10 space-y-3 animate-in slide-in-from-bottom duration-500 pointer-events-auto">
+             <div className="flex items-center justify-between mb-2">
+                <h4 className="font-black uppercase tracking-widest text-[10px]">İndirim Detayı</h4>
+                <button onClick={() => setShowCampaignDetails(false)}><X className="h-4 w-4" /></button>
+             </div>
             {applied.map((c) => (
-              <div key={c.id} className="flex justify-between items-center opacity-90">
-                <span>{c.badge}</span>
-                <span className="font-bold">{formatPrice(c.discount)}</span>
+              <div key={c.id} className="flex justify-between items-center bg-white/10 px-3 py-2 rounded-xl backdrop-blur-md">
+                <span className="font-bold uppercase tracking-tight text-[10px]">{c.badge}</span>
+                <span className="font-black tabular-nums">{formatPrice(c.discount)}</span>
               </div>
             ))}
           </div>
         )}
 
-        {/* Campaign Banner */}
-        {(applied.length > 0 || qualifiable.some(c => c.qualified)) && (
+        {/* Action Bar */}
+        <div className="bg-white dark:bg-zinc-950 rounded-t-[2.5rem] border-t border-zinc-100 dark:border-zinc-800 px-5 pt-4 pb-6 xs:pb-8 flex items-center justify-between gap-4 shadow-[0_-15px_50px_rgba(0,0,0,0.12)] pointer-events-auto">
           <div 
-            onClick={() => applied.length > 1 && setShowCampaignDetails(!showCampaignDetails)}
-            className="bg-emerald-600 text-white text-[10px] font-bold py-1.5 px-6 flex items-center justify-between shadow-sm cursor-pointer active:bg-emerald-700"
+             className="flex flex-col cursor-pointer select-none min-w-0" 
+             onClick={() => applied.length > 1 ? setShowCampaignDetails(!showCampaignDetails) : null}
           >
-            <span className="flex items-center gap-1.5">
-              <span className="flex h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-              {applied.length > 1 
-                ? "Toplam Kazancınız" 
-                : applied.length === 1 
-                ? applied[0].badge 
-                : qualifiable.find(c => c.qualified)?.badge}
-              {applied.length > 1 && (
-                <Plus className={`w-3 h-3 transition-transform duration-300 ${showCampaignDetails ? "rotate-45" : ""}`} />
-              )}
-            </span>
-            {totalDiscount > 0 && (
-              <span className="text-[9px] bg-white/20 px-1.5 py-0.5 rounded backdrop-blur-sm flex items-center gap-1">
-                {formatPrice(totalDiscount)} {applied.length === 1 ? "kazanç" : ""}
-              </span>
-            )}
-          </div>
-        )}
-
-        <div className="bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 px-4 py-4 flex items-center justify-between gap-3 shadow-[0_-8px_30px_rgb(0,0,0,0.06)]">
-          <div className="flex flex-col min-w-[80px]">
-            {(totalDiscount > 0 || p.comparePrice) && (
-              <span className="text-[10px] text-zinc-400 line-through font-medium leading-none mb-1">
-                {formatPrice(subtotal)}
-              </span>
-            )}
-            <span className="text-xl font-bold text-zinc-900 dark:text-zinc-50 leading-none">
-              {formatPrice(finalPrice)}
-            </span>
+             <div className="flex items-center gap-1 text-zinc-500 font-bold tracking-wide uppercase text-[9px] mb-1">
+                 Fiyat {applied.length > 1 && (showCampaignDetails ? <Minus className="h-3 w-3" /> : <Plus className="h-3 w-3" />)}
+             </div>
+             <div className="flex flex-col">
+                 <div className="text-xl xs:text-2xl font-black text-indigo-600 tabular-nums tracking-tight leading-none">
+                     {formatPrice(finalPrice)}
+                 </div>
+                 {totalDiscount > 0 && (
+                    <div className="flex items-center gap-1.5 mt-1.5 overflow-hidden">
+                       <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1 py-0.5 rounded uppercase leading-none shrink-0">Kazanç:</span>
+                       <span className="text-[11px] font-black text-emerald-600 tabular-nums leading-none tracking-tight truncate">{formatPrice(totalDiscount)}</span>
+                    </div>
+                 )}
+             </div>
           </div>
 
-          {!outOfStock && (
-            <div className="flex items-center border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden bg-white dark:bg-zinc-900 h-12 shadow-sm">
-              <button
-                type="button"
-                onClick={() => setQty((q) => Math.max(1, q - 1))}
-                disabled={qty <= 1}
-                className="h-full px-3 flex items-center justify-center text-zinc-500 active:bg-zinc-50 dark:active:bg-zinc-800 disabled:opacity-30 transition-colors"
-                aria-label="Azalt"
-              >
-                <Minus className="h-4 w-4" />
-              </button>
-              <span className="w-6 text-center text-sm font-bold text-zinc-900 dark:text-zinc-50">
-                {qty}
-              </span>
-              <button
-                type="button"
-                onClick={() => setQty((q) => q + 1)}
-                disabled={qty >= p.stock}
-                className="h-full px-3 flex items-center justify-center text-zinc-500 active:bg-zinc-50 dark:active:bg-zinc-800 transition-colors"
-                aria-label="Artır"
-              >
-                <Plus className="h-4 w-4" />
-              </button>
-            </div>
-          )}
-
-          <button
-            onClick={handleAdd}
-            disabled={outOfStock}
-            className={`flex-1 h-12 flex items-center justify-center gap-2 rounded-xl text-sm font-bold transition-all shadow-md active:scale-95 ${
-              outOfStock
-                ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-400 cursor-not-allowed"
-                : added
-                ? "bg-green-500 text-white"
-                : "bg-indigo-600 text-white"
-            }`}
-          >
-            {added ? (
-              <>
-                <Check className="h-5 w-5" />
-                <span>Eklendi</span>
-              </>
-            ) : outOfStock ? (
-              "Stokta Yok"
-            ) : (
-              <>
-                <ShoppingCart className="h-4 w-4" />
-                <span>Sepete Ekle</span>
-              </>
+          <div className="flex flex-1 items-center gap-2">
+            {!outOfStock && (
+              <div className="flex items-center border border-zinc-200 dark:border-zinc-700 rounded-2xl overflow-hidden bg-zinc-50 dark:bg-zinc-900 h-12 shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => setQty((q) => Math.max(1, q - 1))}
+                  disabled={qty <= 1}
+                  className="h-full px-5 flex items-center justify-center text-zinc-500 active:bg-zinc-100 disabled:opacity-30 transition-colors"
+                >
+                  <Minus className="h-3.5 w-3.5" />
+                </button>
+                <span className="min-w-[1.5rem] text-center text-xs font-black text-zinc-900 dark:text-zinc-50 tabular-nums">
+                  {qty}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setQty((q) => q + 1)}
+                  disabled={qty >= p.stock}
+                  className="h-full px-5 flex items-center justify-center text-zinc-500 active:bg-zinc-100 transition-colors"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </div>
             )}
-          </button>
+
+            <button
+              onClick={handleAdd}
+              disabled={outOfStock}
+              className={`flex-1 h-12 flex items-center justify-center gap-2 rounded-2xl text-[11px] xs:text-xs font-black transition-all shadow-lg active:scale-95 uppercase tracking-wide px-2 ${
+                outOfStock
+                  ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-400 cursor-not-allowed"
+                  : added
+                  ? "bg-green-500 text-white shadow-green-500/20"
+                  : "bg-indigo-900 text-white shadow-indigo-900/20"
+              }`}
+            >
+              {added ? <Check className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
+              <span>{added ? "EKLENDİ" : outOfStock ? "STOKTA YOK" : "EKLE"}</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* BOYNAR STYLE SUCCESS MODAL */}
+      {/* SUCCESS MODAL — THEME STANDARDIZED */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div 
-            className="absolute inset-0 bg-zinc-950/40 backdrop-blur-[2px] animate-in fade-in duration-300"
+            className="absolute inset-0 bg-zinc-950/40 backdrop-blur-sm animate-in fade-in duration-300"
             onClick={() => setIsModalOpen(false)}
           />
-          <div className="relative w-full sm:max-w-[420px] bg-white dark:bg-zinc-950 rounded-t-[32px] sm:rounded-3xl shadow-[0_-8px_40px_rgba(0,0,0,0.12)] overflow-hidden animate-in slide-in-from-bottom duration-500 sm:zoom-in-95">
-            <div className="flex items-center justify-between px-8 pt-8 pb-4">
-              <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 tracking-tight">Ürün Sepete Eklendi</h3>
+          <div className="relative w-full sm:max-w-[420px] bg-white dark:bg-zinc-950 rounded-t-[2.5rem] sm:rounded-3xl shadow-[0_-10px_50px_rgba(0,0,0,0.25)] overflow-hidden animate-in slide-in-from-bottom duration-500 sm:zoom-in-95">
+            <div className="flex items-center justify-between px-6 xs:px-8 pt-8 pb-4">
+              <h3 className="text-xl font-black text-zinc-900 dark:text-zinc-50 tracking-tight flex items-center gap-2">
+                 <Check className="h-6 w-6 text-emerald-500" /> Sepete Eklendi
+              </h3>
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="p-2 -mr-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors group"
+                className="p-2 -mr-2 bg-zinc-50 dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors group"
                 aria-label="Kapat"
               >
-                <X className="h-6 w-6 text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100" />
+                <X className="h-5 w-5 text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100" />
               </button>
             </div>
-
-            <div className="px-8 pb-8">
-              <div className="h-px bg-zinc-100 dark:bg-zinc-800 w-full mb-8" />
+            <div className="px-6 xs:px-8 pb-8">
+              <div className="h-px bg-zinc-100 dark:bg-zinc-800 w-full mb-6" />
               
-              <div className="flex gap-4 mb-10">
-                <div className="relative h-24 w-24 rounded-2xl overflow-hidden bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shrink-0">
-                  <Image src={p.image} alt={p.name} fill className="object-contain p-3" />
+              <div className="flex gap-4 mb-8 bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-3xl border border-zinc-100 dark:border-zinc-800">
+                <div className="relative h-20 w-20 rounded-2xl overflow-hidden bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shrink-0 shadow-sm flex items-center justify-center">
+                  <Image src={p.image} alt={p.name} fill className="object-contain p-2" />
                 </div>
-                <div className="flex flex-col justify-center space-y-1">
-                  <p className="text-base font-bold text-zinc-900 dark:text-zinc-50 line-clamp-2 leading-snug">{p.name}</p>
-                  <p className="text-sm font-medium text-zinc-500">{qty} Adet · {formatPrice(finalPrice)}</p>
+                <div className="flex flex-col justify-center min-w-0">
+                  <p className="text-sm font-black text-zinc-900 dark:text-zinc-50 line-clamp-1 leading-none">{p.name}</p>
+                  <p className="text-xs font-bold text-zinc-500 mt-2">{qty} ADET · {formatPrice(finalPrice)}</p>
                 </div>
               </div>
 
               <div className="flex flex-col gap-3">
                 <Link 
                   href="/cart"
-                  className="w-full h-14 bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center rounded-2xl text-[15px] font-bold transition-all active:scale-[0.98] shadow-lg shadow-indigo-600/20"
+                  className="w-full h-14 bg-indigo-900 hover:bg-indigo-800 text-white flex items-center justify-center rounded-2xl text-sm font-black transition-all active:scale-[0.98] shadow-xl shadow-indigo-900/20 uppercase tracking-widest"
                 >
                   SEPETE GİT
                 </Link>
                 <button 
                   onClick={() => setIsModalOpen(false)}
-                  className="w-full h-14 bg-white dark:bg-zinc-900 border-2 border-zinc-100 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 flex items-center justify-center rounded-2xl text-[15px] font-bold hover:border-zinc-300 dark:hover:border-zinc-600 transition-all active:scale-[0.98]"
+                  className="w-full h-14 bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 flex items-center justify-center rounded-2xl text-sm font-black hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all active:scale-[0.98] uppercase tracking-widest"
                 >
                   ALIŞVERİŞE DEVAM ET
                 </button>

@@ -29,14 +29,14 @@ export default function Providers({
   const isAuthRoute = pathname === "/login" || pathname === "/register" || pathname === "/forgot-password";
 
   const showNavbar = !isAdminRoute;
-  const showFooter = !isAdminRoute && !isAuthRoute && pathname !== "/cart";
-  const showContactBubble = !isAdminRoute && !isAuthRoute && pathname !== "/cart";
+  const showFooter = !isAdminRoute && !isAuthRoute && pathname !== "/cart" && pathname !== "/checkout";
+  const showContactBubble = !isAdminRoute && !isAuthRoute && pathname !== "/cart" && pathname !== "/checkout";
 
   return (
     <CartProvider>
       <NavigationProgress />
       {showNavbar && <Navbar isLoggedIn={isLoggedIn} isAdmin={userIsAdmin} />}
-      <div className={isAdminRoute ? undefined : (pathname === "/products" ? "pt-[110px]" : "pt-[115px]")}>
+      <div className={isAdminRoute ? undefined : "pt-[90px] md:pt-[64px]"}>
         {children}
         {showFooter && <Footer />}
       </div>

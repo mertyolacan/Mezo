@@ -44,7 +44,8 @@ export default async function Home() {
   return (
     <main>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-indigo-50 to-white dark:from-zinc-900 dark:to-zinc-950 py-20 px-4">
+      {/* Hero */}
+      <section className="bg-gradient-to-br from-indigo-50 to-white dark:from-zinc-900 dark:to-zinc-950 pt-12 pb-20 px-4">
         <div className="max-w-5xl mx-auto text-center">
           <h1 className="text-4xl sm:text-5xl font-bold text-zinc-900 dark:text-zinc-50 mb-4 leading-tight">
             Profesyonel<br />

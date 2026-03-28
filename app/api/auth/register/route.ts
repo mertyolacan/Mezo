@@ -26,7 +26,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { name, email, password, phone, address } = parsed.data;
+    const { name, email, password, address } = parsed.data;
+    const phone = parsed.data.phone.replace(/\D/g, ""); // Telefonu sadece rakamlara temizle (05321234567 formatı)
 
     const existing = await db
       .select({ id: users.id })

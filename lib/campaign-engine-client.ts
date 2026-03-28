@@ -40,6 +40,8 @@ export type ClientQualifiable = {
   badge: string;
   qualified: boolean;
   progress?: { current: number; required: number };
+  productId?: number | null;
+  categoryId?: number | null;
 };
 
 export type ClientCampaignResult = {
@@ -124,11 +126,17 @@ function evaluate(
 
     case "volume": {
       const minQty = Number(c.minQuantity ?? 2);
-      const totalQty = cartItems.reduce((s, i) => s + i.quantity, 0);
+      const scopedItems = c.productId
+        ? cartItems.filter((i) => i.id === c.productId)
+        : c.categoryId
+        ? cartItems.filter((i) => i.categoryId === c.categoryId)
+        : cartItems;
+      const totalQty = scopedItems.reduce((s, i) => s + i.quantity, 0);
       const qualified = totalQty >= minQty;
+      const base = scopedItems.reduce((s, i) => s + i.price * i.quantity, 0);
       return {
         qualified,
-        discount: qualified ? calcDiscount(subtotal, dt, dv) : 0,
+        discount: qualified ? calcDiscount(base, dt, dv) : 0,
         progress: { current: totalQty, required: minQty },
       };
     }
@@ -150,7 +158,16 @@ export function evaluateCampaignsClient(
 
   for (const c of campaigns) {
     const { qualified, discount, progress } = evaluate(c, cartItems, subtotal, couponCode);
-    qualifiable.push({ id: c.id, name: c.name, type: c.type, badge: c.badge, qualified, progress });
+    qualifiable.push({
+      id: c.id,
+      name: c.name,
+      type: c.type,
+      badge: c.badge,
+      qualified,
+      progress,
+      productId: c.productId,
+      categoryId: c.categoryId,
+    });
 
     if (!qualified || discount <= 0) continue;
 

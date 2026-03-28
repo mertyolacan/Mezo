@@ -7,10 +7,34 @@ export default function ProfileSettingsPage() {
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
-  const [form, setForm] = useState({ name: "", phone: "", currentPassword: "", newPassword: "" });
+  const [form, setForm] = useState({ name: "", phone: "0 (5", currentPassword: "", newPassword: "" });
 
   function set(key: string, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
+    let input = e.target.value.replace(/\D/g, "");
+    
+    if (input.length < 2) {
+      input = "05";
+    } else if (!input.startsWith("05")) {
+      if (input.startsWith("5")) {
+        input = "0" + input;
+      } else {
+        input = "05";
+      }
+    }
+    
+    if (input.length > 11) input = input.slice(0, 11);
+
+    let formatted = input;
+    if (input.length > 1) formatted = input.slice(0, 1) + " (" + input.slice(1, 4);
+    if (input.length > 4) formatted = formatted + ") " + input.slice(4, 7);
+    if (input.length > 7) formatted = formatted + " " + input.slice(7, 9);
+    if (input.length > 9) formatted = formatted + " " + input.slice(9, 11);
+    
+    setForm((p) => ({ ...p, phone: formatted }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -57,7 +81,12 @@ export default function ProfileSettingsPage() {
           </div>
           <div>
             <label className={labelClass}>Telefon</label>
-            <input className={inputClass} value={form.phone} onChange={(e) => set("phone", e.target.value)} placeholder="05xx xxx xx xx" />
+            <input 
+              className={inputClass} 
+              value={form.phone} 
+              onChange={handlePhoneChange} 
+              placeholder="05xx xxx xx xx" 
+            />
           </div>
         </div>
 

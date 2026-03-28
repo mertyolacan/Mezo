@@ -48,7 +48,7 @@ export default async function FaqPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-4 lg:pt-8 pb-16">
         <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">Sıkça Sorulan Sorular</h1>
         <p className="text-zinc-500 mb-12">Aklınızdaki sorular için buradayız.</p>
 

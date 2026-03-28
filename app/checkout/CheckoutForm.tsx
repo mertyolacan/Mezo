@@ -9,16 +9,14 @@ import { formatPrice } from "@/lib/utils";
 import {
   ShoppingBag, Loader2, Tag, CheckCircle2, Minus, Plus, Trash2,
   User, MapPin, FileText, Banknote, ChevronRight, Package, CreditCard, Sparkles,
-  X, ChevronUp, ChevronDown
+  X, ChevronUp, ChevronDown, Phone
 } from "lucide-react";
 import { evaluateCampaignsClient } from "@/lib/campaign-engine-client";
 import type { ClientCampaign } from "@/lib/campaign-engine-client";
+import AddressModal from "@/components/shared/AddressModal";
+import type { Address as SavedAddress } from "@/components/shared/AddressModal";
 
-type SavedAddress = {
-  id: number; title: string; fullName: string; phone: string | null;
-  street: string; district: string | null; city: string;
-  postalCode: string | null; isDefault: boolean;
-};
+// SavedAddress type is now imported from AddressModal
 
 type InitialUser = { name: string; email: string; phone: string } | null;
 
@@ -28,6 +26,15 @@ interface Props {
   initialCampaigns: ClientCampaign[];
   codEnabled?: boolean;
   cardEnabled?: boolean;
+}
+
+function parseAddress(fullStreet: string) {
+  // Daha esnek regex: "Sultan Selim Mah.", "Sultan Selim Mah", "Sultan Selim Mahallesi" vb. durumları kapsar
+  const match = fullStreet.match(/^(.*?)\s+Mah\.?\s*,?\s*(.*)$/i) || 
+                fullStreet.match(/^(.*?)\s+Mahallesi\s*,?\s*(.*)$/i);
+  
+  if (match) return { neighbourhood: match[1], street: match[2] };
+  return { neighbourhood: "", street: fullStreet };
 }
 
 export default function CheckoutForm({ initialUser, initialAddresses, initialCampaigns, codEnabled = true, cardEnabled = true }: Props) {
@@ -41,21 +48,27 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
   const [activeCampaigns, setActiveCampaigns] = useState<ClientCampaign[]>(initialCampaigns);
   const [couponError, setCouponError] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "card">(codEnabled ? "cod" : "card");
-  const [savedAddresses] = useState<SavedAddress[]>(initialAddresses);
+  const [localAddresses, setLocalAddresses] = useState<SavedAddress[]>(initialAddresses);
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [crossSells, setCrossSells] = useState<{ id: number; name: string; slug: string; price: unknown; comparePrice: unknown; images: unknown }[]>([]);
   const [isMobileSummaryOpen, setIsMobileSummaryOpen] = useState(false);
 
-  // Form — server-side verilerle önceden doldurulmuş, useEffect yok
-  const defaultAddr = initialAddresses.find((a) => a.isDefault) ?? initialAddresses[0];
-  const [form, setForm] = useState({
-    customerName: initialUser?.name ?? "",
-    customerEmail: initialUser?.email ?? "",
-    customerPhone: initialUser?.phone ?? "",
-    street: defaultAddr?.street ?? "",
-    district: defaultAddr?.district ?? "",
-    city: defaultAddr?.city ?? "",
-    postalCode: defaultAddr?.postalCode ?? "",
-    notes: "",
+  // Form — server-side verilerle önceden doldurulmuş
+  const [form, setForm] = useState(() => {
+    const defaultAddr = initialAddresses.find((a) => a.isDefault) ?? initialAddresses[0];
+    const parsed = defaultAddr ? parseAddress(defaultAddr.street) : { neighbourhood: "", street: "" };
+    
+    return {
+      customerName: initialUser?.name ?? "",
+      customerEmail: initialUser?.email ?? "",
+      customerPhone: initialUser?.phone ? initialUser.phone : "0 (5",
+      street: defaultAddr ? parsed.street : "",
+      district: defaultAddr?.district ?? "",
+      city: defaultAddr?.city ?? "",
+      neighbourhood: defaultAddr ? parsed.neighbourhood : "",
+      postalCode: defaultAddr?.postalCode ?? "",
+      notes: "",
+    };
   });
 
   function addCrossSellToCart(cs: { id: number; name: string; price: unknown; images: unknown; slug: string }) {
@@ -103,23 +116,53 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
   );
 
   function applyAddress(a: SavedAddress) {
+    const parsed = parseAddress(a.street);
     setForm((f) => ({
       ...f,
       customerName: a.fullName,
       customerPhone: a.phone ?? f.customerPhone,
-      street: a.street,
+      street: parsed.street,
       district: a.district ?? "",
       city: a.city,
+      neighbourhood: parsed.neighbourhood,
       postalCode: a.postalCode ?? "",
     }));
+  }
+
+  function handleUpdateAddresses(newAddresses: SavedAddress[]) {
+    setLocalAddresses(newAddresses);
   }
 
   function set(key: string, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
+  function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
+    let input = e.target.value.replace(/\D/g, "");
+    
+    if (input.length < 2) {
+      input = "05";
+    } else if (!input.startsWith("05")) {
+      if (input.startsWith("5")) {
+        input = "0" + input;
+      } else {
+        input = "05";
+      }
+    }
+    
+    if (input.length > 11) input = input.slice(0, 11);
+
+    let formatted = input;
+    if (input.length > 1) formatted = input.slice(0, 1) + " (" + input.slice(1, 4);
+    if (input.length > 4) formatted = formatted + ") " + input.slice(4, 7);
+    if (input.length > 7) formatted = formatted + " " + input.slice(7, 9);
+    if (input.length > 9) formatted = formatted + " " + input.slice(9, 11);
+    
+    setForm((p) => ({ ...p, customerPhone: formatted }));
+  }
+
   async function applyCoupon() {
-    const code = couponInput.toUpperCase();
+    const code = couponInput.toLocaleUpperCase("tr-TR");
     setCouponError("");
     const res = await fetch("/api/campaigns/validate-coupon", {
       method: "POST",
@@ -143,9 +186,20 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
     setLoading(true);
     setError("");
 
+    let neighbourhood = form.neighbourhood;
+    if (neighbourhood && !neighbourhood.toLowerCase().includes("mah")) {
+      neighbourhood = `${neighbourhood} Mah.`;
+    }
+    const streetFull = neighbourhood 
+      ? `${neighbourhood}, ${form.street}`.replace(/, $/, "").trim()
+      : form.street;
+
     const shippingAddress = {
-      street: form.street, district: form.district,
-      city: form.city, postalCode: form.postalCode, country: "Türkiye",
+      street: streetFull,
+      district: form.district,
+      city: form.city,
+      postalCode: form.postalCode,
+      country: "Türkiye",
     };
 
     if (paymentMethod === "cod") {
@@ -232,90 +286,76 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
             </div>
           )}
 
-          {/* Kişisel Bilgiler */}
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-            <div className="flex items-center gap-3 px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
-              <span className="flex items-center justify-center w-7 h-7 rounded-full bg-indigo-600 text-white text-xs font-bold shrink-0">1</span>
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4 text-zinc-400" />
-                <h2 className="font-semibold text-zinc-900 dark:text-zinc-50 text-sm">Kişisel Bilgiler</h2>
+
+          {/* Teslimat Adresi */}
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
+              <div className="flex items-center gap-3">
+                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-indigo-600 text-white text-xs font-bold shrink-0">1</span>
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-zinc-400" />
+                  <h2 className="font-semibold text-zinc-900 dark:text-zinc-50 text-sm">Teslimat Adresi</h2>
+                </div>
               </div>
+              <button 
+                type="button"
+                onClick={() => setIsAddressModalOpen(true)}
+                className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 underline underline-offset-4"
+              >
+                {form.street ? "Değiştir / Düzenle" : "Adres Ekle"}
+              </button>
             </div>
-            <div className="p-6 space-y-4">
-              <div>
-                <label className={labelClass}>Ad Soyad</label>
-                <input className={inputClass} required placeholder="Adınız Soyadınız" value={form.customerName} onChange={(e) => set("customerName", e.target.value)} />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className={labelClass}>E-posta</label>
-                  <input type="email" className={inputClass} required placeholder="ornek@email.com" value={form.customerEmail} onChange={(e) => set("customerEmail", e.target.value)} />
+
+            <div className="p-6">
+              {form.street ? (
+                <div className="flex items-start gap-4 p-5 rounded-3xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
+                  <div className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-indigo-600 shrink-0">
+                    <MapPin className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">Teslim Edilecek Adres</span>
+                    </div>
+                    <p className="font-bold text-zinc-900 dark:text-zinc-50 truncate">{form.customerName}</p>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1 leading-relaxed">
+                      {form.neighbourhood ? `${form.neighbourhood} Mah., ` : ""}{form.street}<br />
+                      {form.district}, {form.city}
+                    </p>
+                    <div className="mt-3 py-1.5 px-3 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-xl inline-flex items-center gap-2">
+                       <Phone className="h-3 w-3 text-zinc-400" />
+                       <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">{form.customerPhone}</span>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className={labelClass}>Telefon</label>
-                  <input type="tel" className={inputClass} required placeholder="05xx xxx xx xx" value={form.customerPhone} onChange={(e) => set("customerPhone", e.target.value)} />
-                </div>
-              </div>
+              ) : (
+                <button 
+                  type="button"
+                  onClick={() => setIsAddressModalOpen(true)}
+                  className="w-full py-12 rounded-3xl border-2 border-dashed border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center gap-3 text-zinc-400 hover:border-indigo-500 hover:text-indigo-500 transition-all group"
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center group-hover:bg-indigo-50 dark:group-hover:bg-indigo-950/30 transition-colors">
+                    <Plus className="h-6 w-6" />
+                  </div>
+                  <span className="font-bold text-sm">Teslimat Adresi Seçin veya Ekleyin</span>
+                </button>
+              )}
             </div>
           </div>
 
-          {/* Teslimat Adresi */}
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-            <div className="flex items-center gap-3 px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
-              <span className="flex items-center justify-center w-7 h-7 rounded-full bg-indigo-600 text-white text-xs font-bold shrink-0">2</span>
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-zinc-400" />
-                <h2 className="font-semibold text-zinc-900 dark:text-zinc-50 text-sm">Teslimat Adresi</h2>
-              </div>
-            </div>
-            <div className="p-6 space-y-4">
-              {savedAddresses.length > 0 && (
-                <div className="flex flex-wrap gap-2 pb-2 border-b border-zinc-100 dark:border-zinc-800">
-                  <span className="text-xs text-zinc-400 w-full">Kayıtlı adreslerim:</span>
-                  {savedAddresses.map((a) => (
-                    <button
-                      key={a.id}
-                      type="button"
-                      onClick={() => applyAddress(a)}
-                      className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${a.isDefault ? "border-indigo-300 dark:border-indigo-700 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400" : "border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:border-zinc-400"}`}
-                    >
-                      {a.title}
-                    </button>
-                  ))}
-                </div>
-              )}
-              <div>
-                <label className={labelClass}>Açık Adres</label>
-                <textarea
-                  className={inputClass}
-                  rows={2}
-                  required
-                  placeholder="Mahalle, cadde, sokak, bina no, daire no"
-                  value={form.street}
-                  onChange={(e) => set("street", e.target.value)}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className={labelClass}>İlçe</label>
-                  <input className={inputClass} required placeholder="İlçe" value={form.district} onChange={(e) => set("district", e.target.value)} />
-                </div>
-                <div>
-                  <label className={labelClass}>Şehir</label>
-                  <input className={inputClass} required placeholder="Şehir" value={form.city} onChange={(e) => set("city", e.target.value)} />
-                </div>
-              </div>
-              <div>
-                <label className={labelClass}>Posta Kodu <span className="normal-case font-normal">(opsiyonel)</span></label>
-                <input className={inputClass} placeholder="34000" value={form.postalCode} onChange={(e) => set("postalCode", e.target.value)} />
-              </div>
-            </div>
-          </div>
+          {/* Address Management Modal */}
+          <AddressModal 
+            isOpen={isAddressModalOpen}
+            onClose={() => setIsAddressModalOpen(false)}
+            addresses={localAddresses}
+            onSelect={applyAddress}
+            onUpdateAddresses={handleUpdateAddresses}
+          />
+
 
           {/* Sipariş Notu */}
           <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
             <div className="flex items-center gap-3 px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
-              <span className="flex items-center justify-center w-7 h-7 rounded-full bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400 text-xs font-bold shrink-0">3</span>
+              <span className="flex items-center justify-center w-7 h-7 rounded-full bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400 text-xs font-bold shrink-0">2</span>
               <div className="flex items-center gap-2">
                 <FileText className="h-4 w-4 text-zinc-400" />
                 <h2 className="font-semibold text-zinc-900 dark:text-zinc-50 text-sm">Sipariş Notu <span className="text-xs font-normal text-zinc-400">(opsiyonel)</span></h2>
@@ -335,7 +375,7 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
           {/* Ödeme Yöntemi */}
           <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
             <div className="flex items-center gap-3 px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
-              <span className="flex items-center justify-center w-7 h-7 rounded-full bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400 text-xs font-bold shrink-0">4</span>
+              <span className="flex items-center justify-center w-7 h-7 rounded-full bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400 text-xs font-bold shrink-0">3</span>
               <div className="flex items-center gap-2">
                 <Banknote className="h-4 w-4 text-zinc-400" />
                 <h2 className="font-semibold text-zinc-900 dark:text-zinc-50 text-sm">Ödeme Yöntemi</h2>
@@ -586,39 +626,37 @@ export default function CheckoutForm({ initialUser, initialAddresses, initialCam
                      </div>
                   )}
 
-                  <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex justify-between items-end">
-                     <div>
-                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1.5">ÖDENECEK TUTAR</p>
-                        <p className="text-2xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight tabular-nums">{formatPrice(finalTotal)}</p>
-                     </div>
-                     {totalDiscount > 0 && (
-                        <div className="text-right flex flex-col items-end">
-                            <p className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/40 px-1.5 py-0.5 rounded-md mb-1 uppercase tracking-wider">Toplam Kazanç</p>
-                            <p className="text-sm font-black text-emerald-600 dark:text-emerald-400 tabular-nums">{formatPrice(totalDiscount)}</p>
-                        </div>
-                     )}
-                  </div>
+                   {/* Removed Ödenecek Tutar block as requested */}
 
                </div>
             </div>
           </div>
 
           {/* Sticky Footer */}
-          <div className="p-4 sm:p-5 flex justify-between items-center bg-white dark:bg-zinc-900 rounded-t-3xl border-t border-zinc-100 dark:border-zinc-800 relative z-10 w-full">
-             <div className="flex flex-col cursor-pointer select-none" onClick={() => setIsMobileSummaryOpen(!isMobileSummaryOpen)}>
-                <div className="flex items-center gap-1 text-zinc-500 dark:text-zinc-400 font-bold tracking-wide uppercase text-[10px] mb-0.5">
-                    Toplam {isMobileSummaryOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+          <div className="p-4 sm:p-5 flex justify-between items-center bg-white dark:bg-zinc-900 rounded-t-3xl border-t border-zinc-100 dark:border-zinc-800 relative z-10 w-full gap-2">
+             <div className="flex flex-col cursor-pointer select-none shrink-0" onClick={() => setIsMobileSummaryOpen(!isMobileSummaryOpen)}>
+                <div className="flex items-center gap-1 text-zinc-500 dark:text-zinc-400 font-bold tracking-wide uppercase text-[9px] mb-0.5">
+                    Toplam {isMobileSummaryOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}
                 </div>
-                <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 tabular-nums tracking-tight">
-                    {formatPrice(finalTotal)}
+                <div className="flex flex-col">
+                    <div className="text-xl xs:text-2xl font-black text-indigo-600 dark:text-indigo-400 tabular-nums tracking-tight leading-none">
+                        {formatPrice(finalTotal)}
+                    </div>
+                    {totalDiscount > 0 && (
+                       <div className="flex items-center gap-1 mt-1">
+                          <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/40 px-1 py-0.5 rounded uppercase leading-none">Kazanç:</span>
+                          <span className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 tabular-nums leading-none tracking-tight">{formatPrice(totalDiscount)}</span>
+                       </div>
+                    )}
                 </div>
              </div>
              
-             <button form="checkout-form" type="submit" disabled={loading} className="flex items-center gap-2 bg-indigo-900 hover:bg-indigo-800 active:bg-indigo-950 text-white font-bold py-3.5 px-6 rounded-full shrink-0 transition-colors shadow-lg shadow-indigo-900/20 text-sm tracking-wide uppercase">
+             <button form="checkout-form" type="submit" disabled={loading} className="flex items-center justify-center gap-2 bg-indigo-900 hover:bg-indigo-800 active:bg-indigo-950 text-white font-bold py-2.5 xs:py-3 sm:py-3.5 px-4 xs:px-6 sm:px-8 rounded-full shrink transition-colors shadow-lg shadow-indigo-900/20 text-[11px] xs:text-xs sm:text-sm tracking-wide uppercase whitespace-nowrap min-w-0 flex-1 sm:flex-none">
                 {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                 {paymentMethod === "cod" ? "ONAYLA" : "ÖDEMEYE GEÇ"}
              </button>
           </div>
+
         </div>
       </div>
 

@@ -59,8 +59,8 @@ export default async function CheckoutPage() {
       }
       initialAddresses={addresses}
       initialCampaigns={initialCampaigns}
-      codEnabled={siteSettings["payment_cod_enabled"] !== "0"}
-      cardEnabled={siteSettings["payment_card_enabled"] !== "0"}
+      codEnabled={siteSettings.paymentCodEnabled}
+      cardEnabled={siteSettings.paymentCardEnabled}
     />
   );
 }

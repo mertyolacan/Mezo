@@ -94,9 +94,11 @@ export default async function ProductDetailPage({ params }: Props) {
           or(isNull(campaigns.startDate), lte(campaigns.startDate, now)),
           or(isNull(campaigns.endDate), gte(campaigns.endDate, now)),
           or(
-            inArray(campaigns.type, ["cart_total", "bogo", "volume", "coupon"]),
-            and(eq(campaigns.type, "product"), eq(campaigns.productId, p.id)),
-            and(eq(campaigns.type, "category"), eq(campaigns.categoryId, p.categoryId!))
+            and(eq(campaigns.type, "cart_total"), isNull(campaigns.productId), isNull(campaigns.categoryId)),
+            and(eq(campaigns.type, "coupon"), isNull(campaigns.productId), isNull(campaigns.categoryId)),
+            and(inArray(campaigns.type, ["product", "bogo", "volume"]), eq(campaigns.productId, p.id)),
+            and(eq(campaigns.type, "category"), eq(campaigns.categoryId, p.categoryId!)),
+            and(inArray(campaigns.type, ["bogo", "volume"]), isNull(campaigns.productId), isNull(campaigns.categoryId))
           )
         )
       ),
@@ -153,19 +155,19 @@ export default async function ProductDetailPage({ params }: Props) {
   return (
     <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 lg:pt-6 pb-12">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Görseller */}
         <ProductImageGallery images={p.images} name={p.name} discount={discount} />
 
         {/* Bilgiler */}
         <div className="space-y-6">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              {brand && <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400">{brand.name}</span>}
-              {category && <span className="text-xs text-zinc-400">· {category.name}</span>}
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 mb-1">
+              {brand && <span className="text-[10px] uppercase tracking-widest font-bold text-indigo-600 dark:text-indigo-400">{brand.name}</span>}
+              {category && <span className="text-[10px] uppercase tracking-widest text-zinc-400">· {category.name}</span>}
             </div>
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 leading-snug">{p.name}</h1>
+            <h1 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-zinc-50 leading-tight tracking-tight">{p.name}</h1>
           </div>
 
           <ProductDetailClient

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2, Eye, EyeOff, ChevronDown, ChevronUp, Check, AlertCircle, Package } from "lucide-react";
+import TurkiyeAddressSelect from "@/components/shared/TurkiyeAddressSelect";
 
 function FloatingInput({
   id,
@@ -60,6 +61,8 @@ function FloatingInput({
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/profile";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPass, setShowPass] = useState(false);
@@ -70,10 +73,11 @@ export default function RegisterPage() {
     name: "",
     email: "",
     password: "",
-    phone: "",
+    phone: "0 (5",
     street: "",
     district: "",
     city: "",
+    neighbourhood: "",
     postalCode: "",
   });
 
@@ -89,28 +93,34 @@ export default function RegisterPage() {
 
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
     let input = e.target.value.replace(/\D/g, "");
-    if (input.startsWith("5")) input = "0" + input;
+    
+    // En az 05 olmasını ve 05 ile başlamasını sağla
+    if (input.length < 2) {
+      input = "05";
+    } else if (!input.startsWith("05")) {
+      if (input.startsWith("5")) {
+        input = "0" + input;
+      } else {
+        input = "05";
+      }
+    }
+    
+    // Maksimum 11 hane (05XX XXX XX XX)
     if (input.length > 11) input = input.slice(0, 11);
 
     let formatted = input;
-    if (input.length > 1) formatted = input.slice(0, 1) + " (" + input.slice(1);
-    if (input.length > 4) formatted = formatted.slice(0, 6) + ") " + input.slice(4);
-    if (input.length > 7) formatted = formatted.slice(0, 11) + " " + input.slice(7);
-    if (input.length > 9) formatted = formatted.slice(0, 14) + " " + input.slice(9);
+    if (input.length > 1) formatted = input.slice(0, 1) + " (" + input.slice(1, 4);
+    if (input.length > 4) {
+      formatted = formatted + ") " + input.slice(4, 7);
+    }
+    if (input.length > 7) {
+      formatted = formatted + " " + input.slice(7, 9);
+    }
+    if (input.length > 9) {
+      formatted = formatted + " " + input.slice(9, 11);
+    }
+    
     setForm((p) => ({ ...p, phone: formatted }));
-  }
-
-  function handlePhoneFocus() {
-    if (!form.phone) {
-      set("phone", "0 (5");
-    }
-  }
-
-  function handlePhoneBlur() {
-    const raw = form.phone.replace(/\D/g, "");
-    if (raw === "05" || raw === "0" || raw === "") {
-      set("phone", "");
-    }
   }
 
   const isLengthValid = form.password.length >= 6;
@@ -139,13 +149,23 @@ export default function RegisterPage() {
     const body: Record<string, unknown> = {
       name: form.name,
       email: form.email,
-      phone: form.phone,
+      phone: form.phone.replace(/\D/g, ""), // Temiz numara gönder (parantez/boşluksuz)
       password: form.password,
     };
 
-    if (form.street) {
+    if (form.street || form.city) {
+      // Mahalle adında zaten "Mah" geçiyorsa çift ekleme yapma
+      let neighbourhood = form.neighbourhood;
+      if (neighbourhood && !neighbourhood.toLowerCase().includes("mah")) {
+        neighbourhood = `${neighbourhood} Mah.`;
+      }
+      
+      const streetFull = neighbourhood 
+        ? `${neighbourhood}, ${form.street}`.replace(/, $/, "").trim()
+        : form.street;
+
       body.address = {
-        street: form.street,
+        street: streetFull,
         district: form.district,
         city: form.city,
         postalCode: form.postalCode || undefined,
@@ -166,8 +186,10 @@ export default function RegisterPage() {
       return;
     }
 
-    router.push("/profile");
     router.refresh();
+    setTimeout(() => {
+      router.push(callbackUrl);
+    }, 100);
   }
 
   return (
@@ -205,24 +227,24 @@ export default function RegisterPage() {
             <img
               src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&h=600&fit=crop"
               alt="Fashion 1"
-              className="w-full h-auto object-cover opacity-90 hover:opacity-100 transition-opacity"
+              className="w-full h-auto rounded-2xl object-cover opacity-90 hover:opacity-100 transition-opacity shadow-lg"
             />
             <img
               src="https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?w=400&h=400&fit=crop"
               alt="Fashion 2"
-              className="w-full h-auto object-cover opacity-90 hover:opacity-100 transition-opacity"
+              className="w-full h-auto rounded-2xl object-cover opacity-90 hover:opacity-100 transition-opacity shadow-lg"
             />
           </div>
           <div className="flex flex-col gap-4 pt-8">
             <img
               src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400&h=400&fit=crop"
               alt="Fashion 3"
-              className="w-full h-auto object-cover opacity-90 hover:opacity-100 transition-opacity"
+              className="w-full h-auto rounded-2xl object-cover opacity-90 hover:opacity-100 transition-opacity shadow-lg"
             />
             <img
               src="https://images.unsplash.com/photo-1550614000-4b95dd267dbb?w=400&h=600&fit=crop"
               alt="Fashion 4"
-              className="w-full h-auto object-cover opacity-90 hover:opacity-100 transition-opacity"
+              className="w-full h-auto rounded-2xl object-cover opacity-90 hover:opacity-100 transition-opacity shadow-lg"
             />
           </div>
         </div>
@@ -331,8 +353,6 @@ export default function RegisterPage() {
               required
               value={form.phone}
               onChange={handlePhoneChange}
-              onFocus={handlePhoneFocus}
-              onBlur={handlePhoneBlur}
               hasError={showPhoneError}
               autoComplete="tel"
             />
@@ -363,26 +383,23 @@ export default function RegisterPage() {
 
             {showAddress && (
               <div className="px-4 pb-4 space-y-3 border-t border-zinc-200 dark:border-zinc-700 pt-4 bg-zinc-50/50 dark:bg-zinc-900/50">
+                {/* Türkiye Kademeli Adres Seçici */}
+                <TurkiyeAddressSelect
+                  value={{ city: form.city, district: form.district, neighbourhood: form.neighbourhood }}
+                  onChange={(v) => setForm(f => ({ ...f, city: v.city, district: v.district, neighbourhood: v.neighbourhood }))}
+                  inputClassName="block w-full px-4 py-3 text-sm text-zinc-900 dark:text-zinc-50 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-zinc-600 dark:focus:border-zinc-400 appearance-none transition-all"
+                  labelClassName="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-1.5"
+                />
+
+                {/* Cadde / Sokak Detayı */}
                 <FloatingInput
                   id="street"
-                  label="Açık Adres (Mahalle, cadde, sokak...)"
+                  label="Açık Adres (Cadde, sokak, bina no...)"
                   value={form.street}
                   onChange={(e: any) => set("street", e.target.value)}
                 />
-                <div className="grid grid-cols-2 gap-3">
-                  <FloatingInput
-                    id="district"
-                    label="İlçe"
-                    value={form.district}
-                    onChange={(e: any) => set("district", e.target.value)}
-                  />
-                  <FloatingInput
-                    id="city"
-                    label="İl/Şehir"
-                    value={form.city}
-                    onChange={(e: any) => set("city", e.target.value)}
-                  />
-                </div>
+
+                {/* Posta Kodu */}
                 <FloatingInput
                   id="postalCode"
                   label="Posta Kodu (örn. 34000)"
@@ -393,58 +410,46 @@ export default function RegisterPage() {
             )}
           </div>
 
-          <div className="pt-2 space-y-4">
-            <p className="text-[11px] leading-relaxed text-zinc-600 dark:text-zinc-400">
-              Üye olmadan önce lütfen <Link href="/aydinlatma-metni" className="underline hover:text-zinc-900 dark:hover:text-zinc-200">Aydınlatma Metni</Link>'ni okuyunuz. Aydınlatma metnine her zaman sitedeki <Link href="/aydinlatma-metni" className="underline hover:text-zinc-900 dark:hover:text-zinc-200">bu linkten</Link> veya mobil uygulama üzerinden ulaşabilirsiniz.
+          <div className="pt-2 space-y-6">
+            <p className="text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-500">
+              Üye olmadan önce lütfen <Link href="/aydinlatma-metni" className="underline hover:text-zinc-800 dark:hover:text-zinc-200">Aydınlatma Metni</Link>'ni okuyunuz. Aydınlatma metnine her zaman sitemizden veya mobil uygulama üzerinden ulaşabilirsiniz.
             </p>
 
-            <div className="space-y-3">
-              <label className="flex items-start gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={agreements.membership}
-                  onChange={() => toggleAgreement("membership")}
-                  className="w-4 h-4 mt-0.5 border-zinc-300 rounded-sm text-[#2E2E36] focus:ring-[#2E2E36] cursor-pointer"
-                />
-                <span className="text-xs text-zinc-600 dark:text-zinc-400 leading-snug">
-                  <Link href="/uyelik-sozlesmesi" className="underline hover:text-zinc-900 dark:hover:text-zinc-200">Üyelik Sözleşmesi</Link>'ni okudum, onaylıyorum.
-                </span>
-              </label>
-
-              <label className="flex items-start gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={agreements.consent}
-                  onChange={() => toggleAgreement("consent")}
-                  className="w-4 h-4 mt-0.5 border-zinc-300 rounded-sm text-[#2E2E36] focus:ring-[#2E2E36] cursor-pointer"
-                />
-                <span className="text-xs text-zinc-600 dark:text-zinc-400 leading-snug">
-                  <Link href="/acik-riza-metni" className="underline hover:text-zinc-900 dark:hover:text-zinc-200">Açık Rıza Metni</Link>'ni okudum, onaylıyorum.
-                </span>
-              </label>
-
-              <label className="flex items-start gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={agreements.commercial}
-                  onChange={() => toggleAgreement("commercial")}
-                  className="w-4 h-4 mt-0.5 border-zinc-300 rounded-sm text-[#2E2E36] focus:ring-[#2E2E36] cursor-pointer"
-                />
-                <span className="text-xs text-zinc-600 dark:text-zinc-400 leading-snug">
-                  Tarafıma şirketiniz ve <Link href="/sirketlerimiz" className="underline hover:text-zinc-900 dark:hover:text-zinc-200">MesoPro Grubu Şirketleri</Link> ticari elektronik ileti gönderilmesi için <Link href="/iletisim-izni" className="underline hover:text-zinc-900 dark:hover:text-zinc-200">burada da belirtilen</Link> iznim vardır.
-                </span>
-              </label>
+            <div className="space-y-4">
+              {[
+                { id: "membership", label: <><Link href="/uyelik-sozlesmesi" className="underline hover:text-zinc-800 dark:hover:text-zinc-200">Üyelik Sözleşmesi</Link>'ni okudum, onaylıyorum.</> },
+                { id: "consent", label: <><Link href="/acik-riza-metni" className="underline hover:text-zinc-800 dark:hover:text-zinc-200">Açık Rıza Metni</Link>'ni okudum, onaylıyorum.</> },
+                { id: "commercial", label: <>Tarafıma MesoPro Grubu Şirketleri ticari elektronik ileti gönderilmesi için <Link href="/iletisim-izni" className="underline hover:text-zinc-800 dark:hover:text-zinc-200">burada da belirtilen</Link> iznim vardır.</> }
+              ].map((agreement) => (
+                <label key={agreement.id} className="flex items-start gap-3.5 cursor-pointer group">
+                  <div 
+                    onClick={() => toggleAgreement(agreement.id as keyof typeof agreements)}
+                    className={`shrink-0 w-5 h-5 mt-0.5 rounded-md border-2 flex items-center justify-center transition-all ${
+                      agreements[agreement.id as keyof typeof agreements] 
+                        ? "bg-[#2E2E36] border-[#2E2E36] dark:bg-zinc-100 dark:border-zinc-100" 
+                        : "border-zinc-200 dark:border-zinc-800 group-hover:border-zinc-400"
+                    }`}
+                  >
+                    {agreements[agreement.id as keyof typeof agreements] && (
+                      <Check className={`h-3 w-3 ${agreements[agreement.id as keyof typeof agreements] ? "text-white dark:text-zinc-900" : ""}`} />
+                    )}
+                  </div>
+                  <span className="text-xs text-zinc-500 dark:text-zinc-500 leading-relaxed font-medium">
+                    {agreement.label}
+                  </span>
+                </label>
+              ))}
             </div>
-          </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-2 bg-[#2E2E36] hover:bg-[#1f1f25] disabled:opacity-70 text-white font-bold tracking-widest text-sm py-4 uppercase transition-colors mt-4"
-          >
-            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-            ÜYE OL
-          </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 bg-[#2E2E36] hover:bg-[#1f1f25] disabled:opacity-70 text-white font-bold tracking-widest text-sm py-4 uppercase transition-all shadow-xl shadow-zinc-900/10 dark:shadow-none mt-4"
+            >
+              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+              ÜYE OL
+            </button>
+          </div>
         </form>
 
         {/* Minimalist Sipariş Takibi */}
@@ -460,8 +465,8 @@ export default function RegisterPage() {
             Sipariş Takibi
           </Link>
         </div>
-        </div>
       </div>
     </div>
+  </div>
   );
 }

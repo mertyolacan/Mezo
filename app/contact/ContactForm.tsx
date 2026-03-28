@@ -7,10 +7,34 @@ export default function ContactForm() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
-  const [form, setForm] = useState({ name: "", email: "", phone: "", subject: "", message: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "0 (5", subject: "", message: "" });
 
   function set(key: string, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
+    let input = e.target.value.replace(/\D/g, "");
+    
+    if (input.length < 2) {
+      input = "05";
+    } else if (!input.startsWith("05")) {
+      if (input.startsWith("5")) {
+        input = "0" + input;
+      } else {
+        input = "05";
+      }
+    }
+    
+    if (input.length > 11) input = input.slice(0, 11);
+
+    let formatted = input;
+    if (input.length > 1) formatted = input.slice(0, 1) + " (" + input.slice(1, 4);
+    if (input.length > 4) formatted = formatted + ") " + input.slice(4, 7);
+    if (input.length > 7) formatted = formatted + " " + input.slice(7, 9);
+    if (input.length > 9) formatted = formatted + " " + input.slice(9, 11);
+    
+    setForm((p) => ({ ...p, phone: formatted }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -33,7 +57,7 @@ export default function ContactForm() {
     }
 
     setSent(true);
-    setForm({ name: "", email: "", phone: "", subject: "", message: "" });
+    setForm({ name: "", email: "", phone: "0 (5", subject: "", message: "" });
   }
 
   const inputClass =
@@ -41,7 +65,7 @@ export default function ContactForm() {
   const labelClass = "block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1";
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-4 lg:pt-8 pb-12">
       <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">İletişim</h1>
       <p className="text-zinc-500 text-sm mb-10">Sorularınız için bize ulaşın, en kısa sürede yanıt verelim.</p>
 
@@ -132,7 +156,7 @@ export default function ContactForm() {
                   <input
                     className={inputClass}
                     value={form.phone}
-                    onChange={(e) => set("phone", e.target.value)}
+                    onChange={handlePhoneChange}
                     placeholder="05xx xxx xx xx"
                   />
                 </div>
